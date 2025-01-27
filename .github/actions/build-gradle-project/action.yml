@@ -1,0 +1,54 @@
+name: Build Gradle project
+
+inputs:
+  gradle-version:
+    type: string
+  java-version:
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Check out project sources
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get Gradle properties
+      id: get-gradle-properties
+      uses: ./.github/actions/read-gradle-properties
+      with:
+        keys: gradle_version, java_version
+
+    - name: Resolve environment variables
+      run: |
+        echo "${{ steps.get-gradle-properties.outputs.entries }}" >> $GITHUB_ENV
+        if [ -n "${{ inputs.gradle-version }}" ]; then \
+          echo "GRADLE_VERSION=${{ inputs.gradle-version }}" >> $GITHUB_ENV; \
+        fi
+        if [ -n "${{ inputs.java-version }}" ]; then \
+          echo "JAVA_VERSION=${{ inputs.java-version }}" >> $GITHUB_ENV; \
+        fi
+      shell: bash
+
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: temurin
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: ${{ env.GRADLE_VERSION }}
+        build-scan-publish: true
+        build-scan-terms-of-use-url: https://gradle.com/terms-of-service
+        build-scan-terms-of-use-agree: yes
+
+    - name: Generate wrapper
+      run: gradle wrapper
+      shell: bash
+
+    - name: Run build
+      run: ./gradlew build
+      shell: bash
