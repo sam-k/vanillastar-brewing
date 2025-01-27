@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "vsbrewing",
+  "version": "${version}",
+  "name": "Vanilla* Brewing",
+  "description": "",
+  "authors": [
+    "Sam Kim"
+  ],
+  "contact": {
+    "homepage": "https://github.com/sam-k/vanillastar-brewing",
+    "sources": "https://github.com/sam-k/vanillastar-brewing",
+    "issues": "https://github.com/sam-k/vanillastar-brewing/issues"
+  },
+  "license": "MIT",
+  "icon" : "vsbrewing-icon.png",
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.github_releases" : "https://github.com/sam-k/vanillastar-brewing/releases",
+        "modmenu.modrinth" : "https://modrinth.com/mod/vanillastar-brewing",
+        "modmenu.kofi" : "https://ko-fi.com/sam_k"
+      },
+      "update_checker": true
+    }
+  },
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.vanillastar.vsbrewing.VSBrewingDataGenerator"
+    ],
+    "main": [
+      {
+        "value": "com.vanillastar.vsbrewing.VSBrewing",
+        "adapter": "kotlin"
+      }
+    ]
+  },
+  "mixins": [
+    "vsbrewing.mixins.json"
+  ],
+  "depends": {
+    "minecraft": "${minecraft_target_versions}",
+    "fabricloader": "${fabric_loader_target_versions}",
+    "fabric-api": "*",
+    "fabric-language-kotlin": "*"
+  }
+}
