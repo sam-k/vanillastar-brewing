@@ -23,10 +23,10 @@ abstract class ModItems : ModRegistry() {
       val stack = ItemStack(item)
       stackProvider(stack)
       ItemGroupEvents.modifyEntriesEvent(metadata.itemGroup).register {
-        if (metadata.previousItem != null) {
-          it.addAfter(metadata.previousItem, listOf(stack), visibility)
-        } else {
+        if (metadata.previousItem == null) {
           it.add(stack, visibility)
+        } else {
+          it.addAfter(metadata.previousItem, listOf(stack), visibility)
         }
       }
     }
