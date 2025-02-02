@@ -32,7 +32,7 @@ public abstract class BrewingRecipeRegistryBuilderMixin {
       RegistryEntry<Potion> input, Item ingredient, RegistryEntry<Potion> output, CallbackInfo ci) {
     String recipeString = getRecipeString(input, ingredient, output);
     if (recipeString.equals(getRecipeString(Potions.WATER, Items.REDSTONE, Potions.MUNDANE))) {
-      LOGGER.info("Unregistered brewing recipe: {}", recipeString);
+      LOGGER.info("Deregistered brewing recipe: {}", recipeString);
       ci.cancel();
     }
   }
