@@ -3,7 +3,8 @@
   "package": "com.vanillastar.vsbrewing.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "potion.PotionsMixin"
+    "potion.PotionsMixin",
+    "recipe.BrewingRecipeRegistryBuilderMixin"
   ],
   "injectors": {
     "defaultRequire": 1
