@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "vsbrewing:item/potion_flask_overlay_3",
+    "layer1": "vsbrewing:item/potion_flask"
+  }
+}

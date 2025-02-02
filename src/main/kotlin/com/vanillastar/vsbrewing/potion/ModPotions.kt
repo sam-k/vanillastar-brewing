@@ -14,6 +14,7 @@ abstract class ModPotions : ModRegistry() {
   val strongWeakness =
       registerPotion(
           "strong_weakness",
+          "weakness",
           StatusEffectInstance(
               StatusEffects.WEAKNESS,
               /* duration= */ 900, // Half the duration of `Potions.WEAKNESS`
@@ -24,13 +25,14 @@ abstract class ModPotions : ModRegistry() {
   @Suppress("SameParameterValue")
   private fun registerPotion(
       name: String,
+      baseName: String,
       statusEffectInstance: StatusEffectInstance,
   ): RegistryEntry.Reference<Potion> {
     val potion =
         Registry.registerReference(
             Registries.POTION,
             getModIdentifier(name),
-            Potion(statusEffectInstance),
+            Potion(baseName, statusEffectInstance),
         )
     logger.info("Registered potion {}", name)
     return potion

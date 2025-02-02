@@ -24,7 +24,12 @@ abstract class ModBrewingRecipes : ModRegistry() {
           output: RegistryEntry<Potion>,
       ) {
         it.registerPotionRecipe(input, ingredient, output)
-        logger.info("Registered potion recipe: {} + {} = {}", input, ingredient, output)
+        logger.info(
+            "Registered potion recipe: {} + {} = {}",
+            input.idAsString,
+            ingredient,
+            output.idAsString,
+        )
       }
 
       registerPotionType(MOD_ITEMS.potionFlaskItem)
