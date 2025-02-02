@@ -16,7 +16,9 @@ import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
 
 val GLASS_FLASK_ITEM_METADATA =
-    ModItemMetadata("glass_flask", ItemGroups.INGREDIENTS) { it.maxCount(64) }
+    ModItemMetadata("glass_flask", ItemGroups.INGREDIENTS, /* previousItem= */ Items.GLASS_BOTTLE) {
+      it.maxCount(64)
+    }
 
 class GlassFlaskItem(settings: Settings) : Item(settings) {
   override fun use(world: World, player: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {

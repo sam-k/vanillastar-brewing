@@ -22,7 +22,13 @@ abstract class ModItems : ModRegistry() {
     for ((visibility, stackProvider) in metadata.itemGroupVisibilities) {
       val stack = ItemStack(item)
       stackProvider(stack)
-      ItemGroupEvents.modifyEntriesEvent(metadata.itemGroup).register { it.add(stack, visibility) }
+      ItemGroupEvents.modifyEntriesEvent(metadata.itemGroup).register {
+        if (metadata.previousItem == null) {
+          it.add(stack, visibility)
+        } else {
+          it.addAfter(metadata.previousItem, listOf(stack), visibility)
+        }
+      }
     }
     logger.info(
         "Registered item {} in group {}|{}",

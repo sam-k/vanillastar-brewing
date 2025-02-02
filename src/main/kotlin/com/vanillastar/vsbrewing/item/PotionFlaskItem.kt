@@ -3,18 +3,26 @@ package com.vanillastar.vsbrewing.item
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import kotlin.streams.asStream
+import net.minecraft.SharedConstants
 import net.minecraft.advancement.criterion.Criteria
 import net.minecraft.block.Blocks
 import net.minecraft.component.DataComponentTypes
+import net.minecraft.component.type.AttributeModifiersComponent
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.LivingEntity
+import net.minecraft.entity.attribute.EntityAttribute
+import net.minecraft.entity.attribute.EntityAttributeModifier
+import net.minecraft.entity.effect.StatusEffectInstance
+import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.*
 import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.potion.Potions
 import net.minecraft.registry.Registries
+import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.registry.tag.BlockTags
+import net.minecraft.screen.ScreenTexts
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundCategory
@@ -32,6 +40,7 @@ val POTION_FLASK_ITEM_METADATA =
     ModItemMetadata(
         "potion_flask",
         ItemGroups.FOOD_AND_DRINK,
+        /* previousItem= */ null,
         Registries.POTION.streamEntries()
             .flatMap { potion ->
               (PotionFlaskItem.MAX_USES downTo 1)
@@ -57,8 +66,10 @@ val POTION_FLASK_ITEM_METADATA =
 
 class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
   companion object {
+    /** Maximum number of uses for a [PotionFlaskItem]. */
     const val MAX_USES = 3
 
+    /** Translation key for the tooltip indicating number of remaining uses. */
     private val remainingUsesTranslationKey =
         "${
         Util.createTranslationKey(
@@ -66,6 +77,104 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
           getModIdentifier(POTION_FLASK_ITEM_METADATA.name),
         )
       }.remaining_uses"
+
+    /**
+     * Builds the item tooltip displaying this potion flask's effects.
+     *
+     * This logic is mostly copied from [PotionContentsComponent.buildTooltip], since we wish to
+     * insert our own tooltip within the default potion tooltip. Injecting into the function with a
+     * mixin would be too fragile in this case.
+     */
+    private fun buildEffectsTooltip(
+        effects: Iterable<StatusEffectInstance>,
+        tickRate: Float,
+        textConsumer: (Text) -> Unit,
+    ) {
+      if (effects.none()) {
+        textConsumer(Text.translatable("effect.none").formatted(Formatting.GRAY))
+        return
+      }
+
+      for (effect in effects) {
+        var mutableText = Text.translatable(effect.translationKey)
+        if (effect.amplifier > 0) {
+          mutableText =
+              Text.translatable(
+                  "potion.withAmplifier",
+                  mutableText,
+                  Text.translatable("potion.potency." + effect.amplifier),
+              )
+        }
+        if (!effect.isDurationBelow(SharedConstants.TICKS_PER_SECOND)) {
+          mutableText =
+              Text.translatable(
+                  "potion.withDuration",
+                  mutableText,
+                  StatusEffectUtil.getDurationText(effect, /* multiplier= */ 1.0f, tickRate),
+              )
+        }
+        textConsumer(mutableText.formatted(effect.effectType.value().category.formatting))
+      }
+    }
+
+    /**
+     * Builds the item tooltip displaying what happens when this potion flask is used.
+     *
+     * This logic is mostly copied from [PotionContentsComponent.buildTooltip], since we wish to
+     * insert our own tooltip within the default potion tooltip. Injecting into the function with a
+     * mixin would be too fragile in this case.
+     */
+    private fun buildUsageTooltip(
+        effects: Iterable<StatusEffectInstance>,
+        textConsumer: (Text) -> Unit,
+    ) {
+      val effectDataList =
+          mutableListOf<Pair<RegistryEntry<EntityAttribute>, EntityAttributeModifier>>()
+      for (statusEffectInstance in effects) {
+        statusEffectInstance.effectType.value().forEachAttributeModifier(
+            statusEffectInstance.amplifier
+        ) { attribute, modifier ->
+          effectDataList.add(Pair(attribute, modifier))
+        }
+      }
+
+      if (effectDataList.none { (_, modifier) -> modifier.value != 0.0 }) {
+        return
+      }
+
+      textConsumer(ScreenTexts.EMPTY)
+      textConsumer(Text.translatable("potion.whenDrank").formatted(Formatting.DARK_PURPLE))
+
+      for ((attribute, modifier) in effectDataList) {
+        var modifierDisplayValue =
+            modifier.value *
+                when (modifier.operation) {
+                  EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE -> 100
+                  EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL -> 100
+                  else -> 1
+                }
+
+        var modifierTranslationKeyPrefix: String
+        var formatting: Formatting
+        if (modifier.value >= 0.0) {
+          modifierTranslationKeyPrefix = "attribute.modifier.plus"
+          formatting = Formatting.BLUE
+        } else {
+          modifierDisplayValue *= -1
+          modifierTranslationKeyPrefix = "attribute.modifier.take"
+          formatting = Formatting.RED
+        }
+
+        textConsumer(
+            Text.translatable(
+                    "${modifierTranslationKeyPrefix}.${modifier.operation.id}",
+                    AttributeModifiersComponent.DECIMAL_FORMAT.format(modifierDisplayValue),
+                    Text.translatable(attribute.value().translationKey),
+                )
+                .formatted(formatting)
+        )
+      }
+    }
   }
 
   override fun getDefaultStack(): ItemStack {
@@ -74,6 +183,10 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     return stack
   }
 
+  /**
+   * This is mostly copied from [PotionItem.finishUsing], except we try to decrement the potion
+   * flask's remaining uses instead of immediately emptying the flask.
+   */
   override fun finishUsing(stack: ItemStack, world: World, user: LivingEntity): ItemStack {
     val player = user as? PlayerEntity
     if (player is ServerPlayerEntity) {
@@ -95,7 +208,9 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     }
 
     player?.incrementStat(Stats.USED.getOrCreateStat(this))
+
     if (player?.isInCreativeMode != true) {
+      // If applicable, decrement remaining uses instead of discarding item.
       val remainingUses =
           stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
       if (remainingUses > 1) {
@@ -112,6 +227,10 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     return stack
   }
 
+  /**
+   * This is copied mostly from [PotionItem.useOnBlock], except we try to decrement the potion
+   * flask's remaining uses instead of immediately emptying the flask.
+   */
   override fun useOnBlock(context: ItemUsageContext): ActionResult {
     val world = context.world
     val blockPos = context.blockPos
@@ -138,6 +257,8 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     )
 
     player?.incrementStat(Stats.USED.getOrCreateStat(stack.item))
+
+    // If applicable, decrement remaining uses instead of discarding item.
     val remainingUses = stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0)
     if (remainingUses > 1 && player?.isInCreativeMode != true) {
       stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses - 1)
@@ -185,7 +306,10 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
       tooltip: MutableList<Text>,
       type: TooltipType,
   ) {
-    super.appendTooltip(stack, context, tooltip, type)
+    val effects = stack.get(DataComponentTypes.POTION_CONTENTS)?.effects
+    if (effects != null) {
+      buildEffectsTooltip(effects, context.updateTickRate) { tooltip.add(it) }
+    }
     tooltip.add(
         Text.translatable(
                 remainingUsesTranslationKey,
@@ -193,5 +317,8 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
             )
             .formatted(Formatting.GRAY)
     )
+    if (effects != null) {
+      buildUsageTooltip(effects) { tooltip.add(it) }
+    }
   }
 }
