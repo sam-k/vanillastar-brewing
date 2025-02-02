@@ -26,22 +26,29 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
 
-val POTION_FLASK_ITEM_MAX_USES = 3
-
 val POTION_FLASK_ITEM_METADATA =
     ModItemMetadata("potion_flask", ItemGroups.INGREDIENTS) {
       it.maxCount(1)
           .component(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-          .component(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, POTION_FLASK_ITEM_MAX_USES)
+          .component(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, PotionFlaskItem.MAX_USES)
     }
 
 class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
-  private val remainingUsesTranslationKey =
-      "${Util.createTranslationKey("item", getModIdentifier(POTION_FLASK_ITEM_METADATA.name))}.remaining_uses"
+  companion object {
+    const val MAX_USES = 3
+
+    private val remainingUsesTranslationKey =
+        "${
+        Util.createTranslationKey(
+          "item",
+          getModIdentifier(POTION_FLASK_ITEM_METADATA.name),
+        )
+      }.remaining_uses"
+  }
 
   override fun getDefaultStack(): ItemStack {
     val stack = super.getDefaultStack()
-    stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 3)
+    stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
     return stack
   }
 
@@ -66,7 +73,8 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     }
 
     player?.incrementStat(Stats.USED.getOrCreateStat(this))
-    val remainingUses = stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0)
+    val remainingUses =
+        stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
     if (player?.isInCreativeMode != true) {
       if (remainingUses > 1) {
         stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses - 1)

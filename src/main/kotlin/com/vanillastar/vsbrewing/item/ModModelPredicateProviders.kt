@@ -17,8 +17,10 @@ abstract class ModModelPredicateProviders : ModRegistry() {
         world: ClientWorld?,
         entity: LivingEntity?,
         seed: Int ->
-      stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0) /
-          POTION_FLASK_ITEM_MAX_USES.toFloat()
+      stack.getOrDefault(
+          MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
+          PotionFlaskItem.MAX_USES,
+      ) / PotionFlaskItem.MAX_USES.toFloat()
     }
   }
 
