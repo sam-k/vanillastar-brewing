@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "minecraft:glass"
+    }
+  },
+  "pattern": [
+    "g g",
+    "g g",
+    "ggg"
+  ],
+  "result": {
+    "id": "vsbrewing:glass_flask",
+    "count": 3
+  }
+}
