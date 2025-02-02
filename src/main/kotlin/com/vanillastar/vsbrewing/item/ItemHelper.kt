@@ -17,6 +17,8 @@ data class ModItemMetadata(
     val name: String,
     /** [RegistryKey] for this [Item] in the creative-mode inventory. */
     val itemGroup: RegistryKey<ItemGroup>,
+    /** [Item] which must come before this item in the creative-mode inventory. */
+    val previousItem: Item?,
     /** Visibility behaviors for this [Item] in the creative-mode inventory. */
     val itemGroupVisibilities: List<ModItemGroupVisibilityMetadata>,
     /** Settings for this [Item]. */
@@ -25,10 +27,12 @@ data class ModItemMetadata(
   constructor(
       name: String,
       itemGroup: RegistryKey<ItemGroup>,
+      previousItem: Item,
       settingsProvider: (Item.Settings) -> Item.Settings,
   ) : this(
       name,
       itemGroup,
+      previousItem,
       listOf(ModItemGroupVisibilityMetadata(ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS) {}),
       settingsProvider,
   )
