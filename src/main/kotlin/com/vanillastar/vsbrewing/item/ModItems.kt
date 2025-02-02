@@ -4,6 +4,7 @@ import com.vanillastar.vsbrewing.utils.ModRegistry
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents
 import net.minecraft.item.Item
+import net.minecraft.item.ItemStack
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 
@@ -18,7 +19,11 @@ abstract class ModItems : ModRegistry() {
             getModIdentifier(metadata.name),
             constructor(metadata.settingsProvider(Item.Settings())),
         )
-    ItemGroupEvents.modifyEntriesEvent(metadata.itemGroup).register { it.add(item) }
+    for ((visibility, stackProvider) in metadata.itemGroupVisibilities) {
+      val stack = ItemStack(item)
+      stackProvider(stack)
+      ItemGroupEvents.modifyEntriesEvent(metadata.itemGroup).register { it.add(stack, visibility) }
+    }
     logger.info(
         "Registered item {} in group {}|{}",
         metadata.name,
