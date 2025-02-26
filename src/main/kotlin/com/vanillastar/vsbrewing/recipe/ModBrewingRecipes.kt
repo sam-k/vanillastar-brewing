@@ -41,7 +41,11 @@ abstract class ModBrewingRecipes : ModRegistry() {
 
       registerPotionRecipe(Potions.AWKWARD, Items.POISONOUS_POTATO, Potions.POISON)
 
-      registerPotionRecipe(Potions.STRONG_LEAPING, Items.POISONOUS_POTATO, Potions.STRONG_SLOWNESS)
+      registerPotionRecipe(
+          Potions.STRONG_LEAPING,
+          Items.FERMENTED_SPIDER_EYE,
+          Potions.STRONG_SLOWNESS,
+      )
 
       registerPotionRecipe(Potions.LONG_POISON, Items.FERMENTED_SPIDER_EYE, Potions.HARMING)
 

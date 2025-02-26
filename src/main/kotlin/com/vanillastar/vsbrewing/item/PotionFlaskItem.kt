@@ -43,7 +43,7 @@ val POTION_FLASK_ITEM_METADATA =
         /* previousItem= */ null,
         Registries.POTION.streamEntries()
             .flatMap { potion ->
-              (PotionFlaskItem.MAX_USES downTo 1)
+              (PotionFlaskItem.MAX_USES downTo PotionFlaskItem.MIN_USES)
                   .asSequence()
                   .map { remainingUses ->
                     ModItemGroupVisibilityMetadata(
@@ -66,6 +66,9 @@ val POTION_FLASK_ITEM_METADATA =
 
 class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
   companion object {
+    /** Minimum number of uses for a [PotionFlaskItem]. */
+    const val MIN_USES = 1
+
     /** Maximum number of uses for a [PotionFlaskItem]. */
     const val MAX_USES = 3
 
@@ -213,7 +216,7 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
       // If applicable, decrement remaining uses instead of discarding item.
       val remainingUses =
           stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
-      if (remainingUses > 1) {
+      if (remainingUses > MIN_USES) {
         stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses - 1)
       } else {
         stack.decrementUnlessCreative(/* amount= */ 1, player)
@@ -260,7 +263,7 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
 
     // If applicable, decrement remaining uses instead of discarding item.
     val remainingUses = stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0)
-    if (remainingUses > 1 && player?.isInCreativeMode != true) {
+    if (remainingUses > MIN_USES && player?.isInCreativeMode != true) {
       stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses - 1)
     } else {
       player?.setStackInHand(

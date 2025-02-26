@@ -1,6 +1,6 @@
 package com.vanillastar.vsbrewing.mixin.recipe;
 
-import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getLogger;
+import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BrewingRecipeRegistry.Builder.class)
 public abstract class BrewingRecipeRegistryBuilderMixin {
   @Unique
-  private static final Logger LOGGER = getLogger();
+  private static final Logger LOGGER = getMixinLogger();
 
   @Unique
   private static @NotNull String getRecipeString(

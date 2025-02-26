@@ -1,7 +1,7 @@
 package com.vanillastar.vsbrewing.mixin.potion;
 
 import static com.vanillastar.vsbrewing.potion.StrongWeaknessPotionKt.STRONG_WEAKNESS_POTION_ID;
-import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getLogger;
+import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
 import net.minecraft.SharedConstants;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -41,6 +41,6 @@ public abstract class PotionsMixin {
                 StatusEffects.WEAKNESS,
                 15 * SharedConstants.TICKS_PER_SECOND,
                 /* amplifier= */ 1)));
-    getLogger().info("Registered potion {}", STRONG_WEAKNESS_POTION_ID);
+    getMixinLogger().info("Registered potion {}", STRONG_WEAKNESS_POTION_ID);
   }
 }
