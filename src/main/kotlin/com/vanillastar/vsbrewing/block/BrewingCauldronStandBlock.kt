@@ -145,9 +145,9 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
   override fun randomDisplayTick(state: BlockState, world: World, pos: BlockPos, random: Random) {
     world.addParticle(
         ParticleTypes.SMOKE,
-        pos.x.toDouble() + 0.4 + random.nextFloat().toDouble() * 0.2,
-        pos.y.toDouble() + 0.7 + random.nextFloat().toDouble() * 0.3,
-        pos.z.toDouble() + 0.4 + random.nextFloat().toDouble() * 0.2,
+        pos.x.toDouble() + 0.4 + random.nextFloat() * 0.2,
+        pos.y.toDouble() + 0.7 + random.nextFloat() * 0.3,
+        pos.z.toDouble() + 0.4 + random.nextFloat() * 0.2,
         /* velocityX= */ 0.0,
         /* velocityY= */ 0.0,
         /* velocityZ= */ 0.0,
