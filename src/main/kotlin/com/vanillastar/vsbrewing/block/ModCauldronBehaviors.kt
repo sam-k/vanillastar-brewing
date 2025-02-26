@@ -225,6 +225,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
     waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
 
     val potionCauldronBehaviorMap = this.potionCauldronBehavior.map()
+    CauldronBehavior.registerBucketBehavior(potionCauldronBehaviorMap)
     potionCauldronBehaviorMap.put(Items.POTION, fillCauldronBehavior)
     potionCauldronBehaviorMap.put(MOD_ITEMS.potionFlaskItem, fillCauldronBehavior)
     potionCauldronBehaviorMap.put(Items.GLASS_BOTTLE, takeFromCauldronBehavior)
