@@ -4,8 +4,8 @@
     "layer0": "vsbrewing:item/potion_flask"
   },
   "overrides": [
-    {"predicate": {"remaining_uses": 0.333333}, "model": "vsbrewing:item/potion_flask_1"},
-    {"predicate": {"remaining_uses": 0.666666}, "model": "vsbrewing:item/potion_flask_2"},
-    {"predicate": {"remaining_uses": 1.000000}, "model": "vsbrewing:item/potion_flask_3"}
+    {"predicate": {"remaining_uses": 0.333333}, "model": "vsbrewing:item/potion_flask_level1"},
+    {"predicate": {"remaining_uses": 0.666666}, "model": "vsbrewing:item/potion_flask_level2"},
+    {"predicate": {"remaining_uses": 1.000000}, "model": "vsbrewing:item/potion_flask_full"}
   ]
 }

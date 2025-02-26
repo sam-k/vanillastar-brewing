@@ -2,6 +2,8 @@ package com.vanillastar.vsbrewing.item
 
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.ModRegistry
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.minecraft.client.item.ClampedModelPredicateProvider
 import net.minecraft.client.item.ModelPredicateProviderRegistry
 import net.minecraft.client.world.ClientWorld
@@ -10,6 +12,7 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.Identifier
 
+@Environment(EnvType.CLIENT)
 abstract class ModModelPredicateProviders : ModRegistry() {
   override fun initialize() {
     registerModelPredicateProviders(MOD_ITEMS.potionFlaskItem, "remaining_uses") {
