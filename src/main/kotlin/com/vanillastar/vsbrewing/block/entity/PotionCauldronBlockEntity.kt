@@ -51,6 +51,7 @@ class PotionCauldronBlockEntity(
           .resultOrPartial { logger.warn("Failed to parse potion cauldron content: {}", it) }
           .ifPresent { this.potionContents = it }
     }
+    // Send update if this data is set programmatically.
     this.world?.updateListeners(this.pos, this.cachedState, this.cachedState, /* flags= */ 0)
   }
 

@@ -83,7 +83,6 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
     if (world.isClient) {
       return ActionResult.SUCCESS
     }
-
     val blockEntity =
         world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.brewingCauldronStandBlockEntityType)
     if (blockEntity.isPresent) {
@@ -125,6 +124,10 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
     return Blocks.BREWING_STAND.defaultState
   }
 
+  /**
+   * This is mostly copied from [Block.afterBreak], except we don't want to count this functional
+   * block as separate from [BrewingStandBlock] in the player stats.
+   */
   override fun afterBreak(
       world: World,
       player: PlayerEntity,
@@ -138,6 +141,7 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
     dropStacks(state, world, pos, blockEntity, player, tool)
   }
 
+  /** This is copied from [BrewingStandBlock.randomDisplayTick]. */
   override fun randomDisplayTick(state: BlockState, world: World, pos: BlockPos, random: Random) {
     world.addParticle(
         ParticleTypes.SMOKE,

@@ -30,6 +30,7 @@ import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
 
 abstract class ModCauldronBehaviors : ModRegistry() {
+  @JvmField
   val potionCauldronBehavior: CauldronBehavior.CauldronBehaviorMap =
       CauldronBehavior.createMap("potion")
 

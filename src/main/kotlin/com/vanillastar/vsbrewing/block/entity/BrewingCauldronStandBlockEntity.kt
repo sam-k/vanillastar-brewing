@@ -140,6 +140,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
         potionCauldronBlockEntity = PotionCauldronBlockEntity(posDown, newDownState)
         world.addBlockEntity(potionCauldronBlockEntity)
         markDirty(world, posDown, newDownState)
+        world.updateListeners(pos, downState, newDownState, /* flags= */ 0)
       }
       potionCauldronBlockEntity?.setPotion(resultingPotionStack)
 

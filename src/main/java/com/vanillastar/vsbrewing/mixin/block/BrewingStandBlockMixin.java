@@ -24,7 +24,7 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
   @Nullable
   public BlockState getPlacementState(@NotNull ItemPlacementContext ctx) {
     BlockState downState = ctx.getWorld().getBlockState(ctx.getBlockPos().down());
-    if (!downState.isIn(MOD_TAGS.getBrewableCauldrons())) {
+    if (!downState.isIn(MOD_TAGS.brewableCauldrons)) {
       return this.getDefaultState();
     }
     return MOD_BLOCKS.brewingCauldronStandBlock.getDefaultState();
@@ -38,7 +38,7 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
       WorldAccess world,
       BlockPos pos,
       BlockPos neighborPos) {
-    if (direction != Direction.DOWN || !neighborState.isIn(MOD_TAGS.getBrewableCauldrons())) {
+    if (direction != Direction.DOWN || !neighborState.isIn(MOD_TAGS.brewableCauldrons)) {
       return super.getStateForNeighborUpdate(
           state, direction, neighborState, world, pos, neighborPos);
     }
