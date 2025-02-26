@@ -1,10 +1,10 @@
 package com.vanillastar.vsbrewing.mixin.block;
 
 import static com.vanillastar.vsbrewing.block.ModBlocksKt.MOD_BLOCKS;
+import static com.vanillastar.vsbrewing.tag.ModTagsKt.MOD_TAGS;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.BrewingStandBlock;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.util.math.BlockPos;
@@ -24,9 +24,7 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
   @Nullable
   public BlockState getPlacementState(@NotNull ItemPlacementContext ctx) {
     BlockState downState = ctx.getWorld().getBlockState(ctx.getBlockPos().down());
-    if (!downState.isOf(Blocks.CAULDRON)
-        && !downState.isOf(Blocks.WATER_CAULDRON)
-        && !downState.isOf(MOD_BLOCKS.potionCauldronBlock)) {
+    if (!downState.isIn(MOD_TAGS.getBrewableCauldrons())) {
       return this.getDefaultState();
     }
     return MOD_BLOCKS.brewingCauldronStandBlock.getDefaultState();
@@ -40,10 +38,7 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
       WorldAccess world,
       BlockPos pos,
       BlockPos neighborPos) {
-    if (direction != Direction.DOWN
-        || (!neighborState.isOf(Blocks.CAULDRON)
-            && !neighborState.isOf(Blocks.WATER_CAULDRON)
-            && !neighborState.isOf(MOD_BLOCKS.potionCauldronBlock))) {
+    if (direction != Direction.DOWN || !neighborState.isIn(MOD_TAGS.getBrewableCauldrons())) {
       return super.getStateForNeighborUpdate(
           state, direction, neighborState, world, pos, neighborPos);
     }

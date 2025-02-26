@@ -3,6 +3,7 @@ package com.vanillastar.vsbrewing.block
 import com.mojang.serialization.MapCodec
 import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
+import com.vanillastar.vsbrewing.tag.MOD_TAGS
 import net.minecraft.block.*
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityTicker
@@ -111,12 +112,7 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
       pos: BlockPos,
       neighborPos: BlockPos,
   ): BlockState {
-    if (
-        direction != Direction.DOWN ||
-            neighborState.isOf(Blocks.CAULDRON) ||
-            neighborState.isOf(Blocks.WATER_CAULDRON) ||
-            neighborState.isOf(MOD_BLOCKS.potionCauldronBlock)
-    ) {
+    if (direction != Direction.DOWN || neighborState.isIn(MOD_TAGS.brewableCauldrons)) {
       return super.getStateForNeighborUpdate(
           state,
           direction,
