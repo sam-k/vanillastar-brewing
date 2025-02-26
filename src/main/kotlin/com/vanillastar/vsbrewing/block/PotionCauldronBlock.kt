@@ -40,10 +40,16 @@ class PotionCauldronBlock(settings: Settings) :
   override fun getFluidHeight(state: BlockState) = (6 + 3 * state.get(LEVEL)) / 16.0
 
   override fun randomDisplayTick(state: BlockState, world: World, pos: BlockPos, random: Random) {
-    var potionColor = world.getBlockEntityRenderData(pos) as? Int ?: 0
+    var potionColor = world.getBlockEntityRenderData(pos)
+    val particleEffect =
+        if (potionColor is Int) {
+          EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, potionColor)
+        } else {
+          ParticleTypes.EFFECT
+        }
     repeat(2) {
       world.addParticle(
-          EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, potionColor),
+          particleEffect,
           pos.x.toDouble() + 0.4 + random.nextFloat() * 0.4,
           pos.y.toDouble() + 0.4 + random.nextFloat() * 0.3,
           pos.z.toDouble() + 0.4 + random.nextFloat() * 0.4,
