@@ -5,8 +5,6 @@ import net.minecraft.block.*
 import net.minecraft.particle.EntityEffectParticleEffect
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.state.StateManager
-import net.minecraft.state.property.IntProperty
-import net.minecraft.state.property.Properties
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.random.Random
 import net.minecraft.world.World
@@ -17,17 +15,13 @@ val POTION_CAULDRON_BLOCK_METADATA =
       it.mapColor(MapColor.STONE_GRAY).requiresTool().strength(2.0f)
     }
 
-class PotionCauldronBlock(settings: Settings) :
+open class PotionCauldronBlock(settings: Settings) :
     LeveledCauldronBlock(
         Biome.Precipitation.NONE,
         MOD_CAULDRON_BEHAVIORS.potionCauldronBehavior,
         settings,
     ),
     BlockEntityProvider {
-  companion object {
-    val LEVEL: IntProperty = Properties.LEVEL_3
-  }
-
   override fun createBlockEntity(pos: BlockPos, state: BlockState) =
       PotionCauldronBlockEntity(pos, state)
 

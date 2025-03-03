@@ -1,11 +1,11 @@
 package com.vanillastar.vsbrewing.block.entity
 
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
-import com.vanillastar.vsbrewing.block.PotionCauldronBlock
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.getLogger
 import net.minecraft.block.BlockState
+import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
@@ -17,7 +17,11 @@ import net.minecraft.registry.RegistryWrapper.WrapperLookup
 import net.minecraft.util.math.BlockPos
 
 val POTION_CAULDRON_BLOCK_ENTITY_METADATA =
-    ModBlockEntityMetadata("potion_cauldron", MOD_BLOCKS.potionCauldronBlock)
+    ModBlockEntityMetadata(
+        "potion_cauldron",
+        MOD_BLOCKS.potionCauldronBlock,
+        MOD_BLOCKS.potionCauldronPreviewBlock,
+    )
 
 class PotionCauldronBlockEntity(
     pos: BlockPos,
@@ -31,7 +35,7 @@ class PotionCauldronBlockEntity(
     stack.set(DataComponentTypes.POTION_CONTENTS, this.potionContents)
     stack.set(
         MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
-        state.get(PotionCauldronBlock.LEVEL),
+        state.get(LeveledCauldronBlock.LEVEL),
     )
     return stack
   }
