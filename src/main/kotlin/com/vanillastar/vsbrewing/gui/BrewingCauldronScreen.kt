@@ -2,30 +2,38 @@ package com.vanillastar.vsbrewing.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
-import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
-import kotlin.jvm.optionals.getOrNull
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
+import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.OverlayTexture
+import net.minecraft.client.render.RenderLayers
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.ColorHelper
 import net.minecraft.util.math.MathHelper
+import org.joml.Matrix4f
 import org.joml.Quaternionf
+import org.joml.Vector3f
+import org.locationtech.jts.algorithm.ConvexHull
+import org.locationtech.jts.geom.Coordinate
+import org.locationtech.jts.geom.GeometryFactory
+import org.locationtech.jts.geom.Point
+import org.locationtech.jts.geom.impl.CoordinateArraySequence
 
 @Environment(EnvType.CLIENT)
 class BrewingCauldronScreen(
     handler: BrewingCauldronScreenHandler,
-    val inventory: PlayerInventory,
+    inventory: PlayerInventory,
     title: Text,
 ) : HandledScreen<BrewingCauldronScreenHandler>(handler, inventory, title) {
   private companion object {
@@ -36,10 +44,21 @@ class BrewingCauldronScreen(
         Identifier.ofVanilla("container/brewing_stand/brew_progress")
     val BUBBLES_TEXTURE: Identifier = Identifier.ofVanilla("container/brewing_stand/bubbles")
     val BUBBLE_PROGRESS = intArrayOf(29, 24, 20, 16, 11, 6, 0)
+
+    val PREVIEW_CAULDRON_PROJECTION_UNIT_CORNERS =
+        arrayOf(
+            Vector3f(0.0f, 0.0f, 0.0f),
+            Vector3f(0.0f, 1.0f, 0.0f),
+            Vector3f(0.0f, 1.0f, 1.0f),
+            Vector3f(1.0f, 0.0f, 0.0f),
+            Vector3f(1.0f, 0.0f, 1.0f),
+            Vector3f(1.0f, 1.0f, 0.0f),
+            Vector3f(1.0f, 1.0f, 1.0f),
+        )
+    val GEOMETRY_FACTORY = GeometryFactory()
   }
 
-  var previewBlockEntity =
-      PotionCauldronBlockEntity(BlockPos.ORIGIN, MOD_BLOCKS.potionCauldronPreviewBlock.defaultState)
+  private var previewCauldronPositionMatrix = Matrix4f()
 
   override fun init() {
     super.init()
@@ -49,22 +68,7 @@ class BrewingCauldronScreen(
   override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
     super.render(context, mouseX, mouseY, delta)
     this.drawMouseoverTooltip(context, mouseX, mouseY)
-
-    val referenceBlockEntity =
-        this.inventory.player.world
-            .getBlockEntity(this.handler.data.pos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
-            .getOrNull()
-    if (referenceBlockEntity != null) {
-      this.previewBlockEntity =
-          PotionCauldronBlockEntity(
-              BlockPos.ORIGIN,
-              MOD_BLOCKS.potionCauldronPreviewBlock.defaultState.with(
-                  LeveledCauldronBlock.LEVEL,
-                  referenceBlockEntity.state.get(LeveledCauldronBlock.LEVEL),
-              ),
-          )
-      this.previewBlockEntity.potionContents = referenceBlockEntity.potionContents
-    }
+    this.drawCauldronBlockTooltip(context, mouseX, mouseY)
   }
 
   override fun drawBackground(context: DrawContext, delta: Float, mouseX: Int, mouseY: Int) {
@@ -130,29 +134,42 @@ class BrewingCauldronScreen(
 
     context.matrices.push()
 
+    // Prepare the matrix stack.
     val scale = 24.0f
-    context.matrices.translate(x + 128.0, y + 64.0, scale * 2.0)
-    context.matrices.scale(scale, scale, scale)
+    context.matrices.translate(x + 162.0, y + 64.0, scale * 2.0)
+    context.matrices.scale(scale, scale, -scale)
     context.matrices.multiply(
         Quaternionf()
-            .rotateX(-30 * Math.PI.toFloat() / 180)
-            .rotateY(135 * Math.PI.toFloat() / 180)
+            .rotateX(30 * Math.PI.toFloat() / 180)
+            .rotateY(-45 * Math.PI.toFloat() / 180)
             .rotateZ(Math.PI.toFloat())
     )
+    this.previewCauldronPositionMatrix = Matrix4f(context.matrices.peek().positionMatrix)
 
-    val instance = MinecraftClient.getInstance()
+    // Render the cauldron block.
     RenderSystem.enableCull()
-    instance.blockRenderManager.renderBlockAsEntity(
-        this.previewBlockEntity.state,
-        context.matrices,
-        context.vertexConsumers,
-        LightmapTextureManager.MAX_LIGHT_COORDINATE,
-        OverlayTexture.DEFAULT_UV,
-    )
-    instance.blockEntityRenderDispatcher
-        .get(this.previewBlockEntity)
+    val previewBlockState = this.getPreviewCauldronBlockState()
+    val previewBlockEntity = this.getPreviewCauldronBlockEntity(previewBlockState)
+    val color = previewBlockEntity.potionContents.color
+    this.client!!
+        .blockRenderManager
+        .blockModelRenderer
+        .render(
+            context.matrices.peek(),
+            context.vertexConsumers.getBuffer(RenderLayers.getBlockLayer(previewBlockState)),
+            previewBlockState,
+            this.client!!.blockRenderManager.getModel(previewBlockState),
+            ColorHelper.Argb.getRed(color) / 255.0f,
+            ColorHelper.Argb.getGreen(color) / 255.0f,
+            ColorHelper.Argb.getBlue(color) / 255.0f,
+            LightmapTextureManager.MAX_LIGHT_COORDINATE,
+            OverlayTexture.DEFAULT_UV,
+        )
+    this.client!!
+        .blockEntityRenderDispatcher
+        .get(previewBlockEntity)
         ?.render(
-            this.previewBlockEntity,
+            previewBlockEntity,
             delta,
             context.matrices,
             context.vertexConsumers,
@@ -162,5 +179,65 @@ class BrewingCauldronScreen(
     RenderSystem.disableCull()
 
     context.matrices.pop()
+  }
+
+  private fun drawCauldronBlockTooltip(context: DrawContext, mouseX: Int, mouseY: Int) {
+    if (!this.handler.cursorStack.isEmpty) {
+      return
+    }
+
+    val level = this.handler.data.level
+    if (level < LeveledCauldronBlock.MIN_LEVEL || level > LeveledCauldronBlock.MAX_LEVEL) {
+      return
+    }
+
+    val projectionCornerCoords =
+        PREVIEW_CAULDRON_PROJECTION_UNIT_CORNERS.map {
+              this.previewCauldronPositionMatrix.transformPosition(Vector3f(it))
+            }
+            .map { Coordinate(it.x.toDouble(), it.y.toDouble()) }
+            .toTypedArray()
+    val mouseCoord =
+        Point(
+            CoordinateArraySequence(arrayOf(Coordinate(mouseX.toDouble(), mouseY.toDouble()))),
+            GEOMETRY_FACTORY,
+        )
+    if (!ConvexHull(projectionCornerCoords, GEOMETRY_FACTORY).convexHull.contains(mouseCoord)) {
+      return
+    }
+
+    val previewPotionStack = this.getPreviewCauldronBlockEntity().getPotionStack()
+    context.drawTooltip(
+        this.textRenderer,
+        this.getTooltipFromItem(previewPotionStack),
+        previewPotionStack.tooltipData,
+        mouseX,
+        mouseY,
+    )
+  }
+
+  private fun getPreviewCauldronBlockState(): BlockState {
+    val level = this.handler.data.level
+    if (level < LeveledCauldronBlock.MIN_LEVEL || level > LeveledCauldronBlock.MAX_LEVEL) {
+      return Blocks.CAULDRON.defaultState
+    }
+    return MOD_BLOCKS.potionCauldronPreviewBlock.defaultState.with(
+        LeveledCauldronBlock.LEVEL,
+        level,
+    )
+  }
+
+  private fun getPreviewCauldronBlockEntity() =
+      this.getPreviewCauldronBlockEntity(this.getPreviewCauldronBlockState())
+
+  private fun getPreviewCauldronBlockEntity(state: BlockState): PotionCauldronBlockEntity {
+    val previewBlockEntity =
+        PotionCauldronBlockEntity(BlockPos.fromLong(this.handler.data.packedPos), state)
+    previewBlockEntity.readNbt(
+        this.handler.data.potionCauldronNbt,
+        this.client!!.world!!.registryManager,
+        /* sendUpdate= */ false,
+    )
+    return previewBlockEntity
   }
 }

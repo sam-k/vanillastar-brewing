@@ -4,6 +4,7 @@ import com.vanillastar.vsbrewing.MOD_ID
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
+import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import kotlin.jvm.optionals.getOrNull
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
@@ -22,8 +23,6 @@ import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
-import net.minecraft.network.RegistryByteBuf
-import net.minecraft.network.codec.PacketCodec
 import net.minecraft.potion.Potions
 import net.minecraft.recipe.BrewingRecipeRegistry
 import net.minecraft.registry.RegistryWrapper.WrapperLookup
@@ -47,7 +46,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
         state,
     ),
     SidedInventory,
-    ExtendedScreenHandlerFactory<BrewingCauldronStandBlockEntity.BrewingCauldronData> {
+    ExtendedScreenHandlerFactory<BrewingCauldronPayload> {
   companion object {
     const val INVENTORY_SIZE = 2
     const val INGREDIENT_SLOT_INDEX = 0
@@ -253,15 +252,18 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     nbt.putByte("Fuel", this.fuelLevel.toByte())
   }
 
-  override fun getScreenOpeningData(player: ServerPlayerEntity?) =
-      BrewingCauldronData(this.pos.down())
-
-  data class BrewingCauldronData(val pos: BlockPos) {
-    companion object {
-      val PACKET_CODEC: PacketCodec<RegistryByteBuf, BrewingCauldronData> =
-          PacketCodec.tuple(BlockPos.PACKET_CODEC, BrewingCauldronData::pos) {
-            BrewingCauldronData(it)
-          }
-    }
+  override fun getScreenOpeningData(player: ServerPlayerEntity?): BrewingCauldronPayload {
+    val posDown = this.pos.down()
+    val cauldronBlockState = player?.world?.getBlockState(posDown)
+    val cauldronBlockEntity =
+        player
+            ?.world
+            ?.getBlockEntity(posDown, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
+            ?.getOrNull()
+    return BrewingCauldronPayload(
+        posDown.asLong(),
+        cauldronBlockState?.getOrEmpty(LeveledCauldronBlock.LEVEL)?.getOrNull() ?: 0,
+        cauldronBlockEntity?.createNbt(player.world.registryManager) ?: NbtCompound(),
+    )
   }
 }

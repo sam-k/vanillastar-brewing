@@ -1,6 +1,7 @@
 package com.vanillastar.vsbrewing.screen
 
 import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
+import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
@@ -18,7 +19,7 @@ const val BREWING_CAULDRON_SCREEN_HANDLER_NAME = "brewing_cauldron"
 class BrewingCauldronScreenHandler(
     syncId: Int,
     private val playerInventory: PlayerInventory,
-    internal val data: BrewingCauldronStandBlockEntity.BrewingCauldronData,
+    internal var data: BrewingCauldronPayload,
     private val inventory: Inventory =
         SimpleInventory(BrewingCauldronStandBlockEntity.INVENTORY_SIZE),
     private val propertyDelegate: PropertyDelegate =

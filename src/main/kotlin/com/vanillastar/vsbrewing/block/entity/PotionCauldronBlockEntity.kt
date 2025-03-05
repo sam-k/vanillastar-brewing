@@ -28,7 +28,9 @@ class PotionCauldronBlockEntity(
     val state: BlockState,
     var potionContents: PotionContentsComponent = PotionContentsComponent.DEFAULT,
 ) : BlockEntity(MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType, pos, state) {
-  private val logger = getLogger()
+  private companion object {
+    val LOGGER = getLogger()
+  }
 
   fun getPotionStack(): ItemStack {
     val stack = ItemStack(MOD_ITEMS.potionFlaskItem)
@@ -45,18 +47,24 @@ class PotionCauldronBlockEntity(
     this.potionContents = potionContents ?: PotionContentsComponent.DEFAULT
   }
 
-  override fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {
+  fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup, sendUpdate: Boolean) {
     super.readNbt(nbt, registryLookup)
     if (nbt.contains("potion_contents")) {
       PotionContentsComponent.CODEC.parse(
               registryLookup.getOps(NbtOps.INSTANCE),
               nbt.get("potion_contents"),
           )
-          .resultOrPartial { logger.warn("Failed to parse potion cauldron content: {}", it) }
+          .resultOrPartial { LOGGER.warn("Failed to parse potion cauldron content: {}", it) }
           .ifPresent { this.potionContents = it }
     }
-    // Send update if this data is set programmatically.
-    this.world?.updateListeners(this.pos, this.cachedState, this.cachedState, /* flags= */ 0)
+    // Send update, for example if this data is set programmatically.
+    if (sendUpdate) {
+      this.world?.updateListeners(this.pos, this.cachedState, this.cachedState, /* flags= */ 0)
+    }
+  }
+
+  override fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {
+    this.readNbt(nbt, registryLookup, /* sendUpdate= */ true)
   }
 
   override fun writeNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {

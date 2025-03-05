@@ -5,6 +5,7 @@ import com.vanillastar.vsbrewing.block.MOD_CAULDRON_BEHAVIORS
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
+import com.vanillastar.vsbrewing.networking.MOD_NETWORKING
 import com.vanillastar.vsbrewing.recipe.MOD_BREWING_RECIPES
 import com.vanillastar.vsbrewing.screen.MOD_SCREEN_HANDLERS
 import com.vanillastar.vsbrewing.tag.MOD_TAGS
@@ -22,5 +23,6 @@ object VSBrewing : ModInitializer {
     MOD_BREWING_RECIPES.initialize()
     MOD_CAULDRON_BEHAVIORS.initialize()
     MOD_SCREEN_HANDLERS.initialize()
+    MOD_NETWORKING.initialize()
   }
 }

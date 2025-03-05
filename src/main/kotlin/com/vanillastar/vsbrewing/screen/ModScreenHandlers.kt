@@ -1,6 +1,6 @@
 package com.vanillastar.vsbrewing.screen
 
-import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
+import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType
@@ -17,7 +17,7 @@ abstract class ModScreenHandlers : ModRegistry() {
       this.registerExtendedScreenHandler(
           BREWING_CAULDRON_SCREEN_HANDLER_NAME,
           ::BrewingCauldronScreenHandler,
-          BrewingCauldronStandBlockEntity.BrewingCauldronData.PACKET_CODEC,
+          BrewingCauldronPayload.codec,
       )
 
   @Suppress("SameParameterValue")
