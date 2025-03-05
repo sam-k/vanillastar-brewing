@@ -17,6 +17,7 @@ val java_version: String by project
 val mod_version: String by project
 val maven_group: String by project
 val archives_base_name: String by project
+val access_widener_path: String by project
 
 val minecraft_version: String by project
 val minecraft_target_versions: String by project
@@ -26,6 +27,8 @@ val fabric_loader_version: String by project
 val fabric_loader_target_versions: String by project
 val fabric_api_version: String by project
 val fabric_kotlin_version: String by project
+
+val jts_version: String by project
 
 val palantir_java_format_version: String by project
 val ktfmt_version: String by project
@@ -43,13 +46,16 @@ dependencies {
   modImplementation("net.fabricmc", "fabric-loader", fabric_loader_version)
   modImplementation("net.fabricmc.fabric-api", "fabric-api", fabric_api_version)
   modImplementation("net.fabricmc", "fabric-language-kotlin", fabric_kotlin_version)
+  modImplementation("org.locationtech.jts", "jts-core", jts_version)
 }
 
 fabricApi {
   configureDataGeneration()
 }
 
-loom {}
+loom {
+  accessWidenerPath = file(access_widener_path)
+}
 
 tasks.withType<ValidatePlugins>().configureEach {
   failOnWarning.set(true)

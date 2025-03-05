@@ -1,10 +1,13 @@
 package com.vanillastar.vsbrewing.block.entity
 
+import com.vanillastar.vsbrewing.MOD_ID
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
-import com.vanillastar.vsbrewing.block.PotionCauldronBlock
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
+import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
+import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import kotlin.jvm.optionals.getOrNull
+import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
 import net.minecraft.SharedConstants
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -24,6 +27,7 @@ import net.minecraft.potion.Potions
 import net.minecraft.recipe.BrewingRecipeRegistry
 import net.minecraft.registry.RegistryWrapper.WrapperLookup
 import net.minecraft.screen.PropertyDelegate
+import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.text.Text
 import net.minecraft.util.ItemScatterer
 import net.minecraft.util.collection.DefaultedList
@@ -41,13 +45,19 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
         pos,
         state,
     ),
-    SidedInventory {
+    SidedInventory,
+    ExtendedScreenHandlerFactory<BrewingCauldronPayload> {
   companion object {
-    private const val INGREDIENT_SLOT = 0
-    private const val FUEL_SLOT = 1
+    const val INVENTORY_SIZE = 2
+    const val INGREDIENT_SLOT_INDEX = 0
+    const val FUEL_SLOT_INDEX = 1
 
-    private val TOP_SLOTS: IntArray = intArrayOf(INGREDIENT_SLOT)
-    private val SIDE_SLOTS: IntArray = intArrayOf(FUEL_SLOT)
+    const val DATA_SIZE = 2
+    const val BREW_TIME_DATA_INDEX = 0
+    const val FUEL_LEVEL_DATA_INDEX = 1
+
+    private val TOP_SLOTS = intArrayOf(INGREDIENT_SLOT_INDEX)
+    private val SIDE_SLOTS = intArrayOf(FUEL_SLOT_INDEX)
 
     private const val FUEL_LEVEL_PER_ITEM = 20
 
@@ -58,7 +68,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
         blockEntity: BrewingCauldronStandBlockEntity,
     ) {
       // Refill fuel if empty.
-      val fuel = blockEntity.inventory[FUEL_SLOT]
+      val fuel = blockEntity.inventory[FUEL_SLOT_INDEX]
       if (blockEntity.fuelLevel <= 0 && fuel.isOf(Items.BLAZE_POWDER)) {
         blockEntity.fuelLevel = FUEL_LEVEL_PER_ITEM
         fuel.decrement(1)
@@ -66,7 +76,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
       }
 
       val isCraftable = this.canCraft(world, pos, blockEntity.inventory)
-      val ingredient = blockEntity.inventory[INGREDIENT_SLOT]
+      val ingredient = blockEntity.inventory[INGREDIENT_SLOT_INDEX]
       if (blockEntity.brewTime > 0) {
         // Continue brewing, or halt if no longer valid.
         blockEntity.brewTime--
@@ -108,7 +118,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     private fun canCraft(world: World, pos: BlockPos, slots: DefaultedList<ItemStack>): Boolean {
       val brewingRecipeRegistry = world.brewingRecipeRegistry
 
-      val ingredient = slots[INGREDIENT_SLOT]
+      val ingredient = slots[INGREDIENT_SLOT_INDEX]
       if (ingredient.isEmpty || !brewingRecipeRegistry.isValidIngredient(ingredient)) {
         return false
       }
@@ -119,7 +129,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     private fun craft(world: World, pos: BlockPos, slots: DefaultedList<ItemStack>) {
       val brewingRecipeRegistry = world.brewingRecipeRegistry
 
-      var ingredient = slots[INGREDIENT_SLOT]
+      var ingredient = slots[INGREDIENT_SLOT_INDEX]
       val cauldronPotionStack = this.getCauldronPotionStack(world, pos)
       val resultingPotionStack = brewingRecipeRegistry.craft(ingredient, cauldronPotionStack)
 
@@ -133,7 +143,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
       if (downState.isOf(Blocks.WATER_CAULDRON) && potionCauldronBlockEntity == null) {
         val newDownState =
             MOD_BLOCKS.potionCauldronBlock.defaultState.with(
-                PotionCauldronBlock.LEVEL,
+                LeveledCauldronBlock.LEVEL,
                 downState.get(LeveledCauldronBlock.LEVEL),
             )
         world.setBlockState(posDown, newDownState, Block.NOTIFY_LISTENERS)
@@ -159,7 +169,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
         }
       }
 
-      slots[INGREDIENT_SLOT] = ingredient
+      slots[INGREDIENT_SLOT_INDEX] = ingredient
       world.syncWorldEvent(WorldEvents.BREWING_STAND_BREWS, pos, /* data= */ 0)
     }
   }
@@ -167,30 +177,28 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
   private var brewTime = 0
   private var fuelLevel = 0
   private var itemBrewing: Item? = null
-  private var inventory = DefaultedList.ofSize(2, ItemStack.EMPTY)
+  private var inventory = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY)
 
   private val propertyDelegate =
       object : PropertyDelegate {
-        override fun get(index: Int) =
+        override fun get(index: Int): Int =
             when (index) {
-              0 -> this@BrewingCauldronStandBlockEntity.brewTime
-              1 -> this@BrewingCauldronStandBlockEntity.fuelLevel
+              BREW_TIME_DATA_INDEX -> this@BrewingCauldronStandBlockEntity.brewTime
+              FUEL_LEVEL_DATA_INDEX -> this@BrewingCauldronStandBlockEntity.fuelLevel
               else -> 0
             }
 
         override fun set(index: Int, value: Int) {
           when (index) {
-            0 -> this@BrewingCauldronStandBlockEntity.brewTime = value
-            1 -> this@BrewingCauldronStandBlockEntity.fuelLevel = value
+            BREW_TIME_DATA_INDEX -> this@BrewingCauldronStandBlockEntity.brewTime = value
+            FUEL_LEVEL_DATA_INDEX -> this@BrewingCauldronStandBlockEntity.fuelLevel = value
           }
         }
 
-        override fun size(): Int {
-          return 2
-        }
+        override fun size() = DATA_SIZE
       }
 
-  override fun getContainerName(): Text = Text.translatable("container.brewing_cauldron_stand")
+  override fun getContainerName(): Text = Text.translatable("container.${MOD_ID}.brewing_cauldron")
 
   override fun size() = this.inventory.size
 
@@ -200,8 +208,14 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     this.inventory = inventory
   }
 
-  // TODO: Implement BrewingCauldronStandScreenHandler.
-  override fun createScreenHandler(syncId: Int, playerInventory: PlayerInventory) = null
+  override fun createScreenHandler(syncId: Int, playerInventory: PlayerInventory) =
+      BrewingCauldronScreenHandler(
+          syncId,
+          playerInventory,
+          this.getScreenOpeningData(null),
+          this,
+          this.propertyDelegate,
+      )
 
   override fun getAvailableSlots(side: Direction) =
       when (side) {
@@ -211,11 +225,11 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
 
   override fun isValid(slot: Int, stack: ItemStack) =
       when (slot) {
-        INGREDIENT_SLOT ->
+        INGREDIENT_SLOT_INDEX ->
             (this.world?.brewingRecipeRegistry ?: BrewingRecipeRegistry.EMPTY).isValidIngredient(
                 stack
             )
-        FUEL_SLOT -> stack.isOf(Items.BLAZE_POWDER)
+        FUEL_SLOT_INDEX -> stack.isOf(Items.BLAZE_POWDER)
         else -> false
       }
 
@@ -236,5 +250,20 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     Inventories.writeNbt(nbt, this.inventory, registryLookup)
     nbt.putShort("BrewTime", this.brewTime.toShort())
     nbt.putByte("Fuel", this.fuelLevel.toByte())
+  }
+
+  override fun getScreenOpeningData(player: ServerPlayerEntity?): BrewingCauldronPayload {
+    val posDown = this.pos.down()
+    val cauldronBlockState = player?.world?.getBlockState(posDown)
+    val cauldronBlockEntity =
+        player
+            ?.world
+            ?.getBlockEntity(posDown, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
+            ?.getOrNull()
+    return BrewingCauldronPayload(
+        posDown.asLong(),
+        cauldronBlockState?.getOrEmpty(LeveledCauldronBlock.LEVEL)?.getOrNull() ?: 0,
+        cauldronBlockEntity?.createNbt(player.world.registryManager) ?: NbtCompound(),
+    )
   }
 }

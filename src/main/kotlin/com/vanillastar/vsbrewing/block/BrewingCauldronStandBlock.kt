@@ -35,12 +35,12 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
     val CODEC: MapCodec<BrewingCauldronStandBlock> = createCodec(::BrewingCauldronStandBlock)
     val SHAPE: VoxelShape =
         createCuboidShape(
-            /* minX= */ 7.0,
+            /* minX= */ 6.0,
             /* minY= */ -11.0,
-            /* minZ= */ 7.0,
-            /* maxX= */ 9.0,
+            /* minZ= */ 6.0,
+            /* maxX= */ 10.0,
             /* maxY= */ 14.0,
-            /* maxZ= */ 9.0,
+            /* maxZ= */ 10.0,
         )
   }
 

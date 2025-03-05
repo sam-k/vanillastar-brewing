@@ -43,6 +43,7 @@ abstract class ModColorProviders : ModRegistry() {
           }
         },
         MOD_BLOCKS.potionCauldronBlock,
+        MOD_BLOCKS.potionCauldronPreviewBlock,
     )
   }
 
