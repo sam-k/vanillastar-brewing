@@ -45,7 +45,7 @@ class BrewingCauldronScreen(
     val BUBBLES_TEXTURE: Identifier = Identifier.ofVanilla("container/brewing_stand/bubbles")
     val BUBBLE_PROGRESS = intArrayOf(29, 24, 20, 16, 11, 6, 0)
 
-    val PREVIEW_CAULDRON_PROJECTION_UNIT_CORNERS =
+    val UNIT_CUBE_CORNERS =
         arrayOf(
             Vector3f(0.0f, 0.0f, 0.0f),
             Vector3f(0.0f, 1.0f, 0.0f),
@@ -192,9 +192,7 @@ class BrewingCauldronScreen(
     }
 
     val projectionCornerCoords =
-        PREVIEW_CAULDRON_PROJECTION_UNIT_CORNERS.map {
-              this.previewCauldronPositionMatrix.transformPosition(Vector3f(it))
-            }
+        UNIT_CUBE_CORNERS.map { this.previewCauldronPositionMatrix.transformPosition(Vector3f(it)) }
             .map { Coordinate(it.x.toDouble(), it.y.toDouble()) }
             .toTypedArray()
     val mouseCoord =

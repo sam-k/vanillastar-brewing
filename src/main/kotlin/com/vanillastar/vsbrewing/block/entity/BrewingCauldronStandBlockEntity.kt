@@ -7,12 +7,16 @@ import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import kotlin.jvm.optionals.getOrNull
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
 import net.minecraft.SharedConstants
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.BrewingStandBlockEntity
 import net.minecraft.block.entity.LockableContainerBlockEntity
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
@@ -39,6 +43,12 @@ import net.minecraft.world.WorldEvents
 val BREWING_CAULDRON_STAND_BLOCK_ENTITY_METADATA =
     ModBlockEntityMetadata("brewing_cauldron_stand", MOD_BLOCKS.brewingCauldronStandBlock)
 
+/**
+ * [BlockEntity] for the brewing stand part of a brewing cauldron.
+ *
+ * This is copied mostly from [BrewingStandBlockEntity], modified to take potions from a cauldron
+ * block below instead of item slots within its inventory.
+ */
 class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     LockableContainerBlockEntity(
         MOD_BLOCK_ENTITIES.brewingCauldronStandBlockEntityType,
@@ -95,10 +105,23 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
       }
     }
 
-    private fun getCauldronPotionStack(world: World, pos: BlockPos): ItemStack {
-      val posDown = pos.down()
+    private fun getBrewingCauldronPayload(
+        pos: BlockPos,
+        state: BlockState?,
+        blockEntity: PotionCauldronBlockEntity?,
+        player: ServerPlayerEntity?,
+    ) =
+        BrewingCauldronPayload(
+            pos.asLong(),
+            state?.getOrEmpty(LeveledCauldronBlock.LEVEL)?.getOrNull() ?: 0,
+            (if (player != null) blockEntity?.createNbt(player.world.registryManager) else null)
+                ?: NbtCompound(),
+        )
 
-      val downState = world.getBlockState(posDown)
+    private fun getCauldronPotionStack(world: World, pos: BlockPos): ItemStack {
+      val cauldronPos = pos.down()
+
+      val downState = world.getBlockState(cauldronPos)
       if (downState.isOf(Blocks.WATER_CAULDRON)) {
         val stack = ItemStack(MOD_ITEMS.potionFlaskItem)
         stack.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent(Potions.WATER))
@@ -110,7 +133,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
       }
 
       return world
-          .getBlockEntity(posDown, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
+          .getBlockEntity(cauldronPos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
           .getOrNull()
           ?.getPotionStack() ?: ItemStack.EMPTY
     }
@@ -129,35 +152,54 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     private fun craft(world: World, pos: BlockPos, slots: DefaultedList<ItemStack>) {
       val brewingRecipeRegistry = world.brewingRecipeRegistry
 
-      var ingredient = slots[INGREDIENT_SLOT_INDEX]
+      var ingredientStack = slots[INGREDIENT_SLOT_INDEX]
       val cauldronPotionStack = this.getCauldronPotionStack(world, pos)
-      val resultingPotionStack = brewingRecipeRegistry.craft(ingredient, cauldronPotionStack)
+      val resultingPotionStack = brewingRecipeRegistry.craft(ingredientStack, cauldronPotionStack)
 
       // Update potion cauldron, creating one in place of a water cauldron if necessary.
-      val posDown = pos.down()
-      val downState = world.getBlockState(posDown)
+      val cauldronPos = pos.down()
+      val cauldronState = world.getBlockState(cauldronPos)
+      var newCauldronState = cauldronState
       var potionCauldronBlockEntity =
           world
-              .getBlockEntity(posDown, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
+              .getBlockEntity(cauldronPos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
               .orElse(null)
-      if (downState.isOf(Blocks.WATER_CAULDRON) && potionCauldronBlockEntity == null) {
-        val newDownState =
+      if (cauldronState.isOf(Blocks.WATER_CAULDRON) && potionCauldronBlockEntity == null) {
+        newCauldronState =
             MOD_BLOCKS.potionCauldronBlock.defaultState.with(
                 LeveledCauldronBlock.LEVEL,
-                downState.get(LeveledCauldronBlock.LEVEL),
+                cauldronState.get(LeveledCauldronBlock.LEVEL),
             )
-        world.setBlockState(posDown, newDownState, Block.NOTIFY_LISTENERS)
-        potionCauldronBlockEntity = PotionCauldronBlockEntity(posDown, newDownState)
+        world.setBlockState(cauldronPos, newCauldronState, Block.NOTIFY_LISTENERS)
+        potionCauldronBlockEntity = PotionCauldronBlockEntity(cauldronPos, newCauldronState)
         world.addBlockEntity(potionCauldronBlockEntity)
-        markDirty(world, posDown, newDownState)
-        world.updateListeners(pos, downState, newDownState, /* flags= */ 0)
       }
-      potionCauldronBlockEntity?.setPotion(resultingPotionStack)
+      potionCauldronBlockEntity.setPotion(resultingPotionStack)
+      markDirty(world, cauldronPos, newCauldronState)
+      world.updateListeners(cauldronPos, cauldronState, newCauldronState, /* flags= */ 0)
+      val brewingCauldronStandBlockEntity =
+          world
+              .getBlockEntity(pos, MOD_BLOCK_ENTITIES.brewingCauldronStandBlockEntityType)
+              .getOrNull()
+      if (brewingCauldronStandBlockEntity != null) {
+        for (player in PlayerLookup.tracking(brewingCauldronStandBlockEntity)) {
+          ServerPlayNetworking.send(
+              player,
+              getBrewingCauldronPayload(
+                  cauldronPos,
+                  newCauldronState,
+                  potionCauldronBlockEntity,
+                  player,
+              ),
+          )
+        }
+      }
 
-      if (ingredient.item.hasRecipeRemainder()) {
-        val ingredientRemainder = ItemStack(ingredient.item.recipeRemainder)
+      ingredientStack.decrement(1)
+      if (ingredientStack.item.hasRecipeRemainder()) {
+        val ingredientRemainder = ItemStack(ingredientStack.item.recipeRemainder)
         if (ingredientRemainder.isEmpty) {
-          ingredient = ingredientRemainder
+          ingredientStack = ingredientRemainder
         } else {
           ItemScatterer.spawn(
               world,
@@ -169,7 +211,7 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
         }
       }
 
-      slots[INGREDIENT_SLOT_INDEX] = ingredient
+      slots[INGREDIENT_SLOT_INDEX] = ingredientStack
       world.syncWorldEvent(WorldEvents.BREWING_STAND_BREWS, pos, /* data= */ 0)
     }
   }
@@ -253,17 +295,15 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
   }
 
   override fun getScreenOpeningData(player: ServerPlayerEntity?): BrewingCauldronPayload {
-    val posDown = this.pos.down()
-    val cauldronBlockState = player?.world?.getBlockState(posDown)
-    val cauldronBlockEntity =
+    val cauldronPos = this.pos.down()
+    return getBrewingCauldronPayload(
+        cauldronPos,
+        player?.world?.getBlockState(cauldronPos),
         player
             ?.world
-            ?.getBlockEntity(posDown, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
-            ?.getOrNull()
-    return BrewingCauldronPayload(
-        posDown.asLong(),
-        cauldronBlockState?.getOrEmpty(LeveledCauldronBlock.LEVEL)?.getOrNull() ?: 0,
-        cauldronBlockEntity?.createNbt(player.world.registryManager) ?: NbtCompound(),
+            ?.getBlockEntity(cauldronPos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
+            ?.getOrNull(),
+        player,
     )
   }
 }
