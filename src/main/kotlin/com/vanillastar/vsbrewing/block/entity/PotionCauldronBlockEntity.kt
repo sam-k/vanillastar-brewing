@@ -1,11 +1,11 @@
 package com.vanillastar.vsbrewing.block.entity
 
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
-import com.vanillastar.vsbrewing.block.PotionCauldronBlock
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.getLogger
 import net.minecraft.block.BlockState
+import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
@@ -17,21 +17,28 @@ import net.minecraft.registry.RegistryWrapper.WrapperLookup
 import net.minecraft.util.math.BlockPos
 
 val POTION_CAULDRON_BLOCK_ENTITY_METADATA =
-    ModBlockEntityMetadata("potion_cauldron", MOD_BLOCKS.potionCauldronBlock)
+    ModBlockEntityMetadata(
+        "potion_cauldron",
+        MOD_BLOCKS.potionCauldronBlock,
+        MOD_BLOCKS.potionCauldronPreviewBlock,
+    )
 
+/** [BlockEntity] for a potion-filled cauldron. */
 class PotionCauldronBlockEntity(
     pos: BlockPos,
     val state: BlockState,
     var potionContents: PotionContentsComponent = PotionContentsComponent.DEFAULT,
 ) : BlockEntity(MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType, pos, state) {
-  private val logger = getLogger()
+  private companion object {
+    val LOGGER = getLogger()
+  }
 
   fun getPotionStack(): ItemStack {
     val stack = ItemStack(MOD_ITEMS.potionFlaskItem)
     stack.set(DataComponentTypes.POTION_CONTENTS, this.potionContents)
     stack.set(
         MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
-        state.get(PotionCauldronBlock.LEVEL),
+        state.get(LeveledCauldronBlock.LEVEL),
     )
     return stack
   }
@@ -41,18 +48,24 @@ class PotionCauldronBlockEntity(
     this.potionContents = potionContents ?: PotionContentsComponent.DEFAULT
   }
 
-  override fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {
+  fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup, sendUpdate: Boolean) {
     super.readNbt(nbt, registryLookup)
     if (nbt.contains("potion_contents")) {
       PotionContentsComponent.CODEC.parse(
               registryLookup.getOps(NbtOps.INSTANCE),
               nbt.get("potion_contents"),
           )
-          .resultOrPartial { logger.warn("Failed to parse potion cauldron content: {}", it) }
+          .resultOrPartial { LOGGER.warn("Failed to parse potion cauldron content: {}", it) }
           .ifPresent { this.potionContents = it }
     }
-    // Send update if this data is set programmatically.
-    this.world?.updateListeners(this.pos, this.cachedState, this.cachedState, /* flags= */ 0)
+    // Send update, for example if this data is set programmatically.
+    if (sendUpdate) {
+      this.world?.updateListeners(this.pos, this.cachedState, this.cachedState, /* flags= */ 0)
+    }
+  }
+
+  override fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {
+    this.readNbt(nbt, registryLookup, /* sendUpdate= */ true)
   }
 
   override fun writeNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {

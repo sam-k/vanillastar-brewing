@@ -30,17 +30,18 @@ val BREWING_CAULDRON_STAND_BLOCK_METADATA =
       it.mapColor(MapColor.IRON_GRAY).requiresTool().strength(0.5f).nonOpaque().luminance { 1 }
     }
 
+/** [Block] for the brewing stand part of a brewing cauldron. */
 class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) {
   private companion object {
     val CODEC: MapCodec<BrewingCauldronStandBlock> = createCodec(::BrewingCauldronStandBlock)
     val SHAPE: VoxelShape =
         createCuboidShape(
-            /* minX= */ 7.0,
+            /* minX= */ 6.0,
             /* minY= */ -11.0,
-            /* minZ= */ 7.0,
-            /* maxX= */ 9.0,
+            /* minZ= */ 6.0,
+            /* maxX= */ 10.0,
             /* maxY= */ 14.0,
-            /* maxZ= */ 9.0,
+            /* maxZ= */ 10.0,
         )
   }
 

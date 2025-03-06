@@ -46,6 +46,7 @@
   "mixins": [
     "vsbrewing.mixins.json"
   ],
+  "accessWidener": "vsbrewing.accesswidener",
   "depends": {
     "minecraft": "${minecraft_target_versions}",
     "fabricloader": "${fabric_loader_target_versions}",
