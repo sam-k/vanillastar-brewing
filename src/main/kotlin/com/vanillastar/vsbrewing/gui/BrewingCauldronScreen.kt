@@ -2,6 +2,7 @@ package com.vanillastar.vsbrewing.gui
 
 import com.mojang.blaze3d.systems.RenderSystem
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
+import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
@@ -11,10 +12,13 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.client.gui.DrawContext
+import net.minecraft.client.gui.screen.Screen
+import net.minecraft.client.gui.screen.ingame.BrewingStandScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.client.render.RenderLayers
+import net.minecraft.client.render.block.BlockRenderManager
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
@@ -30,6 +34,7 @@ import org.locationtech.jts.geom.GeometryFactory
 import org.locationtech.jts.geom.Point
 import org.locationtech.jts.geom.impl.CoordinateArraySequence
 
+/** [Screen] for the brewing cauldron GUI. */
 @Environment(EnvType.CLIENT)
 class BrewingCauldronScreen(
     handler: BrewingCauldronScreenHandler,
@@ -71,6 +76,13 @@ class BrewingCauldronScreen(
     this.drawCauldronBlockTooltip(context, mouseX, mouseY)
   }
 
+  /**
+   * This is copied mostly from [BrewingStandScreen.drawBackground], with the added cauldron.
+   *
+   * Rendering the [PotionCauldronPreviewBlock] is copied mostly from
+   * [BlockRenderManager.renderBlockAsEntity]. We cannot use the method directly because we must
+   * manually inject color into a block not tied to world information.
+   */
   override fun drawBackground(context: DrawContext, delta: Float, mouseX: Int, mouseY: Int) {
     val x = (this.width - this.backgroundWidth) / 2
     val y = (this.height - this.backgroundHeight) / 2

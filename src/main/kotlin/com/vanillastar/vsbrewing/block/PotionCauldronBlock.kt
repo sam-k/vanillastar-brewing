@@ -15,6 +15,12 @@ val POTION_CAULDRON_BLOCK_METADATA =
       it.mapColor(MapColor.STONE_GRAY).requiresTool().strength(2.0f)
     }
 
+/**
+ * [Block] for a potion-filled cauldron.
+ *
+ * Water-filled cauldrons technically count as a potion cauldron but remain as the vanilla
+ * [LeveledCauldronBlock] for compatibility.
+ */
 open class PotionCauldronBlock(settings: Settings) :
     LeveledCauldronBlock(
         Biome.Precipitation.NONE,

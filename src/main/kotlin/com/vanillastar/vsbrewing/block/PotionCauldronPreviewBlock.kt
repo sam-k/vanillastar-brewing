@@ -9,4 +9,5 @@ val POTION_CAULDRON_PREVIEW_BLOCK_METADATA =
           .dropsNothing()
     }
 
+/** [PotionCauldronBlock] with two cauldron sides removed to show the potion contents inside. */
 class PotionCauldronPreviewBlock(settings: Settings) : PotionCauldronBlock(settings)

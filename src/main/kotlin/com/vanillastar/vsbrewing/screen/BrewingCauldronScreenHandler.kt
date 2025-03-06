@@ -10,12 +10,19 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.recipe.BrewingRecipeRegistry
 import net.minecraft.screen.ArrayPropertyDelegate
+import net.minecraft.screen.BrewingStandScreenHandler
 import net.minecraft.screen.PropertyDelegate
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.slot.Slot
 
 const val BREWING_CAULDRON_SCREEN_HANDLER_NAME = "brewing_cauldron"
 
+/**
+ * [ScreenHandler] for the brewing cauldron GUI.
+ *
+ * This is copied mostly from [BrewingStandScreenHandler], modified to take potions from a cauldron
+ * block below instead of item slots within its inventory.
+ */
 class BrewingCauldronScreenHandler(
     syncId: Int,
     private val playerInventory: PlayerInventory,

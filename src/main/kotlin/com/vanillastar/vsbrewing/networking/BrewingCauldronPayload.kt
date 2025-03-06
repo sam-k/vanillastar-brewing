@@ -9,6 +9,9 @@ import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.codec.PacketCodecs
 import net.minecraft.network.packet.CustomPayload
 
+/**
+ * Networking payload for updating clients on data related to rendering a potion-filled cauldron.
+ */
 data class BrewingCauldronPayload(
     val packedPos: Long,
     val level: Int,

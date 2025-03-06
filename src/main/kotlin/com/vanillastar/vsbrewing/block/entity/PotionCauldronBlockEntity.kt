@@ -23,6 +23,7 @@ val POTION_CAULDRON_BLOCK_ENTITY_METADATA =
         MOD_BLOCKS.potionCauldronPreviewBlock,
     )
 
+/** [BlockEntity] for a potion-filled cauldron. */
 class PotionCauldronBlockEntity(
     pos: BlockPos,
     val state: BlockState,
