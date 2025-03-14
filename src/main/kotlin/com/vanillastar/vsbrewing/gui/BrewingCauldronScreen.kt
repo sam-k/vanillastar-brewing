@@ -8,7 +8,7 @@ import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
-import java.util.*
+import java.util.Optional
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.block.BlockState

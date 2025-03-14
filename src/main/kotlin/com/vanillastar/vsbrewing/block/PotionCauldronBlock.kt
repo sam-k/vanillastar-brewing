@@ -1,7 +1,11 @@
 package com.vanillastar.vsbrewing.block
 
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
-import net.minecraft.block.*
+import net.minecraft.block.Block
+import net.minecraft.block.BlockEntityProvider
+import net.minecraft.block.BlockState
+import net.minecraft.block.LeveledCauldronBlock
+import net.minecraft.block.MapColor
 import net.minecraft.particle.EntityEffectParticleEffect
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.state.StateManager

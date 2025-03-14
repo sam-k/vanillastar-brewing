@@ -15,7 +15,12 @@ import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.*
+import net.minecraft.item.ItemGroup
+import net.minecraft.item.ItemGroups
+import net.minecraft.item.ItemStack
+import net.minecraft.item.ItemUsage
+import net.minecraft.item.ItemUsageContext
+import net.minecraft.item.PotionItem
 import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.potion.Potions
