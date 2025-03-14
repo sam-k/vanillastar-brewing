@@ -3,9 +3,12 @@ package com.vanillastar.vsbrewing.gui
 import com.mojang.blaze3d.systems.RenderSystem
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
+import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
+import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
+import java.util.*
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.block.BlockState
@@ -19,7 +22,11 @@ import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.client.render.RenderLayers
 import net.minecraft.client.render.block.BlockRenderManager
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerInventory
+import net.minecraft.item.Item
+import net.minecraft.potion.Potion
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
@@ -97,7 +104,12 @@ class BrewingCauldronScreen(
     )
 
     val remainingFuelWidth =
-        MathHelper.clamp((18 * this.handler.getFuel() + 20 - 1) / 20, /* min= */ 0, /* max= */ 18)
+        MathHelper.clamp(
+            (18 * this.handler.getFuel() + BrewingCauldronStandBlockEntity.FUEL_LEVEL_PER_ITEM -
+                1) / BrewingCauldronStandBlockEntity.FUEL_LEVEL_PER_ITEM,
+            /* min= */ 0,
+            /* max= */ 18,
+        )
     if (remainingFuelWidth > 0) {
       context.drawGuiTexture(
           FUEL_LENGTH_TEXTURE,
@@ -114,7 +126,9 @@ class BrewingCauldronScreen(
 
     val brewTime = this.handler.getBrewTime()
     if (brewTime > 0) {
-      val brewProgressHeight = (28.0f * (1.0f - brewTime / 400.0f)).toInt()
+      val brewProgressHeight =
+          (28.0f * (1.0f - brewTime / BrewingCauldronStandBlockEntity.BREW_TIME_TICKS.toFloat()))
+              .toInt()
       if (brewProgressHeight > 0) {
         context.drawGuiTexture(
             BREW_PROGRESS_TEXTURE,
@@ -217,13 +231,26 @@ class BrewingCauldronScreen(
     }
 
     val previewPotionStack = this.getPreviewCauldronBlockEntity().getPotionStack()
-    context.drawTooltip(
-        this.textRenderer,
-        this.getTooltipFromItem(previewPotionStack),
-        previewPotionStack.tooltipData,
-        mouseX,
-        mouseY,
+    val previewTooltip =
+        mutableListOf<Text>(
+            Text.translatable(
+                Potion.finishTranslationKey(
+                    previewPotionStack
+                        .getOrDefault(
+                            DataComponentTypes.POTION_CONTENTS,
+                            PotionContentsComponent.DEFAULT,
+                        )
+                        .potion,
+                    MOD_BLOCKS.potionCauldronPreviewBlock.translationKey + ".effect.",
+                )
+            )
+        )
+    PotionFlaskItem.appendPotionFlaskDataTooltip(
+        previewPotionStack,
+        Item.TooltipContext.create(this.client!!.world),
+        previewTooltip,
     )
+    context.drawTooltip(this.textRenderer, previewTooltip, Optional.empty(), mouseX, mouseY)
   }
 
   private fun getPreviewCauldronBlockState(): BlockState {

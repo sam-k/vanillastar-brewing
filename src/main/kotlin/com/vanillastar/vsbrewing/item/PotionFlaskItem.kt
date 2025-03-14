@@ -72,23 +72,29 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     /** Maximum number of uses for a [PotionFlaskItem]. */
     const val MAX_USES = 3
 
-    /** Translation key for the tooltip indicating number of remaining uses. */
-    private val remainingUsesTranslationKey =
-        "${
-        Util.createTranslationKey(
-          "item",
-          getModIdentifier(POTION_FLASK_ITEM_METADATA.name),
-        )
-      }.remaining_uses"
+    fun appendPotionFlaskDataTooltip(
+        stack: ItemStack,
+        context: TooltipContext,
+        tooltip: MutableList<Text>,
+    ) {
+      val effects = stack.get(DataComponentTypes.POTION_CONTENTS)?.effects
+      if (effects != null) {
+        appendEffectsTooltip(effects, context.updateTickRate) { tooltip.add(it) }
+      }
+      appendRemainingUsesTooltip(stack, tooltip)
+      if (effects != null) {
+        appendUsageTooltip(effects) { tooltip.add(it) }
+      }
+    }
 
     /**
-     * Builds the item tooltip displaying this potion flask's effects.
+     * Builds and appends the item tooltip displaying this potion flask's effects.
      *
      * This logic is mostly copied from [PotionContentsComponent.buildTooltip], since we wish to
      * insert our own tooltip within the default potion tooltip. Injecting into the function with a
      * mixin would be too fragile in this case.
      */
-    private fun buildEffectsTooltip(
+    private fun appendEffectsTooltip(
         effects: Iterable<StatusEffectInstance>,
         tickRate: Float,
         textConsumer: (Text) -> Unit,
@@ -120,14 +126,27 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
       }
     }
 
+    /** Builds and appends the item tooltip displaying the remaining uses of this potion flask. */
+    private fun appendRemainingUsesTooltip(stack: ItemStack, tooltip: MutableList<Text>) {
+      val potionFlaskItemTranslationKey =
+          Util.createTranslationKey("item", getModIdentifier(POTION_FLASK_ITEM_METADATA.name))
+      tooltip.add(
+          Text.translatable(
+                  "${potionFlaskItemTranslationKey}.remaining_uses",
+                  stack.get(MOD_COMPONENTS.potionFlaskRemainingUsesComponent),
+              )
+              .formatted(Formatting.GRAY)
+      )
+    }
+
     /**
-     * Builds the item tooltip displaying what happens when this potion flask is used.
+     * Builds and appends the item tooltip displaying what happens when this potion flask is used.
      *
      * This logic is mostly copied from [PotionContentsComponent.buildTooltip], since we wish to
      * insert our own tooltip within the default potion tooltip. Injecting into the function with a
      * mixin would be too fragile in this case.
      */
-    private fun buildUsageTooltip(
+    private fun appendUsageTooltip(
         effects: Iterable<StatusEffectInstance>,
         textConsumer: (Text) -> Unit,
     ) {
@@ -274,7 +293,6 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
 
     if (!world.isClient) {
       val serverWorld = world as ServerWorld
-
       repeat(5) {
         serverWorld.spawnParticles(
             ParticleTypes.SPLASH,
@@ -309,19 +327,6 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
       tooltip: MutableList<Text>,
       type: TooltipType,
   ) {
-    val effects = stack.get(DataComponentTypes.POTION_CONTENTS)?.effects
-    if (effects != null) {
-      buildEffectsTooltip(effects, context.updateTickRate) { tooltip.add(it) }
-    }
-    tooltip.add(
-        Text.translatable(
-                remainingUsesTranslationKey,
-                stack.get(MOD_COMPONENTS.potionFlaskRemainingUsesComponent),
-            )
-            .formatted(Formatting.GRAY)
-    )
-    if (effects != null) {
-      buildUsageTooltip(effects) { tooltip.add(it) }
-    }
+    appendPotionFlaskDataTooltip(stack, context, tooltip)
   }
 }

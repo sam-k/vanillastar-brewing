@@ -70,7 +70,7 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
     return validateTicker(
         type,
         MOD_BLOCK_ENTITIES.brewingCauldronStandBlockEntityType,
-        BrewingCauldronStandBlockEntity::tick,
+        BrewingCauldronStandBlockEntity.ticker,
     )
   }
 
@@ -100,7 +100,9 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
       newState: BlockState,
       moved: Boolean,
   ) {
-    ItemScatterer.onStateReplaced(state, newState, world, pos)
+    if (!newState.isOf(Blocks.BREWING_STAND)) {
+      ItemScatterer.onStateReplaced(state, newState, world, pos)
+    }
     super.onStateReplaced(state, world, pos, newState, moved)
   }
 
