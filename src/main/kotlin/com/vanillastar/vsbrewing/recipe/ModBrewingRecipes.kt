@@ -41,6 +41,7 @@ abstract class ModBrewingRecipes : ModRegistry() {
 
       registerPotionType(MOD_ITEMS.potionFlaskItem)
 
+      registerPotionRecipe(Potions.WATER, Items.ARMADILLO_SCUTE, Potions.MUNDANE)
       registerPotionRecipe(Potions.WATER, Items.REDSTONE, Potions.THICK)
 
       registerPotionRecipe(
