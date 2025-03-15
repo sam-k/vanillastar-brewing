@@ -2,7 +2,11 @@ package com.vanillastar.vsbrewing.item
 
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.*
+import net.minecraft.item.Item
+import net.minecraft.item.ItemGroups
+import net.minecraft.item.ItemStack
+import net.minecraft.item.ItemUsage
+import net.minecraft.item.Items
 import net.minecraft.potion.Potions
 import net.minecraft.registry.tag.FluidTags
 import net.minecraft.sound.SoundCategory

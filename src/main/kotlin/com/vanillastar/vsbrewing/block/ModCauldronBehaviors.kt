@@ -119,9 +119,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           player.incrementStat(Stats.USED.getOrCreateStat(stack.item))
 
           val newState =
-              if (cauldronLevel >= LeveledCauldronBlock.MIN_LEVEL) {
-                state.cycle(LeveledCauldronBlock.LEVEL)
-              } else if (stackPotionContents.matches(Potions.WATER)) {
+              if (stackPotionContents.matches(Potions.WATER)) {
                 Blocks.WATER_CAULDRON.defaultState.with(
                     LeveledCauldronBlock.LEVEL,
                     cauldronLevel + diffLevel,

@@ -16,6 +16,7 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.BlockEntityTicker
 import net.minecraft.block.entity.BrewingStandBlockEntity
 import net.minecraft.block.entity.LockableContainerBlockEntity
 import net.minecraft.component.DataComponentTypes
@@ -66,57 +67,75 @@ class BrewingCauldronStandBlockEntity(pos: BlockPos, state: BlockState) :
     const val BREW_TIME_DATA_INDEX = 0
     const val FUEL_LEVEL_DATA_INDEX = 1
 
+    const val FUEL_LEVEL_PER_ITEM = 20
+    const val BREW_TIME_TICKS = 10 * SharedConstants.TICKS_PER_SECOND
+
     private val TOP_SLOTS = intArrayOf(INGREDIENT_SLOT_INDEX)
     private val SIDE_SLOTS = intArrayOf(FUEL_SLOT_INDEX)
 
-    private const val FUEL_LEVEL_PER_ITEM = 20
+    internal val ticker =
+        object : BlockEntityTicker<BrewingCauldronStandBlockEntity> {
+          override fun tick(
+              world: World,
+              pos: BlockPos,
+              state: BlockState,
+              blockEntity: BrewingCauldronStandBlockEntity,
+          ) {
+            // Refill fuel if empty.
+            val fuel = blockEntity.inventory[FUEL_SLOT_INDEX]
+            if (blockEntity.fuelLevel <= 0 && fuel.isOf(Items.BLAZE_POWDER)) {
+              blockEntity.fuelLevel = FUEL_LEVEL_PER_ITEM
+              fuel.decrement(1)
+              markDirty(world, pos, state)
+            }
 
-    internal fun tick(
-        world: World,
-        pos: BlockPos,
-        state: BlockState,
-        blockEntity: BrewingCauldronStandBlockEntity,
-    ) {
-      // Refill fuel if empty.
-      val fuel = blockEntity.inventory[FUEL_SLOT_INDEX]
-      if (blockEntity.fuelLevel <= 0 && fuel.isOf(Items.BLAZE_POWDER)) {
-        blockEntity.fuelLevel = FUEL_LEVEL_PER_ITEM
-        fuel.decrement(1)
-        markDirty(world, pos, state)
-      }
-
-      val isCraftable = this.canCraft(world, pos, blockEntity.inventory)
-      val ingredient = blockEntity.inventory[INGREDIENT_SLOT_INDEX]
-      if (blockEntity.brewTime > 0) {
-        // Continue brewing, or halt if no longer valid.
-        blockEntity.brewTime--
-        if (blockEntity.brewTime == 0 && isCraftable) {
-          this.craft(world, pos, blockEntity.inventory)
-        } else if (!isCraftable || !ingredient.isOf(blockEntity.itemBrewing)) {
-          blockEntity.brewTime = 0
+            val isCraftable = canCraft(world, pos, blockEntity.inventory)
+            val ingredient = blockEntity.inventory[INGREDIENT_SLOT_INDEX]
+            if (blockEntity.brewTime > 0) {
+              // Continue brewing, or halt if no longer valid.
+              blockEntity.brewTime--
+              if (blockEntity.brewTime == 0 && isCraftable) {
+                craft(world, pos, blockEntity.inventory)
+              } else if (!isCraftable || !ingredient.isOf(blockEntity.itemBrewing)) {
+                blockEntity.brewTime = 0
+              }
+              markDirty(world, pos, state)
+            } else if (isCraftable && blockEntity.fuelLevel > 0) {
+              // Start crafting.
+              blockEntity.fuelLevel--
+              blockEntity.brewTime = BREW_TIME_TICKS
+              blockEntity.itemBrewing = ingredient.item
+              markDirty(world, pos, state)
+            }
+          }
         }
-        markDirty(world, pos, state)
-      } else if (isCraftable && blockEntity.fuelLevel > 0) {
-        // Start crafting.
-        blockEntity.fuelLevel--
-        blockEntity.brewTime = 20 * SharedConstants.TICKS_PER_SECOND
-        blockEntity.itemBrewing = ingredient.item
-        markDirty(world, pos, state)
-      }
-    }
 
     private fun getBrewingCauldronPayload(
         pos: BlockPos,
         state: BlockState?,
         blockEntity: PotionCauldronBlockEntity?,
         player: ServerPlayerEntity?,
-    ) =
-        BrewingCauldronPayload(
-            pos.asLong(),
-            state?.getOrEmpty(LeveledCauldronBlock.LEVEL)?.getOrNull() ?: 0,
-            (if (player != null) blockEntity?.createNbt(player.world.registryManager) else null)
-                ?: NbtCompound(),
-        )
+    ): BrewingCauldronPayload {
+      val cauldronPos = pos.down()
+      val resolvedBlockEntity =
+          blockEntity
+              ?: if (state != null && state.isOf(Blocks.WATER_CAULDRON)) {
+                PotionCauldronBlockEntity(
+                    cauldronPos,
+                    state,
+                    PotionContentsComponent(Potions.WATER),
+                )
+              } else {
+                null
+              }
+      val potionNbt =
+          if (player != null) resolvedBlockEntity?.createNbt(player.world.registryManager) else null
+      return BrewingCauldronPayload(
+          pos.asLong(),
+          state?.getOrEmpty(LeveledCauldronBlock.LEVEL)?.getOrNull() ?: 0,
+          potionNbt ?: NbtCompound(),
+      )
+    }
 
     private fun getCauldronPotionStack(world: World, pos: BlockPos): ItemStack {
       val cauldronPos = pos.down()

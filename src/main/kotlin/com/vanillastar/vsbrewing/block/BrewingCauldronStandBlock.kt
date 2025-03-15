@@ -4,7 +4,14 @@ import com.mojang.serialization.MapCodec
 import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.tag.MOD_TAGS
-import net.minecraft.block.*
+import net.minecraft.block.Block
+import net.minecraft.block.BlockRenderType
+import net.minecraft.block.BlockState
+import net.minecraft.block.BlockWithEntity
+import net.minecraft.block.Blocks
+import net.minecraft.block.BrewingStandBlock
+import net.minecraft.block.MapColor
+import net.minecraft.block.ShapeContext
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityTicker
 import net.minecraft.block.entity.BlockEntityType
@@ -70,7 +77,7 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
     return validateTicker(
         type,
         MOD_BLOCK_ENTITIES.brewingCauldronStandBlockEntityType,
-        BrewingCauldronStandBlockEntity::tick,
+        BrewingCauldronStandBlockEntity.ticker,
     )
   }
 
@@ -100,7 +107,9 @@ class BrewingCauldronStandBlock(settings: Settings) : BlockWithEntity(settings) 
       newState: BlockState,
       moved: Boolean,
   ) {
-    ItemScatterer.onStateReplaced(state, newState, world, pos)
+    if (!newState.isOf(Blocks.BREWING_STAND)) {
+      ItemScatterer.onStateReplaced(state, newState, world, pos)
+    }
     super.onStateReplaced(state, world, pos, newState, moved)
   }
 

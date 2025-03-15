@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "block.BrewingStandBlockMixin",
+    "component.PotionContentsComponentMixin",
     "potion.PotionsMixin",
     "recipe.BrewingRecipeRegistryBuilderMixin"
   ],
