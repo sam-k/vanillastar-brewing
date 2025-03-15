@@ -2,6 +2,8 @@ package com.vanillastar.vsbrewing.item
 
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
+import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 import kotlin.streams.asStream
 import net.minecraft.SharedConstants
 import net.minecraft.advancement.criterion.Criteria
@@ -56,7 +58,23 @@ val POTION_FLASK_ITEM_METADATA =
                             ItemGroup.StackVisibility.SEARCH_TAB_ONLY
                         else ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS
                     ) { stack ->
-                      stack.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent(potion))
+                      val customColorOptional =
+                          if (
+                              potion.matchesKey(Potions.MUNDANE.key.getOrNull()) ||
+                                  potion.matchesKey(Potions.THICK.key.getOrNull())
+                          ) {
+                            Optional.of(PotionContentsComponent.getColor(listOf()))
+                          } else {
+                            Optional.empty()
+                          }
+                      stack.set(
+                          DataComponentTypes.POTION_CONTENTS,
+                          PotionContentsComponent(
+                              Optional.of(potion),
+                              customColorOptional,
+                              listOf(),
+                          ),
+                      )
                       stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses)
                     }
                   }

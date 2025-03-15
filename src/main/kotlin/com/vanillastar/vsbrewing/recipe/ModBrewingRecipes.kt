@@ -1,6 +1,8 @@
 package com.vanillastar.vsbrewing.recipe
 
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
+import com.vanillastar.vsbrewing.potion.LONG_NAUSEA_POTION_ID
+import com.vanillastar.vsbrewing.potion.NAUSEA_POTION_ID
 import com.vanillastar.vsbrewing.potion.STRONG_WEAKNESS_POTION_ID
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder
@@ -14,6 +16,8 @@ import net.minecraft.registry.entry.RegistryEntry
 abstract class ModBrewingRecipes : ModRegistry() {
   override fun initialize() {
     FabricBrewingRecipeRegistryBuilder.BUILD.register {
+      val nauseaPotion = Registries.POTION.getEntry(NAUSEA_POTION_ID).get()
+      val longNauseaPotion = Registries.POTION.getEntry(LONG_NAUSEA_POTION_ID).get()
       val strongWeaknessPotion = Registries.POTION.getEntry(STRONG_WEAKNESS_POTION_ID).get()
 
       fun registerPotionType(item: Item) {
@@ -39,14 +43,16 @@ abstract class ModBrewingRecipes : ModRegistry() {
 
       registerPotionRecipe(Potions.WATER, Items.REDSTONE, Potions.THICK)
 
-      registerPotionRecipe(Potions.AWKWARD, Items.POISONOUS_POTATO, Potions.POISON)
-
       registerPotionRecipe(
           Potions.STRONG_LEAPING,
           Items.FERMENTED_SPIDER_EYE,
           Potions.STRONG_SLOWNESS,
       )
 
+      registerPotionRecipe(Potions.AWKWARD, Items.ARMADILLO_SCUTE, nauseaPotion)
+      registerPotionRecipe(nauseaPotion, Items.REDSTONE, longNauseaPotion)
+
+      registerPotionRecipe(Potions.AWKWARD, Items.POISONOUS_POTATO, Potions.POISON)
       registerPotionRecipe(Potions.LONG_POISON, Items.FERMENTED_SPIDER_EYE, Potions.HARMING)
 
       registerPotionRecipe(Potions.REGENERATION, Items.FERMENTED_SPIDER_EYE, Potions.POISON)
