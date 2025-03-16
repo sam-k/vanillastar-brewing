@@ -8,12 +8,18 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.BrewingStandBlock;
 import net.minecraft.block.ShapeContext;
+import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.entity.BrewingStandBlockEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
+import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
@@ -57,14 +63,53 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
       BlockPos neighborPos) {
     state =
         super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
-    return direction == Direction.DOWN
-        ? state.with(BREWING_STAND_IS_ON_CAULDRON, neighborState.isIn(MOD_TAGS.brewableCauldrons))
-        : state;
+    if (direction != Direction.DOWN) {
+      return state;
+    }
+
+    boolean isOnCauldron = neighborState.isIn(MOD_TAGS.brewableCauldrons);
+    if (isOnCauldron) {
+      for (BooleanProperty property : BrewingStandBlock.BOTTLE_PROPERTIES) {
+        state = state.with(property, false);
+      }
+    }
+    return state.with(BREWING_STAND_IS_ON_CAULDRON, isOnCauldron);
   }
 
   @Inject(method = "<init>(Lnet/minecraft/block/AbstractBlock$Settings;)V", at = @At("TAIL"))
   private void brewingCauldronConstructor(Settings settings, CallbackInfo ci) {
     this.setDefaultState(this.getDefaultState().with(BREWING_STAND_IS_ON_CAULDRON, false));
+  }
+
+  @Inject(
+      method =
+          "onStateReplaced(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)V",
+      at = @At("HEAD"))
+  private void onBrewingCauldronStateReplaced(
+      @NotNull BlockState state,
+      World world,
+      BlockPos pos,
+      BlockState newState,
+      boolean moved,
+      CallbackInfo ci) {
+    if (state.getOrEmpty(BREWING_STAND_IS_ON_CAULDRON).orElse(false)
+        || !newState.getOrEmpty(BREWING_STAND_IS_ON_CAULDRON).orElse(false)) {
+      // Dump potion slot items only if the previous state is a brewing stand and the new state is a
+      // brewing cauldron.
+      return;
+    }
+
+    BrewingStandBlockEntity blockEntity =
+        world.getBlockEntity(pos, BlockEntityType.BREWING_STAND).orElse(null);
+    if (blockEntity == null) {
+      return;
+    }
+
+    for (int i = 0; i < 3; i++) {
+      ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), blockEntity.inventory.get(i));
+      blockEntity.inventory.set(i, ItemStack.EMPTY);
+    }
+    blockEntity.markDirty();
   }
 
   @Inject(
