@@ -11,13 +11,6 @@ import net.minecraft.util.math.BlockPos
 
 abstract class ModBlockEntities : ModRegistry() {
   @JvmField
-  val brewingCauldronStandBlockEntityType =
-      registerBlockEntity(
-          BREWING_CAULDRON_STAND_BLOCK_ENTITY_METADATA,
-          ::BrewingCauldronStandBlockEntity,
-      )
-
-  @JvmField
   val potionCauldronBlockEntityType =
       registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
 
