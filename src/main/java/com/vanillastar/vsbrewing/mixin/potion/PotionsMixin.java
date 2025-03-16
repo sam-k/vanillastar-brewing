@@ -1,6 +1,8 @@
 package com.vanillastar.vsbrewing.mixin.potion;
 
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.*;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.LONG_NAUSEA_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.NAUSEA_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_WEAKNESS_POTION_ID;
 import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
 import net.minecraft.SharedConstants;

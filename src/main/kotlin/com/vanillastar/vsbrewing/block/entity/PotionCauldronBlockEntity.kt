@@ -27,11 +27,13 @@ val POTION_CAULDRON_BLOCK_ENTITY_METADATA =
 class PotionCauldronBlockEntity(
     pos: BlockPos,
     val state: BlockState,
-    var potionContents: PotionContentsComponent = PotionContentsComponent.DEFAULT,
+    var potionContents: PotionContentsComponent,
 ) : BlockEntity(MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType, pos, state) {
   private companion object {
     val LOGGER = getLogger()
   }
+
+  constructor(pos: BlockPos, state: BlockState) : this(pos, state, PotionContentsComponent.DEFAULT)
 
   fun getPotionStack(): ItemStack {
     val stack = ItemStack(MOD_ITEMS.potionFlaskItem)

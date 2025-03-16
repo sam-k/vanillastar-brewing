@@ -1,3 +1,10 @@
 accessWidener v2 named
 
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity brewTime I
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity fuel I
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity inventory Lnet/minecraft/util/collection/DefaultedList;
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity itemBrewing Lnet/minecraft/item/Item;
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity propertyDelegate Lnet/minecraft/screen/PropertyDelegate;
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity INPUT_SLOT_INDEX I
+accessible field net/minecraft/block/entity/BrewingStandBlockEntity FUEL_SLOT_INDEX I
 accessible field net/minecraft/client/render/block/BlockRenderManager blockModelRenderer Lnet/minecraft/client/render/block/BlockModelRenderer;

@@ -9,12 +9,11 @@ import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
+import net.minecraft.state.property.BooleanProperty
+
+@JvmField val BREWING_STAND_IS_ON_CAULDRON: BooleanProperty = BooleanProperty.of("is_on_cauldron")
 
 abstract class ModBlocks : ModRegistry() {
-  @JvmField
-  val brewingCauldronStandBlock =
-      registerBlock(BREWING_CAULDRON_STAND_BLOCK_METADATA, ::BrewingCauldronStandBlock)
-
   @JvmField
   val potionCauldronBlock = registerBlock(POTION_CAULDRON_BLOCK_METADATA, ::PotionCauldronBlock)
 

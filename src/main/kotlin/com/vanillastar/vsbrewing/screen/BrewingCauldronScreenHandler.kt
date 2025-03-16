@@ -1,13 +1,17 @@
 package com.vanillastar.vsbrewing.screen
 
-import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
+import com.vanillastar.vsbrewing.block.entity.BREWING_STAND_INVENTORY_FUEL_SLOT_INDEX
+import com.vanillastar.vsbrewing.block.entity.BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX
+import com.vanillastar.vsbrewing.block.entity.BREWING_STAND_INVENTORY_SIZE
 import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
+import net.minecraft.block.entity.BrewingStandBlockEntity
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.PlayerInventory
 import net.minecraft.inventory.Inventory
 import net.minecraft.inventory.SimpleInventory
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
+import net.minecraft.nbt.NbtCompound
 import net.minecraft.recipe.BrewingRecipeRegistry
 import net.minecraft.screen.ArrayPropertyDelegate
 import net.minecraft.screen.BrewingStandScreenHandler
@@ -26,12 +30,22 @@ const val BREWING_CAULDRON_SCREEN_HANDLER_NAME = "brewing_cauldron"
 class BrewingCauldronScreenHandler(
     syncId: Int,
     private val playerInventory: PlayerInventory,
-    internal var data: BrewingCauldronPayload,
-    private val inventory: Inventory =
-        SimpleInventory(BrewingCauldronStandBlockEntity.INVENTORY_SIZE),
+    internal var data: BrewingCauldronPayload = BrewingCauldronPayload(0, 0, NbtCompound()),
+    private val inventory: Inventory = SimpleInventory(BREWING_STAND_INVENTORY_SIZE),
     private val propertyDelegate: PropertyDelegate =
-        ArrayPropertyDelegate(BrewingCauldronStandBlockEntity.DATA_SIZE),
+        ArrayPropertyDelegate(BrewingStandBlockEntity.PROPERTY_COUNT),
 ) : ScreenHandler(MOD_SCREEN_HANDLERS.brewingCauldronScreenHandler, syncId) {
+  private companion object {
+    /** Displayed slot index for the ingredient item. */
+    const val INGREDIENT_DISPLAY_SLOT_INDEX = 0
+
+    /** Displayed slot index for the fuel item. */
+    const val FUEL_DISPLAY_SLOT_INDEX = 1
+
+    /** Effective inventory size for a brewing cauldron, which lacks potion slots. */
+    const val BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE = 2
+  }
+
   private val brewingRecipeRegistry: BrewingRecipeRegistry =
       this.playerInventory.player.world.brewingRecipeRegistry
 
@@ -39,7 +53,7 @@ class BrewingCauldronScreenHandler(
       object :
           Slot(
               this.inventory,
-              BrewingCauldronStandBlockEntity.INGREDIENT_SLOT_INDEX,
+              BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX,
               /* x= */ 79,
               /* y= */ 17,
           ) {
@@ -49,18 +63,13 @@ class BrewingCauldronScreenHandler(
 
   private val fuelSlot =
       object :
-          Slot(
-              this.inventory,
-              BrewingCauldronStandBlockEntity.FUEL_SLOT_INDEX,
-              /* x= */ 17,
-              /* y= */ 17,
-          ) {
+          Slot(this.inventory, BREWING_STAND_INVENTORY_FUEL_SLOT_INDEX, /* x= */ 17, /* y= */ 17) {
         override fun canInsert(stack: ItemStack) = stack.isOf(Items.BLAZE_POWDER)
       }
 
   init {
-    checkSize(inventory, BrewingCauldronStandBlockEntity.INVENTORY_SIZE)
-    checkDataCount(propertyDelegate, BrewingCauldronStandBlockEntity.DATA_SIZE)
+    checkSize(inventory, BREWING_STAND_INVENTORY_SIZE)
+    checkDataCount(propertyDelegate, BrewingStandBlockEntity.PROPERTY_COUNT)
 
     this.addSlot(this.ingredientSlot)
     this.addSlot(this.fuelSlot)
@@ -84,10 +93,9 @@ class BrewingCauldronScreenHandler(
     }
   }
 
-  fun getBrewTime() =
-      this.propertyDelegate.get(BrewingCauldronStandBlockEntity.BREW_TIME_DATA_INDEX)
+  fun getBrewTime() = this.propertyDelegate.get(BrewingStandBlockEntity.BREW_TIME_PROPERTY_INDEX)
 
-  fun getFuel() = this.propertyDelegate.get(BrewingCauldronStandBlockEntity.FUEL_LEVEL_DATA_INDEX)
+  fun getFuel() = this.propertyDelegate.get(BrewingStandBlockEntity.FUEL_PROPERTY_INDEX)
 
   override fun canUse(player: PlayerEntity) = this.inventory.canPlayerUse(player)
 
@@ -101,10 +109,16 @@ class BrewingCauldronScreenHandler(
     val newStack = slot.stack
     stack = newStack.copy()
 
-    val inventorySize = this.inventory.size()
-    if (slotIndex < inventorySize) {
+    if (slotIndex < BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE) {
       // Slot is in brewing cauldron inventory. Try quick-moving into player inventory.
-      if (!this.insertItem(newStack, inventorySize, this.slots.size, /* fromLast= */ true)) {
+      if (
+          !this.insertItem(
+              newStack,
+              BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE,
+              this.slots.size,
+              /* fromLast= */ true,
+          )
+      ) {
         return ItemStack.EMPTY // Quick-move failed
       }
       slot.onQuickTransfer(newStack, stack)
@@ -127,24 +141,38 @@ class BrewingCauldronScreenHandler(
         if (!this.tryQuickMoveIntoIngredientSlot(newStack)) {
           return ItemStack.EMPTY // Quick-move failed
         }
-      } else if (slotIndex < inventorySize + 27) {
+      } else if (slotIndex < BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE + 27) {
         // Slot is in player storage. Try quick-moving into player hotbar.
         if (
             !this.insertItem(
                 newStack,
-                inventorySize + 27,
-                inventorySize + 36,
+                BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE + 27,
+                BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE + 36,
                 /* fromLast= */ false,
             )
         ) {
           return ItemStack.EMPTY // Quick-move failed
         }
-      } else if (slotIndex < inventorySize + 36) {
+      } else if (slotIndex < BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE + 36) {
         // Slot is in player hotbar. Try quick-moving into player storage.
-        if (!this.insertItem(newStack, inventorySize, inventorySize + 27, /* fromLast= */ false)) {
+        if (
+            !this.insertItem(
+                newStack,
+                BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE,
+                BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE + 27,
+                /* fromLast= */ false,
+            )
+        ) {
           return ItemStack.EMPTY // Quick-move failed
         }
-      } else if (!this.insertItem(newStack, inventorySize, inventorySize + 36, false)) {
+      } else if (
+          !this.insertItem(
+              newStack,
+              BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE,
+              BREWING_CAULDRON_DISPLAY_INVENTORY_SIZE + 36,
+              false,
+          )
+      ) {
         // Try quick-moving into player inventory.
         return ItemStack.EMPTY // Quick-move failed
       }
@@ -167,16 +195,16 @@ class BrewingCauldronScreenHandler(
   private fun tryQuickMoveIntoFuelSlot(stack: ItemStack) =
       this.insertItem(
           stack,
-          BrewingCauldronStandBlockEntity.FUEL_SLOT_INDEX,
-          BrewingCauldronStandBlockEntity.FUEL_SLOT_INDEX + 1,
+          FUEL_DISPLAY_SLOT_INDEX,
+          FUEL_DISPLAY_SLOT_INDEX + 1,
           /* fromLast= */ false,
       )
 
   private fun tryQuickMoveIntoIngredientSlot(stack: ItemStack) =
       this.insertItem(
           stack,
-          BrewingCauldronStandBlockEntity.INGREDIENT_SLOT_INDEX,
-          BrewingCauldronStandBlockEntity.INGREDIENT_SLOT_INDEX + 1,
+          INGREDIENT_DISPLAY_SLOT_INDEX,
+          INGREDIENT_DISPLAY_SLOT_INDEX + 1,
           /* fromLast= */ false,
       )
 }

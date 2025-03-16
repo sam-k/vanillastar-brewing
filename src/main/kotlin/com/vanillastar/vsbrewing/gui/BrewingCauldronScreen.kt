@@ -3,7 +3,7 @@ package com.vanillastar.vsbrewing.gui
 import com.mojang.blaze3d.systems.RenderSystem
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
-import com.vanillastar.vsbrewing.block.entity.BrewingCauldronStandBlockEntity
+import com.vanillastar.vsbrewing.block.entity.BREWING_CAULDRON_BREW_TIME_TICKS
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
@@ -14,6 +14,7 @@ import net.fabricmc.api.Environment
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
+import net.minecraft.block.entity.BrewingStandBlockEntity
 import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.ingame.BrewingStandScreen
@@ -105,8 +106,8 @@ class BrewingCauldronScreen(
 
     val remainingFuelWidth =
         MathHelper.clamp(
-            (18 * this.handler.getFuel() + BrewingCauldronStandBlockEntity.FUEL_LEVEL_PER_ITEM -
-                1) / BrewingCauldronStandBlockEntity.FUEL_LEVEL_PER_ITEM,
+            (18 * this.handler.getFuel() + BrewingStandBlockEntity.MAX_FUEL_USES - 1) /
+                BrewingStandBlockEntity.MAX_FUEL_USES,
             /* min= */ 0,
             /* max= */ 18,
         )
@@ -127,8 +128,7 @@ class BrewingCauldronScreen(
     val brewTime = this.handler.getBrewTime()
     if (brewTime > 0) {
       val brewProgressHeight =
-          (28.0f * (1.0f - brewTime / BrewingCauldronStandBlockEntity.BREW_TIME_TICKS.toFloat()))
-              .toInt()
+          (28.0f * (1.0f - brewTime / BREWING_CAULDRON_BREW_TIME_TICKS.toFloat())).toInt()
       if (brewProgressHeight > 0) {
         context.drawGuiTexture(
             BREW_PROGRESS_TEXTURE,
