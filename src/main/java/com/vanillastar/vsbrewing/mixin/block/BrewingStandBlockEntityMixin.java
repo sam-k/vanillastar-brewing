@@ -3,8 +3,6 @@ package com.vanillastar.vsbrewing.mixin.block;
 import static com.vanillastar.vsbrewing.VSBrewingKt.MOD_ID;
 import static com.vanillastar.vsbrewing.block.ModBlocksKt.MOD_BLOCKS;
 import static com.vanillastar.vsbrewing.block.entity.BlockEntityHelperKt.BREWING_CAULDRON_BREW_TIME_TICKS;
-import static com.vanillastar.vsbrewing.block.entity.BlockEntityHelperKt.BREWING_STAND_INVENTORY_FUEL_SLOT_INDEX;
-import static com.vanillastar.vsbrewing.block.entity.BlockEntityHelperKt.BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX;
 import static com.vanillastar.vsbrewing.block.entity.ModBlockEntitiesKt.MOD_BLOCK_ENTITIES;
 import static com.vanillastar.vsbrewing.component.ModComponentsKt.MOD_COMPONENTS;
 import static com.vanillastar.vsbrewing.item.ModItemsKt.MOD_ITEMS;
@@ -85,7 +83,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       @NotNull World world, BlockPos pos, @NotNull DefaultedList<ItemStack> slots) {
     BrewingRecipeRegistry brewingRecipeRegistry = world.getBrewingRecipeRegistry();
 
-    ItemStack ingredient = slots.get(BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX);
+    ItemStack ingredient = slots.get(BrewingStandBlockEntity.INPUT_SLOT_INDEX);
     if (ingredient.isEmpty() || !brewingRecipeRegistry.isValidIngredient(ingredient)) {
       return false;
     }
@@ -98,7 +96,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       @NotNull World world, BlockPos pos, @NotNull DefaultedList<ItemStack> slots) {
     BrewingRecipeRegistry brewingRecipeRegistry = world.getBrewingRecipeRegistry();
 
-    ItemStack ingredientStack = slots.get(BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX);
+    ItemStack ingredientStack = slots.get(BrewingStandBlockEntity.INPUT_SLOT_INDEX);
     ItemStack cauldronPotionStack = getCauldronPotionStack(world, pos);
     ItemStack resultingPotionStack =
         brewingRecipeRegistry.craft(ingredientStack, cauldronPotionStack);
@@ -147,7 +145,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       }
     }
 
-    slots.set(BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX, ingredientStack);
+    slots.set(BrewingStandBlockEntity.INPUT_SLOT_INDEX, ingredientStack);
     world.syncWorldEvent(WorldEvents.BREWING_STAND_BREWS, pos, /* data= */ 0);
   }
 
@@ -187,7 +185,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
     }
 
     // Refill fuel if empty.
-    ItemStack fuel = blockEntity.inventory.get(BREWING_STAND_INVENTORY_FUEL_SLOT_INDEX);
+    ItemStack fuel = blockEntity.inventory.get(BrewingStandBlockEntity.FUEL_SLOT_INDEX);
     if (blockEntity.fuel <= 0 && fuel.isOf(Items.BLAZE_POWDER)) {
       blockEntity.fuel = BrewingStandBlockEntity.MAX_FUEL_USES;
       fuel.decrement(1);
@@ -195,7 +193,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
     }
 
     boolean isCraftable = canCraftInBrewingCauldron(world, pos, blockEntity.inventory);
-    ItemStack ingredient = blockEntity.inventory.get(BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX);
+    ItemStack ingredient = blockEntity.inventory.get(BrewingStandBlockEntity.INPUT_SLOT_INDEX);
     if (blockEntity.brewTime > 0) {
       // Continue brewing, or halt if no longer valid.
       blockEntity.brewTime--;

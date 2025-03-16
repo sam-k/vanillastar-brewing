@@ -1,7 +1,5 @@
 package com.vanillastar.vsbrewing.screen
 
-import com.vanillastar.vsbrewing.block.entity.BREWING_STAND_INVENTORY_FUEL_SLOT_INDEX
-import com.vanillastar.vsbrewing.block.entity.BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX
 import com.vanillastar.vsbrewing.block.entity.BREWING_STAND_INVENTORY_SIZE
 import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload
 import net.minecraft.block.entity.BrewingStandBlockEntity
@@ -51,19 +49,14 @@ class BrewingCauldronScreenHandler(
 
   private val ingredientSlot =
       object :
-          Slot(
-              this.inventory,
-              BREWING_STAND_INVENTORY_INGREDIENT_SLOT_INDEX,
-              /* x= */ 79,
-              /* y= */ 17,
-          ) {
+          Slot(this.inventory, BrewingStandBlockEntity.INPUT_SLOT_INDEX, /* x= */ 79, /* y= */ 17) {
         override fun canInsert(stack: ItemStack) =
             this@BrewingCauldronScreenHandler.brewingRecipeRegistry.isValidIngredient(stack)
       }
 
   private val fuelSlot =
       object :
-          Slot(this.inventory, BREWING_STAND_INVENTORY_FUEL_SLOT_INDEX, /* x= */ 17, /* y= */ 17) {
+          Slot(this.inventory, BrewingStandBlockEntity.FUEL_SLOT_INDEX, /* x= */ 17, /* y= */ 17) {
         override fun canInsert(stack: ItemStack) = stack.isOf(Items.BLAZE_POWDER)
       }
 

@@ -1,6 +1,7 @@
 package com.vanillastar.vsbrewing.mixin.block;
 
 import static com.vanillastar.vsbrewing.block.ModBlocksKt.BREWING_STAND_IS_ON_CAULDRON;
+import static com.vanillastar.vsbrewing.block.entity.BlockEntityHelperKt.BREWING_STAND_INVENTORY_POTION_SLOT_INDICES;
 import static com.vanillastar.vsbrewing.tag.ModTagsKt.MOD_TAGS;
 
 import net.minecraft.block.Block;
@@ -105,9 +106,10 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
       return;
     }
 
-    for (int i = 0; i < 3; i++) {
-      ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), blockEntity.inventory.get(i));
-      blockEntity.inventory.set(i, ItemStack.EMPTY);
+    for (int potionSlotIndex : BREWING_STAND_INVENTORY_POTION_SLOT_INDICES) {
+      ItemScatterer.spawn(
+          world, pos.getX(), pos.getY(), pos.getZ(), blockEntity.inventory.get(potionSlotIndex));
+      blockEntity.inventory.set(potionSlotIndex, ItemStack.EMPTY);
     }
     blockEntity.markDirty();
   }
