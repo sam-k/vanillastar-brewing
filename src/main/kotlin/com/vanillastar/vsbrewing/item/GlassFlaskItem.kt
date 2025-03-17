@@ -1,8 +1,9 @@
 package com.vanillastar.vsbrewing.item
 
+import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
+import net.minecraft.item.AliasedBlockItem
 import net.minecraft.item.ItemGroups
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsage
@@ -24,7 +25,7 @@ val GLASS_FLASK_ITEM_METADATA =
       it.maxCount(64)
     }
 
-class GlassFlaskItem(settings: Settings) : Item(settings) {
+class GlassFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
   override fun use(world: World, player: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
     val stack = player.getStackInHand(hand)
 

@@ -43,14 +43,15 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
   }
 
   @Override
-  public BlockState getPlacementState(@NotNull ItemPlacementContext ctx) {
-    BlockState state = super.getPlacementState(ctx);
+  public BlockState getPlacementState(@NotNull ItemPlacementContext context) {
+    BlockState state = super.getPlacementState(context);
     return state == null
         ? null
         : state.with(
             BREWING_STAND_IS_ON_CAULDRON,
-            ctx.getWorld()
-                .getBlockState(ctx.getBlockPos().down())
+            context
+                .getWorld()
+                .getBlockState(context.getBlockPos().down())
                 .isIn(MOD_TAGS.brewableCauldrons));
   }
 

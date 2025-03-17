@@ -14,6 +14,9 @@ abstract class ModBlockEntities : ModRegistry() {
   val potionCauldronBlockEntityType =
       registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
 
+  @JvmField
+  val flaskBlockEntityType = registerBlockEntity(FLASK_BLOCK_ENTITY_METADATA, ::FlaskBlockEntity)
+
   private fun <TBlockEntity : BlockEntity> registerBlockEntity(
       metadata: ModBlockEntityMetadata,
       constructor: (BlockPos, BlockState) -> TBlockEntity,

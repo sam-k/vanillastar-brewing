@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "level=0": {
+      "model": "vsbrewing:block/flask_empty"
+    },
+    "level=1": {
+      "model": "vsbrewing:block/flask_level1"
+    },
+    "level=2": {
+      "model": "vsbrewing:block/flask_level2"
+    },
+    "level=3": {
+      "model": "vsbrewing:block/flask_full"
+    }
+  }
+}
