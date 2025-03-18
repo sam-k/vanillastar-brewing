@@ -19,8 +19,7 @@ abstract class ModColorProviders : ModRegistry() {
   override fun initialize() {
     registerItemColorProvider(
         { stack, tintIndex ->
-          if (tintIndex > 0) -1
-          else {
+          if (tintIndex == 0) {
             Argb.fullAlpha(
                 stack
                     .getOrDefault(
@@ -29,18 +28,17 @@ abstract class ModColorProviders : ModRegistry() {
                     )
                     .color
             )
-          }
+          } else -1
         },
         MOD_ITEMS.potionFlaskItem,
     )
 
     registerBlockColorProvider(
         { stack, world, pos, tintIndex ->
-          if (tintIndex > 0 || world == null || pos == null) -1
-          else {
+          if (tintIndex == 0 && world != null && pos != null) {
             val renderData = world.getBlockEntityRenderData(pos)
             if (renderData is Int) Argb.fullAlpha(renderData) else -1
-          }
+          } else -1
         },
         MOD_BLOCKS.potionCauldronBlock,
         MOD_BLOCKS.potionCauldronPreviewBlock,

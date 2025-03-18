@@ -1,5 +1,6 @@
 package com.vanillastar.vsbrewing.item
 
+import com.vanillastar.vsbrewing.block.FlaskBlock
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
@@ -23,7 +24,14 @@ import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.*
+import net.minecraft.item.AliasedBlockItem
+import net.minecraft.item.ItemGroup
+import net.minecraft.item.ItemGroups
+import net.minecraft.item.ItemPlacementContext
+import net.minecraft.item.ItemStack
+import net.minecraft.item.ItemUsage
+import net.minecraft.item.ItemUsageContext
+import net.minecraft.item.PotionItem
 import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.potion.Potion
@@ -366,6 +374,13 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
     world.setBlockState(blockPos, Blocks.MUD.defaultState)
     return ActionResult.success(world.isClient)
   }
+
+  override fun getPlacementState(context: ItemPlacementContext) =
+      super.getPlacementState(context)
+          ?.with(
+              FlaskBlock.LEVEL,
+              context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
+          )
 
   /** This is copied from [PotionItem.getTranslationKey]. */
   override fun getTranslationKey(stack: ItemStack): String =

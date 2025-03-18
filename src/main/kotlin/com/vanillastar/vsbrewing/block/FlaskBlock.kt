@@ -2,13 +2,30 @@ package com.vanillastar.vsbrewing.block
 
 import com.mojang.serialization.MapCodec
 import com.vanillastar.vsbrewing.block.entity.FlaskBlockEntity
+import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
+import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
+import com.vanillastar.vsbrewing.item.MOD_ITEMS
+import com.vanillastar.vsbrewing.utils.getModIdentifier
 import kotlin.jvm.optionals.getOrDefault
-import net.minecraft.block.*
+import kotlin.jvm.optionals.getOrNull
+import net.minecraft.block.Block
+import net.minecraft.block.BlockRenderType
+import net.minecraft.block.BlockState
+import net.minecraft.block.BlockWithEntity
+import net.minecraft.block.ShapeContext
+import net.minecraft.block.Waterloggable
 import net.minecraft.block.enums.NoteBlockInstrument
+import net.minecraft.block.piston.PistonBehavior
+import net.minecraft.component.DataComponentTypes
+import net.minecraft.component.type.PotionContentsComponent
+import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.pathing.NavigationType
 import net.minecraft.fluid.FluidState
 import net.minecraft.fluid.Fluids
 import net.minecraft.item.ItemPlacementContext
+import net.minecraft.item.ItemStack
+import net.minecraft.loot.context.LootContextParameterSet
+import net.minecraft.loot.context.LootContextParameters
 import net.minecraft.sound.BlockSoundGroup
 import net.minecraft.state.StateManager
 import net.minecraft.state.property.BooleanProperty
@@ -24,8 +41,9 @@ import net.minecraft.world.WorldAccess
 
 val FLASK_BLOCK_METADATA =
     ModBlockMetadata("flask") {
-      it.strength(0.3F)
-          .sounds(BlockSoundGroup.GLASS)
+      it.breakInstantly()
+          .pistonBehavior(PistonBehavior.DESTROY)
+          .sounds(BlockSoundGroup.COPPER_BULB)
           .instrument(NoteBlockInstrument.HAT)
           .nonOpaque()
     }
@@ -33,7 +51,6 @@ val FLASK_BLOCK_METADATA =
 open class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable {
   companion object {
     private val CODEC: MapCodec<FlaskBlock> = createCodec(::FlaskBlock)
-
     private val SHAPE: VoxelShape =
         VoxelShapes.union(
             createCuboidShape(
@@ -53,6 +70,7 @@ open class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterlogg
                 /* maxZ= */ 11.0,
             ),
         )
+    private val DYNAMIC_DROP_ID = getModIdentifier("flask")
 
     internal val LEVEL: IntProperty = IntProperty.of("level", /* min= */ 0, /* max= */ 3)
     internal val WATERLOGGED: BooleanProperty = Properties.WATERLOGGED
@@ -101,6 +119,49 @@ open class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterlogg
       world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world))
     }
     return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos)
+  }
+
+  override fun onPlaced(
+      world: World,
+      pos: BlockPos,
+      state: BlockState,
+      placer: LivingEntity?,
+      stack: ItemStack,
+  ) {
+    super.onPlaced(world, pos, state, placer, stack)
+    val potionContents = stack.get(DataComponentTypes.POTION_CONTENTS)
+    if (potionContents != null) {
+      val blockEntity =
+          world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).getOrNull()
+      blockEntity?.potionContents = potionContents
+      blockEntity?.markDirty()
+    }
+  }
+
+  override fun getDroppedStacks(
+      state: BlockState,
+      builder: LootContextParameterSet.Builder,
+  ): List<ItemStack> {
+    val blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY)
+    if (blockEntity is FlaskBlockEntity) {
+      builder.addDynamicDrop(DYNAMIC_DROP_ID) {
+        var stack: ItemStack
+        val level = state.getOrEmpty(LEVEL).getOrDefault(0)
+        if (level == 0) {
+          stack = MOD_ITEMS.glassFlaskItem.defaultStack
+        } else {
+          stack = MOD_ITEMS.potionFlaskItem.defaultStack
+          stack.set(
+              DataComponentTypes.POTION_CONTENTS,
+              blockEntity.potionContents ?: PotionContentsComponent.DEFAULT,
+          )
+          stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, level)
+        }
+        it.accept(stack)
+      }
+    }
+
+    return super.getDroppedStacks(state, builder)
   }
 
   override fun canPathfindThrough(state: BlockState, type: NavigationType) = false

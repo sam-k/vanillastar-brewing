@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:dynamic",
+              "name": "vsbrewing:flask"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "vsbrewing:blocks/flask"
+}
