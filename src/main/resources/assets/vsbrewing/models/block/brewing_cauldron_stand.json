@@ -1,48 +1,46 @@
 {
-  "parent": "minecraft:block/block",
-  "ambientocclusion": false,
   "textures": {
     "particle": "vsbrewing:block/brewing_cauldron_stand_top",
-    "top":      "vsbrewing:block/brewing_cauldron_stand_top",
-    "bottom":   "vsbrewing:block/brewing_cauldron_stand_bottom"
+    "stand_top": "vsbrewing:block/brewing_cauldron_stand_top",
+    "stand_bottom": "vsbrewing:block/brewing_cauldron_stand_bottom"
   },
   "elements": [
     {
       "from": [7, 0, 7],
       "to":   [9, 14, 9],
       "faces": {
-        "up":    {"uv": [7, 7, 9, 9],  "texture": "#top"},
-        "north": {"uv": [7, 2, 9, 16], "texture": "#top"},
-        "south": {"uv": [7, 2, 9, 16], "texture": "#top"},
-        "west":  {"uv": [7, 2, 9, 16], "texture": "#top"},
-        "east":  {"uv": [7, 2, 9, 16], "texture": "#top"}
+        "up":    {"uv": [7, 7, 9, 9],  "texture": "#stand_top"},
+        "north": {"uv": [7, 2, 9, 16], "texture": "#stand_top"},
+        "south": {"uv": [7, 2, 9, 16], "texture": "#stand_top"},
+        "west":  {"uv": [7, 2, 9, 16], "texture": "#stand_top"},
+        "east":  {"uv": [7, 2, 9, 16], "texture": "#stand_top"}
       }
     },
     {
       "from": [7, -11, 7],
       "to":   [9, 0, 9],
       "faces": {
-        "down":  {"uv": [7, 0, 9, 2],  "texture": "#bottom"},
-        "north": {"uv": [7, 0, 9, 11], "texture": "#bottom"},
-        "south": {"uv": [7, 0, 9, 11], "texture": "#bottom"},
-        "west":  {"uv": [7, 0, 9, 11], "texture": "#bottom"},
-        "east":  {"uv": [7, 0, 9, 11], "texture": "#bottom"}
+        "down":  {"uv": [7, 0, 9, 2],  "texture": "#stand_bottom"},
+        "north": {"uv": [7, 0, 9, 11], "texture": "#stand_bottom"},
+        "south": {"uv": [7, 0, 9, 11], "texture": "#stand_bottom"},
+        "west":  {"uv": [7, 0, 9, 11], "texture": "#stand_bottom"},
+        "east":  {"uv": [7, 0, 9, 11], "texture": "#stand_bottom"}
       }
     },
     {
       "from": [8, 0, 8],
       "to":   [16, 16, 8],
       "faces": {
-        "north": {"uv": [0, 0, 8, 16], "texture": "#top"},
-        "south": {"uv": [8, 0, 0, 16], "texture": "#top"}
+        "north": {"uv": [0, 0, 8, 16], "texture": "#stand_top"},
+        "south": {"uv": [8, 0, 0, 16], "texture": "#stand_top"}
       }
     },
     {
       "from": [8, -11, 8],
       "to":   [16, 0, 8],
       "faces": {
-        "north": {"uv": [0, 0, 8, 11], "texture": "#bottom"},
-        "south": {"uv": [8, 0, 0, 11], "texture": "#bottom"}
+        "north": {"uv": [0, 0, 8, 11], "texture": "#stand_bottom"},
+        "south": {"uv": [8, 0, 0, 11], "texture": "#stand_bottom"}
       }
     },
     {
@@ -54,8 +52,8 @@
         "angle": -45
       },
       "faces": {
-        "north": {"uv": [8, 0, 0, 16], "texture": "#top"},
-        "south": {"uv": [0, 0, 8, 16], "texture": "#top"}
+        "north": {"uv": [8, 0, 0, 16], "texture": "#stand_top"},
+        "south": {"uv": [0, 0, 8, 16], "texture": "#stand_top"}
       }
     },
     {
@@ -67,8 +65,8 @@
         "angle": -45
       },
       "faces": {
-        "north": {"uv": [8, 0, 0, 11], "texture": "#bottom"},
-        "south": {"uv": [0, 0, 8, 11], "texture": "#bottom"}
+        "north": {"uv": [8, 0, 0, 11], "texture": "#stand_bottom"},
+        "south": {"uv": [0, 0, 8, 11], "texture": "#stand_bottom"}
       }
     },
     {
@@ -80,8 +78,8 @@
         "angle": 45
       },
       "faces": {
-        "north": {"uv": [8, 0, 0, 16], "texture": "#top"},
-        "south": {"uv": [0, 0, 8, 16], "texture": "#top"}
+        "north": {"uv": [8, 0, 0, 16], "texture": "#stand_top"},
+        "south": {"uv": [0, 0, 8, 16], "texture": "#stand_top"}
       }
     },
     {
@@ -93,8 +91,8 @@
         "angle": 45
       },
       "faces": {
-        "north": {"uv": [8, 0, 0, 11], "texture": "#bottom"},
-        "south": {"uv": [0, 0, 8, 11], "texture": "#bottom"}
+        "north": {"uv": [8, 0, 0, 11], "texture": "#stand_bottom"},
+        "south": {"uv": [0, 0, 8, 11], "texture": "#stand_bottom"}
       }
     }
   ]

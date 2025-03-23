@@ -57,7 +57,7 @@ class PotionCauldronBlockEntity(
               registryLookup.getOps(NbtOps.INSTANCE),
               nbt.get("potion_contents"),
           )
-          .resultOrPartial { LOGGER.warn("Failed to parse potion cauldron contents: {}", it) }
+          .resultOrPartial { LOGGER.warn("Failed to parse potion cauldron content: {}", it) }
           .ifPresent { this.potionContents = it }
     }
     // Send update, for example if this data is set programmatically.
