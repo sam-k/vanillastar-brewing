@@ -25,7 +25,7 @@ public abstract class BrewingRecipeRegistryBuilderMixin {
   @Unique
   private static @NotNull String getRecipeString(
       RegistryEntry<Potion> input, Item ingredient, RegistryEntry<Potion> output) {
-    return String.format("%s + %s = %s", input, ingredient, output);
+    return String.format("%s + %s = %s", input.getIdAsString(), ingredient, output.getIdAsString());
   }
 
   @Inject(method = "registerPotionRecipe", at = @At("HEAD"), cancellable = true)

@@ -10,6 +10,7 @@ import net.minecraft.registry.Registry
 
 abstract class ModItems : ModRegistry() {
   @JvmField val glassFlaskItem = this.registerItem(GLASS_FLASK_ITEM_METADATA, ::GlassFlaskItem)
+
   @JvmField val potionFlaskItem = this.registerItem(POTION_FLASK_ITEM_METADATA, ::PotionFlaskItem)
 
   private fun registerItem(metadata: ModItemMetadata, constructor: (Item.Settings) -> Item): Item {
