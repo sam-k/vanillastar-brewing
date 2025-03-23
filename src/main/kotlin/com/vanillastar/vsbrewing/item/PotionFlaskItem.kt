@@ -4,7 +4,6 @@ import com.vanillastar.vsbrewing.block.FlaskBlock
 import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.utils.getModIdentifier
 import java.util.Optional
 import kotlin.Float
 import kotlin.Pair
@@ -54,7 +53,6 @@ import net.minecraft.util.Formatting
 import net.minecraft.util.Hand
 import net.minecraft.util.TypedActionResult
 import net.minecraft.util.UseAction
-import net.minecraft.util.Util
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
@@ -66,11 +64,11 @@ val POTION_FLASK_ITEM_METADATA =
         /* previousItem= */ null,
         Registries.POTION.streamEntries()
             .flatMap { potion ->
-              (PotionFlaskItem.MAX_USES downTo PotionFlaskItem.MIN_USES)
+              (GlassFlaskItem.MAX_USES downTo GlassFlaskItem.MIN_USES)
                   .asSequence()
                   .map { remainingUses ->
                     ModItemGroupVisibilityMetadata(
-                        if (remainingUses < PotionFlaskItem.MAX_USES)
+                        if (remainingUses < GlassFlaskItem.MAX_USES)
                             ItemGroup.StackVisibility.SEARCH_TAB_ONLY
                         else ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS
                     ) { stack ->
@@ -91,7 +89,7 @@ val POTION_FLASK_ITEM_METADATA =
                               listOf(),
                           ),
                       )
-                      stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses)
+                      stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
                     }
                   }
                   .asStream()
@@ -100,21 +98,12 @@ val POTION_FLASK_ITEM_METADATA =
     ) {
       it.maxCount(1)
           .component(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-          .component(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, PotionFlaskItem.MAX_USES)
+          .component(MOD_COMPONENTS.flaskRemainingUsesComponent, GlassFlaskItem.MAX_USES)
     }
 
 /** [Item] for a potion-filled flask. */
 class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
   companion object {
-    /** Minimum number of uses for a [PotionFlaskItem]. */
-    const val MIN_USES = 1
-
-    /** Maximum number of uses for a [PotionFlaskItem]. */
-    const val MAX_USES = 3
-
-    /** Duration for drinking a [PotionFlaskItem], in ticks. */
-    private const val MAX_USE_TIME = 32
-
     fun appendPotionFlaskDataTooltip(
         stack: ItemStack,
         context: TooltipContext,
@@ -124,7 +113,7 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
       if (effects != null) {
         appendEffectsTooltip(effects, context.updateTickRate) { tooltip.add(it) }
       }
-      appendRemainingUsesTooltip(stack, tooltip)
+      GlassFlaskItem.appendRemainingUsesTooltip(stack, tooltip)
       if (effects != null) {
         appendUsageTooltip(effects) { tooltip.add(it) }
       }
@@ -167,19 +156,6 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
         }
         textConsumer(mutableText.formatted(effect.effectType.value().category.formatting))
       }
-    }
-
-    /** Builds and appends the item tooltip displaying the remaining uses of this potion flask. */
-    private fun appendRemainingUsesTooltip(stack: ItemStack, tooltip: MutableList<Text>) {
-      val potionFlaskItemTranslationKey =
-          Util.createTranslationKey("item", getModIdentifier(POTION_FLASK_ITEM_METADATA.name))
-      tooltip.add(
-          Text.translatable(
-                  "${potionFlaskItemTranslationKey}.remaining_uses",
-                  stack.get(MOD_COMPONENTS.potionFlaskRemainingUsesComponent),
-              )
-              .formatted(Formatting.GRAY)
-      )
     }
 
     /**
@@ -245,12 +221,12 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
   override fun getDefaultStack(): ItemStack {
     val stack = super.getDefaultStack()
     stack.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent(Potions.WATER))
-    stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
+    stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, GlassFlaskItem.MAX_USES)
     return stack
   }
 
   /** This is copied from [PotionItem.getMaxUseTime]. */
-  override fun getMaxUseTime(stack: ItemStack, user: LivingEntity) = MAX_USE_TIME
+  override fun getMaxUseTime(stack: ItemStack, user: LivingEntity) = GlassFlaskItem.MAX_USE_TIME
 
   /** This is copied from [PotionItem.getUseAction]. */
   override fun getUseAction(stack: ItemStack) = UseAction.DRINK
@@ -288,9 +264,9 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
     if (player?.isInCreativeMode != true) {
       // If applicable, decrement remaining uses instead of discarding item.
       val remainingUses =
-          stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
-      if (remainingUses > MIN_USES) {
-        stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses - 1)
+          stack.getOrDefault(MOD_COMPONENTS.flaskRemainingUsesComponent, GlassFlaskItem.MAX_USES)
+      if (remainingUses > GlassFlaskItem.MIN_USES) {
+        stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses - 1)
       } else {
         stack.decrementUnlessCreative(/* amount= */ 1, player)
       }
@@ -340,9 +316,9 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
     player?.incrementStat(Stats.USED.getOrCreateStat(stack.item))
 
     // If applicable, decrement remaining uses instead of discarding item.
-    val remainingUses = stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0)
-    if (remainingUses > MIN_USES && player?.isInCreativeMode != true) {
-      stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, remainingUses - 1)
+    val remainingUses = stack.getOrDefault(MOD_COMPONENTS.flaskRemainingUsesComponent, 0)
+    if (remainingUses > GlassFlaskItem.MIN_USES && player?.isInCreativeMode != true) {
+      stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses - 1)
     } else {
       player?.setStackInHand(
           context.hand,
@@ -384,7 +360,7 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
       super.getPlacementState(context)
           ?.with(
               FlaskBlock.LEVEL,
-              context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
+              context.stack.getOrDefault(MOD_COMPONENTS.flaskRemainingUsesComponent, 0),
           )
           ?.with(
               WATERLOGGED,

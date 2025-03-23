@@ -3,8 +3,8 @@ package com.vanillastar.vsbrewing.block
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
+import com.vanillastar.vsbrewing.item.GlassFlaskItem
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
-import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import kotlin.jvm.optionals.getOrDefault
 import kotlin.jvm.optionals.getOrNull
@@ -104,14 +104,14 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                 stack.isOf(MOD_ITEMS.potionFlaskItem) -> {
                   val remainingUses =
                       stack.getOrDefault(
-                          MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
-                          PotionFlaskItem.MAX_USES,
+                          MOD_COMPONENTS.flaskRemainingUsesComponent,
+                          GlassFlaskItem.MAX_USES,
                       )
                   val diffLevel = min(remainingUses, LeveledCauldronBlock.MAX_LEVEL - cauldronLevel)
                   if (remainingUses - diffLevel > 0) {
                     val newStack = stack.copy()
                     newStack.set(
-                        MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
+                        MOD_COMPONENTS.flaskRemainingUsesComponent,
                         remainingUses - diffLevel,
                     )
                     Pair(diffLevel, newStack)
@@ -190,7 +190,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                 stack.isOf(MOD_ITEMS.glassFlaskItem) -> {
                   val newStack = ItemStack(MOD_ITEMS.potionFlaskItem)
                   newStack.set(DataComponentTypes.POTION_CONTENTS, cauldronPotionContents)
-                  newStack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, cauldronLevel)
+                  newStack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, cauldronLevel)
                   Pair(cauldronLevel, newStack)
                 }
 

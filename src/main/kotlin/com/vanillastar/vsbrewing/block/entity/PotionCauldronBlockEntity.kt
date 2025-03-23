@@ -41,10 +41,7 @@ class PotionCauldronBlockEntity(
   fun getPotionStack(): ItemStack {
     val stack = ItemStack(MOD_ITEMS.potionFlaskItem)
     stack.set(DataComponentTypes.POTION_CONTENTS, this.potionContents)
-    stack.set(
-        MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
-        state.get(LeveledCauldronBlock.LEVEL),
-    )
+    stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, state.get(LeveledCauldronBlock.LEVEL))
     return stack
   }
 

@@ -28,6 +28,7 @@
   "block.vsbrewing.potion_cauldron_preview.effect.wind_charged": "Cauldron of Wind Charging",
   "container.vsbrewing.brewing_cauldron": "Brewing Cauldron",
   "item.vsbrewing.glass_flask": "Glass Flask",
+  "item.vsbrewing.glass_flask.remaining_uses": "Remaining Uses: %1$s",
   "item.vsbrewing.potion_flask": "Potion Flask",
   "item.vsbrewing.potion_flask.effect.awkward": "Awkward Flask",
   "item.vsbrewing.potion_flask.effect.empty": "Uncraftable Flask",
@@ -56,7 +57,6 @@
   "item.vsbrewing.potion_flask.effect.weakness": "Flask of Weakness",
   "item.vsbrewing.potion_flask.effect.weaving": "Flask of Weaving",
   "item.vsbrewing.potion_flask.effect.wind_charged": "Flask of Wind Charging",
-  "item.vsbrewing.potion_flask.remaining_uses": "Remaining Uses: %1$s",
   "tag.item.vsbrewing.placeable_bottles": "Placeable Bottles",
   "tag.item.vsbrewing.placeable_bottles_with_sneaking": "Bottles Placeable with Sneaking"
 }
