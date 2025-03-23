@@ -11,6 +11,7 @@ import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NbtCompound
+import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtOps
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket
 import net.minecraft.registry.RegistryWrapper.WrapperLookup
@@ -31,6 +32,8 @@ class PotionCauldronBlockEntity(
 ) : BlockEntity(MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType, pos, state) {
   private companion object {
     val LOGGER = getLogger()
+
+    const val POTION_CONTENTS_NBT_KEY = "potion_contents"
   }
 
   constructor(pos: BlockPos, state: BlockState) : this(pos, state, PotionContentsComponent.DEFAULT)
@@ -52,10 +55,10 @@ class PotionCauldronBlockEntity(
 
   fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup, sendUpdate: Boolean) {
     super.readNbt(nbt, registryLookup)
-    if (nbt.contains("potion_contents")) {
+    if (nbt.contains(POTION_CONTENTS_NBT_KEY, NbtElement.COMPOUND_TYPE.toInt())) {
       PotionContentsComponent.CODEC.parse(
               registryLookup.getOps(NbtOps.INSTANCE),
-              nbt.get("potion_contents"),
+              nbt.getCompound(POTION_CONTENTS_NBT_KEY),
           )
           .resultOrPartial { LOGGER.warn("Failed to parse potion cauldron content: {}", it) }
           .ifPresent { this.potionContents = it }
@@ -74,7 +77,7 @@ class PotionCauldronBlockEntity(
     super.writeNbt(nbt, registryLookup)
     if (this.potionContents != PotionContentsComponent.DEFAULT) {
       nbt.put(
-          "potion_contents",
+          POTION_CONTENTS_NBT_KEY,
           PotionContentsComponent.CODEC.encodeStart(
                   registryLookup.getOps(NbtOps.INSTANCE),
                   this.potionContents,

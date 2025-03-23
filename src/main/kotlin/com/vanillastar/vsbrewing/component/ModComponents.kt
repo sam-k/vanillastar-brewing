@@ -17,13 +17,14 @@ abstract class ModComponents : ModRegistry() {
       name: String,
       codec: Codec<TCodec>,
   ): ComponentType<TCodec> {
+    val id = getModIdentifier(name)
     val component =
         Registry.register(
             Registries.DATA_COMPONENT_TYPE,
-            getModIdentifier(name),
+            id,
             ComponentType.builder<TCodec>().codec(codec).build(),
         )
-    this.logger.info("Registered component {}", name)
+    this.logger.info("Registered component {}", id)
     return component
   }
 

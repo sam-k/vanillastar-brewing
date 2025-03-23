@@ -6,6 +6,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.gui.screen.ingame.HandledScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreens
+import net.minecraft.registry.Registries
 import net.minecraft.screen.ScreenHandler
 import net.minecraft.screen.ScreenHandlerType
 
@@ -23,7 +24,10 @@ abstract class ModHandledScreens : ModRegistry() {
       constructor: HandledScreens.Provider<TScreenHandler, TScreen>,
   ) {
     HandledScreens.register(screenHandler, constructor)
-    this.logger.info("Registered screen handler {}", screenHandler)
+    this.logger.info(
+        "Registered screen for screen handler {}",
+        Registries.SCREEN_HANDLER.getEntry(screenHandler).idAsString,
+    )
   }
 }
 

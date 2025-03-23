@@ -13,6 +13,7 @@ import net.minecraft.client.color.item.ItemColorProvider
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.item.Item
+import net.minecraft.registry.Registries
 import net.minecraft.util.math.ColorHelper.Argb
 
 @Environment(EnvType.CLIENT)
@@ -78,7 +79,10 @@ abstract class ModColorProviders : ModRegistry() {
 
   private fun registerBlockColorProvider(provider: BlockColorProvider, vararg blocks: Block) {
     ColorProviderRegistry.BLOCK.register(provider, *blocks)
-    this.logger.info("Registered block color provider for blocks {}", blocks.joinToString(", "))
+    this.logger.info(
+        "Registered block color provider for blocks {}",
+        blocks.joinToString(", ") { Registries.BLOCK.getEntry(it).idAsString },
+    )
   }
 }
 

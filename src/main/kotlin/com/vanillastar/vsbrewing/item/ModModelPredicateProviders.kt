@@ -2,6 +2,7 @@ package com.vanillastar.vsbrewing.item
 
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.ModRegistry
+import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.item.ClampedModelPredicateProvider
@@ -10,7 +11,6 @@ import net.minecraft.client.world.ClientWorld
 import net.minecraft.entity.LivingEntity
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.util.Identifier
 
 @Environment(EnvType.CLIENT)
 abstract class ModModelPredicateProviders : ModRegistry() {
@@ -33,8 +33,9 @@ abstract class ModModelPredicateProviders : ModRegistry() {
       name: String,
       provider: ClampedModelPredicateProvider,
   ) {
-    ModelPredicateProviderRegistry.register(item, Identifier.ofVanilla(name), provider)
-    this.logger.info("Registered model predicate provider {} for item {}", name, item)
+    val id = getModIdentifier(name)
+    ModelPredicateProviderRegistry.register(item, id, provider)
+    this.logger.info("Registered model predicate provider {} for item {}", id, item)
   }
 }
 

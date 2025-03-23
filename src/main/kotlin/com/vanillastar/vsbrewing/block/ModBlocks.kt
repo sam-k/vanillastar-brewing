@@ -30,19 +30,21 @@ abstract class ModBlocks : ModRegistry() {
       metadata: ModBlockMetadata,
       constructor: (AbstractBlock.Settings) -> TBlock,
   ): TBlock {
+    val blockId = getModIdentifier(metadata.name)
     val block =
         Registry.register(
             Registries.BLOCK,
-            getModIdentifier(metadata.name),
+            blockId,
             constructor(metadata.settingsProvider(AbstractBlock.Settings.create())),
         )
-    this.logger.info("Registered block {}", metadata.name)
+    this.logger.info("Registered block {}", blockId)
 
     if (metadata.itemMetadata != null) {
+      val blockItemId = getModIdentifier(metadata.itemMetadata.name)
       val blockItem =
           Registry.register(
               Registries.ITEM,
-              getModIdentifier(metadata.name),
+              blockItemId,
               BlockItem(block, metadata.itemMetadata.settingsProvider(Item.Settings())),
           )
       ItemGroupEvents.modifyEntriesEvent(metadata.itemMetadata.itemGroup).register {
@@ -50,7 +52,7 @@ abstract class ModBlocks : ModRegistry() {
       }
       this.logger.info(
           "Registered block item {} in group {}|{}",
-          metadata.itemMetadata.name,
+          blockItemId,
           metadata.itemMetadata.itemGroup.registry,
           metadata.itemMetadata.itemGroup.value,
       )

@@ -26,16 +26,17 @@ abstract class ModBlockEntities : ModRegistry() {
       metadata: ModBlockEntityMetadata,
       constructor: (BlockPos, BlockState) -> TBlockEntity,
   ): BlockEntityType<TBlockEntity> {
+    val id = getModIdentifier(metadata.name)
     val blockEntityType =
         Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
-            getModIdentifier(metadata.name),
+            id,
             BlockEntityType.Builder.create(constructor, *metadata.blocks.toTypedArray()).build(),
         )
     this.logger.info(
         "Registered block entity {} for blocks {}",
-        metadata.name,
-        metadata.blocks.map { it.name }.joinToString(),
+        id,
+        metadata.blocks.joinToString { Registries.BLOCK.getEntry(it).idAsString },
     )
     return blockEntityType
   }

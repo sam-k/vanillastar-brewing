@@ -31,7 +31,10 @@ abstract class ModBlockEntityRenderers : ModRegistry() {
       constructor: (BlockEntityRendererFactory.Context) -> TBlockEntityRenderer,
   ) {
     BlockEntityRendererFactories.register(blockEntityType, constructor)
-    this.logger.info("Registered block entity renderer for block entity {}", blockEntityType)
+    this.logger.info(
+        "Registered block entity renderer for block entity {}",
+        blockEntityType.registryEntry?.idAsString,
+    )
   }
 }
 

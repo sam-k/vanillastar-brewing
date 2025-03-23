@@ -21,13 +21,14 @@ abstract class ModScreenHandlers : ModRegistry() {
       name: String,
       factory: ScreenHandlerType.Factory<TScreenHandler>,
   ): ScreenHandlerType<TScreenHandler> {
+    val id = getModIdentifier(name)
     val screenHandlerType =
         Registry.register(
             Registries.SCREEN_HANDLER,
-            getModIdentifier(name),
+            id,
             ScreenHandlerType<TScreenHandler>(factory, FeatureSet.empty()),
         )
-    this.logger.info("Registered screen handler {}", name)
+    this.logger.info("Registered screen handler {}", id)
     return screenHandlerType
   }
 
