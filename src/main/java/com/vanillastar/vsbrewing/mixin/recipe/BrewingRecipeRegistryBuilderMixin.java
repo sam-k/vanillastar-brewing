@@ -3,6 +3,7 @@ package com.vanillastar.vsbrewing.mixin.recipe;
 import static com.vanillastar.vsbrewing.item.ModItemsKt.MOD_ITEMS;
 import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
+import java.util.Set;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.potion.Potion;
@@ -20,6 +21,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BrewingRecipeRegistry.Builder.class)
 public abstract class BrewingRecipeRegistryBuilderMixin {
   @Unique
+  private static Set<String> DEREGISTERED_BREWING_RECIPES = Set.of(
+      getRecipeString(Potions.WATER, Items.REDSTONE, Potions.MUNDANE),
+      getRecipeString(Potions.AWKWARD, Items.TURTLE_HELMET, Potions.TURTLE_MASTER));
+
+  @Unique
   private static final Logger LOGGER = getMixinLogger();
 
   @Unique
@@ -34,7 +40,7 @@ public abstract class BrewingRecipeRegistryBuilderMixin {
   private void removeBrewingRecipes(
       RegistryEntry<Potion> input, Item ingredient, RegistryEntry<Potion> output, CallbackInfo ci) {
     String recipeString = getRecipeString(input, ingredient, output);
-    if (recipeString.equals(getRecipeString(Potions.WATER, Items.REDSTONE, Potions.MUNDANE))) {
+    if (DEREGISTERED_BREWING_RECIPES.contains(recipeString)) {
       LOGGER.info("Deregistered brewing recipe: {}", recipeString);
       ci.cancel();
     }
