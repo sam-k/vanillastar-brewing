@@ -90,7 +90,7 @@ class FlaskBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
   }
 
   val contentByLevel =
-      FLASK_CONTENT_MODEL_LAYERS.mapValues { (level, modelLayer) ->
+      FLASK_CONTENT_MODEL_LAYERS.mapValues { (_, modelLayer) ->
         context.getLayerModelPart(modelLayer)
       }
 

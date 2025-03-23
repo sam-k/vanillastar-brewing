@@ -16,5 +16,5 @@ data class ModBlockMetadata(
   constructor(
       name: String,
       settingsProvider: (AbstractBlock.Settings) -> AbstractBlock.Settings,
-  ) : this(name, settingsProvider, /* itemMetadata= */ null)
+  ) : this(name, settingsProvider, itemMetadata = null)
 }

@@ -233,13 +233,14 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       @Nullable ServerPlayerEntity player) {
     BlockPos cauldronPos = this.pos.down();
     if (player == null) {
-      return getBrewingCauldronPayload(cauldronPos, null, null, null);
+      return getBrewingCauldronPayload(
+          cauldronPos, /* state= */ null, /* blockEntity= */ null, /* player= */ null);
     }
+    World world = player.getWorld();
     return getBrewingCauldronPayload(
         cauldronPos,
-        player.getWorld().getBlockState(cauldronPos),
-        player
-            .getWorld()
+        world.getBlockState(cauldronPos),
+        world
             .getBlockEntity(cauldronPos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
             .orElse(null),
         player);
@@ -254,7 +255,6 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       return;
     }
     cir.setReturnValue(Text.translatable(String.format("container.%s.brewing_cauldron", MOD_ID)));
-    cir.cancel();
   }
 
   @Inject(
@@ -278,15 +278,14 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       payload = this.getScreenOpeningData(player);
       ServerPlayNetworking.send(player, payload);
     } else {
-      payload = this.getScreenOpeningData(null);
+      payload = this.getScreenOpeningData(/* player= */ null);
     }
 
     cir.setReturnValue(new BrewingCauldronScreenHandler(
         syncId,
         playerInventory,
         payload,
-        this,
+        /* inventory= */ this,
         ((BrewingStandBlockEntity) (Object) this).propertyDelegate));
-    cir.cancel();
   }
 }

@@ -31,7 +31,7 @@ import net.minecraft.potion.Potion
 import net.minecraft.text.Text
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.ColorHelper
+import net.minecraft.util.math.ColorHelper.Argb
 import net.minecraft.util.math.MathHelper
 import org.joml.Matrix4f
 import org.joml.Quaternionf
@@ -185,9 +185,9 @@ class BrewingCauldronScreen(
             context.vertexConsumers.getBuffer(RenderLayers.getBlockLayer(previewBlockState)),
             previewBlockState,
             this.client!!.blockRenderManager.getModel(previewBlockState),
-            ColorHelper.Argb.getRed(color) / 255.0f,
-            ColorHelper.Argb.getGreen(color) / 255.0f,
-            ColorHelper.Argb.getBlue(color) / 255.0f,
+            Argb.getRed(color) / 255.0f,
+            Argb.getGreen(color) / 255.0f,
+            Argb.getBlue(color) / 255.0f,
             LightmapTextureManager.MAX_LIGHT_COORDINATE,
             OverlayTexture.DEFAULT_UV,
         )
@@ -273,7 +273,7 @@ class BrewingCauldronScreen(
     previewBlockEntity.readNbt(
         this.handler.data.potionCauldronNbt,
         this.client!!.world!!.registryManager,
-        /* sendUpdate= */ false,
+        sendUpdate = false,
     )
     return previewBlockEntity
   }

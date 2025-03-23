@@ -37,6 +37,5 @@ public abstract class PotionContentsComponentMixin {
             Optional.of(PotionContentsComponent.getColor(List.of())),
             List.of()));
     cir.setReturnValue(stack);
-    cir.cancel();
   }
 }

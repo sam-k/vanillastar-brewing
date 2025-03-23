@@ -35,8 +35,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class BrewingStandBlockMixin extends BlockWithEntity {
   @Unique
   @Final
-  private static VoxelShape BREWING_CAULDRON_SHAPE =
-      createCuboidShape(6.0, -11.0, 6.0, 10.0, 14.0, 10.0);
+  private static VoxelShape BREWING_CAULDRON_SHAPE = createCuboidShape(
+      /* minX= */ 6.0,
+      /* minY= */ -11.0,
+      /* minZ= */ 6.0,
+      /* maxX= */ 10.0,
+      /* maxY= */ 14.0,
+      /* maxZ= */ 10.0);
 
   private BrewingStandBlockMixin(Settings settings) {
     super(settings);
@@ -138,6 +143,5 @@ public abstract class BrewingStandBlockMixin extends BlockWithEntity {
       return;
     }
     cir.setReturnValue(BREWING_CAULDRON_SHAPE);
-    cir.cancel();
   }
 }

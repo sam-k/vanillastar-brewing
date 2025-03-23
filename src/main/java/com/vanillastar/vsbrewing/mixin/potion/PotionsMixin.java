@@ -39,9 +39,8 @@ public abstract class PotionsMixin {
     String name = args.get(0);
     switch (name) {
       case "mundane":
-        // `Potion potion`
         args.set(
-            1,
+            1, // `Potion potion`
             new Potion(
                 name,
                 new StatusEffectInstance(
@@ -49,9 +48,8 @@ public abstract class PotionsMixin {
         break;
 
       case "thick":
-        // `Potion potion`
         args.set(
-            1,
+            1, // `Potion potion`
             new Potion(
                 name,
                 new StatusEffectInstance(
@@ -63,7 +61,7 @@ public abstract class PotionsMixin {
         registerPotion(
             STRONG_WEAKNESS_POTION_ID,
             new Potion(
-                "weakness",
+                /* baseName= */ "weakness",
                 new StatusEffectInstance(
                     StatusEffects.WEAKNESS,
                     15 * SharedConstants.TICKS_PER_SECOND,
@@ -71,13 +69,13 @@ public abstract class PotionsMixin {
         registerPotion(
             NAUSEA_POTION_ID,
             new Potion(
-                "nausea",
+                /* baseName= */ "nausea",
                 new StatusEffectInstance(
                     StatusEffects.NAUSEA, 10 * SharedConstants.TICKS_PER_SECOND)));
         registerPotion(
             LONG_NAUSEA_POTION_ID,
             new Potion(
-                "nausea",
+                /* baseName= */ "nausea",
                 new StatusEffectInstance(
                     StatusEffects.NAUSEA, 20 * SharedConstants.TICKS_PER_SECOND)));
         break;

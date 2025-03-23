@@ -9,7 +9,7 @@ import net.minecraft.client.render.RenderLayer;
 public class VSBrewingMixinClient implements ClientModInitializer {
   @Override
   public void onInitializeClient() {
-    // This counts as a mixin and therefore must be done in Java.
+    // These count as mixins and therefore must be done in Java.
     BlockRenderLayerMap.INSTANCE.putBlocks(
         RenderLayer.getCutout(), MOD_BLOCKS.potionCauldronPreviewBlock);
     BlockRenderLayerMap.INSTANCE.putBlocks(
