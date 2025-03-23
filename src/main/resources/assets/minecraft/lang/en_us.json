@@ -1,6 +1,6 @@
 {
-  "item.minecraft.lingering_potion.effect.nausea": "Lingering Potion of Nausea",
-  "item.minecraft.potion.effect.nausea": "Potion of Nausea",
-  "item.minecraft.splash_potion.effect.nausea": "Splash Potion of Nausea",
-  "item.minecraft.tipped_arrow.effect.nausea": "Arrow of Nausea"
+  "item.minecraft.lingering_potion.effect.hunger": "Lingering Potion of Hunger",
+  "item.minecraft.potion.effect.hunger": "Potion of Hunger",
+  "item.minecraft.splash_potion.effect.hunger": "Splash Potion of Hunger",
+  "item.minecraft.tipped_arrow.effect.hunger": "Arrow of Hunger"
 }

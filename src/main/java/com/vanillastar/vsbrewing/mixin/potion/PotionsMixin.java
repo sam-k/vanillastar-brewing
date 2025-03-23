@@ -1,7 +1,8 @@
 package com.vanillastar.vsbrewing.mixin.potion;
 
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.LONG_NAUSEA_POTION_ID;
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.NAUSEA_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.HUNGER_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.LONG_HUNGER_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_HUNGER_POTION_ID;
 import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_WEAKNESS_POTION_ID;
 import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
@@ -67,17 +68,25 @@ public abstract class PotionsMixin {
                     15 * SharedConstants.TICKS_PER_SECOND,
                     /* amplifier= */ 1)));
         registerPotion(
-            NAUSEA_POTION_ID,
+            HUNGER_POTION_ID,
             new Potion(
-                /* baseName= */ "nausea",
+                /* baseName= */ "hunger",
                 new StatusEffectInstance(
-                    StatusEffects.NAUSEA, 10 * SharedConstants.TICKS_PER_SECOND)));
+                    StatusEffects.HUNGER, 30 * SharedConstants.TICKS_PER_SECOND)));
         registerPotion(
-            LONG_NAUSEA_POTION_ID,
+            LONG_HUNGER_POTION_ID,
             new Potion(
-                /* baseName= */ "nausea",
+                /* baseName= */ "hunger",
                 new StatusEffectInstance(
-                    StatusEffects.NAUSEA, 20 * SharedConstants.TICKS_PER_SECOND)));
+                    StatusEffects.HUNGER, 60 * SharedConstants.TICKS_PER_SECOND)));
+        registerPotion(
+            STRONG_HUNGER_POTION_ID,
+            new Potion(
+                /* baseName= */ "hunger",
+                new StatusEffectInstance(
+                    StatusEffects.HUNGER,
+                    30 * SharedConstants.TICKS_PER_SECOND,
+                    /* amplifier= */ 1)));
         break;
     }
   }
