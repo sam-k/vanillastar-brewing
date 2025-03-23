@@ -34,6 +34,22 @@ abstract class ModCauldronBehaviors : ModRegistry() {
   val potionCauldronBehavior: CauldronBehavior.CauldronBehaviorMap =
       CauldronBehavior.createMap("potion")
 
+  override fun initialize() {
+    val emptyCauldronBehaviorMap = CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map()
+    emptyCauldronBehaviorMap.put(Items.POTION, fillCauldronBehavior) // Replace
+    emptyCauldronBehaviorMap.put(MOD_ITEMS.potionFlaskItem, fillCauldronBehavior)
+
+    val waterCauldronBehaviorMap = CauldronBehavior.WATER_CAULDRON_BEHAVIOR.map()
+    waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
+
+    val potionCauldronBehaviorMap = this.potionCauldronBehavior.map()
+    CauldronBehavior.registerBucketBehavior(potionCauldronBehaviorMap)
+    potionCauldronBehaviorMap.put(Items.POTION, fillCauldronBehavior)
+    potionCauldronBehaviorMap.put(MOD_ITEMS.potionFlaskItem, fillCauldronBehavior)
+    potionCauldronBehaviorMap.put(Items.GLASS_BOTTLE, takeFromCauldronBehavior)
+    potionCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
+  }
+
   private companion object {
     fun getCauldronPotionContents(
         state: BlockState,
@@ -213,22 +229,6 @@ abstract class ModCauldronBehaviors : ModRegistry() {
 
           ItemActionResult.success(world.isClient)
         }
-  }
-
-  override fun initialize() {
-    val emptyCauldronBehaviorMap = CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map()
-    emptyCauldronBehaviorMap.put(Items.POTION, fillCauldronBehavior) // Replace
-    emptyCauldronBehaviorMap.put(MOD_ITEMS.potionFlaskItem, fillCauldronBehavior)
-
-    val waterCauldronBehaviorMap = CauldronBehavior.WATER_CAULDRON_BEHAVIOR.map()
-    waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
-
-    val potionCauldronBehaviorMap = this.potionCauldronBehavior.map()
-    CauldronBehavior.registerBucketBehavior(potionCauldronBehaviorMap)
-    potionCauldronBehaviorMap.put(Items.POTION, fillCauldronBehavior)
-    potionCauldronBehaviorMap.put(MOD_ITEMS.potionFlaskItem, fillCauldronBehavior)
-    potionCauldronBehaviorMap.put(Items.GLASS_BOTTLE, takeFromCauldronBehavior)
-    potionCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
   }
 }
 

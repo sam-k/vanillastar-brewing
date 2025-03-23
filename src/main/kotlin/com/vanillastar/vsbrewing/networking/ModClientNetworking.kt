@@ -14,7 +14,7 @@ abstract class ModClientNetworking : ModRegistry() {
       payloadCompanion: ModNetworkingPayload.ServerCompanion<TPayload>
   ) {
     PayloadTypeRegistry.playS2C().register(payloadCompanion.id, payloadCompanion.codec)
-    logger.info("Registered server payload {}", payloadCompanion.id.id)
+    this.logger.info("Registered server payload {}", payloadCompanion.id.id)
   }
 
   private fun <TPayload : ModNetworkingPayload> registerClientReceiver(
@@ -23,13 +23,13 @@ abstract class ModClientNetworking : ModRegistry() {
     ClientPlayNetworking.registerGlobalReceiver(payloadCompanion.id) { payload, context ->
       context.client().execute(payloadCompanion.callback(payload, context))
     }
-    logger.info("Registered client receiver for server payload {}", payloadCompanion.id.id)
+    this.logger.info("Registered client receiver for server payload {}", payloadCompanion.id.id)
   }
 
   override fun initialize() {
     serverPayloads.forEach {
-      registerServerPayload(it)
-      registerClientReceiver(it)
+      this.registerServerPayload(it)
+      this.registerClientReceiver(it)
     }
   }
 }

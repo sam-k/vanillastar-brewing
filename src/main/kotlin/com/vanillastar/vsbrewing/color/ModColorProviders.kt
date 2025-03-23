@@ -13,12 +13,13 @@ import net.minecraft.client.color.item.ItemColorProvider
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.item.Item
+import net.minecraft.registry.Registries
 import net.minecraft.util.math.ColorHelper.Argb
 
 @Environment(EnvType.CLIENT)
 abstract class ModColorProviders : ModRegistry() {
   override fun initialize() {
-    registerItemColorProvider(
+    this.registerItemColorProvider(
         { stack, tintIndex ->
           if (tintIndex == 0) {
             Argb.fullAlpha(
@@ -34,7 +35,7 @@ abstract class ModColorProviders : ModRegistry() {
         MOD_ITEMS.potionFlaskItem,
     )
 
-    registerBlockColorProvider(
+    this.registerBlockColorProvider(
         { stack, world, pos, tintIndex ->
           if (tintIndex == 0 && world != null && pos != null) {
             val renderData = world.getBlockEntityRenderData(pos)
@@ -50,7 +51,7 @@ abstract class ModColorProviders : ModRegistry() {
     // require dynamically rendering the bottles as entities. (Doing so would also reduce code
     // duplication in the BottleBlock JSON models.) But culling obscured faces is far easier with
     // traditional baked block models.
-    registerBlockColorProvider(
+    this.registerBlockColorProvider(
         { stack, world, pos, tintIndex ->
           if (world == null || pos == null) {
             return@registerBlockColorProvider -1
@@ -73,12 +74,15 @@ abstract class ModColorProviders : ModRegistry() {
 
   private fun registerItemColorProvider(provider: ItemColorProvider, vararg items: Item) {
     ColorProviderRegistry.ITEM.register(provider, *items)
-    logger.info("Registered item color provider for items {}", items.joinToString(", "))
+    this.logger.info("Registered item color provider for items {}", items.joinToString(", "))
   }
 
   private fun registerBlockColorProvider(provider: BlockColorProvider, vararg blocks: Block) {
     ColorProviderRegistry.BLOCK.register(provider, *blocks)
-    logger.info("Registered block color provider for blocks {}", blocks.joinToString(", "))
+    this.logger.info(
+        "Registered block color provider for blocks {}",
+        blocks.joinToString(", ") { Registries.BLOCK.getEntry(it).idAsString },
+    )
   }
 }
 

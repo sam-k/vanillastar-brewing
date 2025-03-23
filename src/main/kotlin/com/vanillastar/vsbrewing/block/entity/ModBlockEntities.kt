@@ -12,28 +12,31 @@ import net.minecraft.util.math.BlockPos
 abstract class ModBlockEntities : ModRegistry() {
   @JvmField
   val potionCauldronBlockEntityType =
-      registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
+      this.registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
 
   @JvmField
-  val bottleBlockEntityType = registerBlockEntity(BOTTLE_BLOCK_ENTITY_METADATA, ::BottleBlockEntity)
+  val bottleBlockEntityType =
+      this.registerBlockEntity(BOTTLE_BLOCK_ENTITY_METADATA, ::BottleBlockEntity)
 
   @JvmField
-  val flaskBlockEntityType = registerBlockEntity(FLASK_BLOCK_ENTITY_METADATA, ::FlaskBlockEntity)
+  val flaskBlockEntityType =
+      this.registerBlockEntity(FLASK_BLOCK_ENTITY_METADATA, ::FlaskBlockEntity)
 
   private fun <TBlockEntity : BlockEntity> registerBlockEntity(
       metadata: ModBlockEntityMetadata,
       constructor: (BlockPos, BlockState) -> TBlockEntity,
   ): BlockEntityType<TBlockEntity> {
+    val id = getModIdentifier(metadata.name)
     val blockEntityType =
         Registry.register(
             Registries.BLOCK_ENTITY_TYPE,
-            getModIdentifier(metadata.name),
+            id,
             BlockEntityType.Builder.create(constructor, *metadata.blocks.toTypedArray()).build(),
         )
-    logger.info(
+    this.logger.info(
         "Registered block entity {} for blocks {}",
-        metadata.name,
-        metadata.blocks.map { it.name }.joinToString(),
+        id,
+        metadata.blocks.joinToString { Registries.BLOCK.getEntry(it).idAsString },
     )
     return blockEntityType
   }

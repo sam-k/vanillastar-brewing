@@ -22,17 +22,17 @@ abstract class ModBrewingRecipes : ModRegistry() {
 
       fun registerPotionType(item: Item) {
         it.registerPotionType(item)
-        logger.info("Registered potion type {}", item)
+        this.logger.info("Registered potion type {}", item)
       }
 
-      fun registerPotionRecipe(
+      fun registerBrewingRecipe(
           input: RegistryEntry<Potion>,
           ingredient: Item,
           output: RegistryEntry<Potion>,
       ) {
         it.registerPotionRecipe(input, ingredient, output)
-        logger.info(
-            "Registered potion recipe: {} + {} = {}",
+        this.logger.info(
+            "Registered brewing recipe: {} + {} = {}",
             input.idAsString,
             ingredient,
             output.idAsString,
@@ -41,48 +41,52 @@ abstract class ModBrewingRecipes : ModRegistry() {
 
       registerPotionType(MOD_ITEMS.potionFlaskItem)
 
-      registerPotionRecipe(Potions.WATER, Items.ARMADILLO_SCUTE, Potions.MUNDANE)
-      registerPotionRecipe(Potions.WATER, Items.REDSTONE, Potions.THICK)
+      registerBrewingRecipe(Potions.WATER, Items.ARMADILLO_SCUTE, Potions.MUNDANE)
+      registerBrewingRecipe(Potions.WATER, Items.REDSTONE, Potions.THICK)
 
-      registerPotionRecipe(
+      registerBrewingRecipe(
           Potions.STRONG_LEAPING,
           Items.FERMENTED_SPIDER_EYE,
           Potions.STRONG_SLOWNESS,
       )
 
-      registerPotionRecipe(Potions.AWKWARD, Items.ARMADILLO_SCUTE, nauseaPotion)
-      registerPotionRecipe(nauseaPotion, Items.REDSTONE, longNauseaPotion)
+      registerBrewingRecipe(Potions.AWKWARD, Items.ARMADILLO_SCUTE, nauseaPotion)
+      registerBrewingRecipe(nauseaPotion, Items.REDSTONE, longNauseaPotion)
 
-      registerPotionRecipe(Potions.AWKWARD, Items.POISONOUS_POTATO, Potions.POISON)
-      registerPotionRecipe(Potions.LONG_POISON, Items.FERMENTED_SPIDER_EYE, Potions.HARMING)
+      registerBrewingRecipe(Potions.AWKWARD, Items.POISONOUS_POTATO, Potions.POISON)
+      registerBrewingRecipe(Potions.LONG_POISON, Items.FERMENTED_SPIDER_EYE, Potions.HARMING)
 
-      registerPotionRecipe(Potions.REGENERATION, Items.FERMENTED_SPIDER_EYE, Potions.POISON)
-      registerPotionRecipe(
+      registerBrewingRecipe(Potions.REGENERATION, Items.FERMENTED_SPIDER_EYE, Potions.POISON)
+      registerBrewingRecipe(
           Potions.LONG_REGENERATION,
           Items.FERMENTED_SPIDER_EYE,
           Potions.LONG_POISON,
       )
-      registerPotionRecipe(
+      registerBrewingRecipe(
           Potions.STRONG_REGENERATION,
           Items.FERMENTED_SPIDER_EYE,
           Potions.STRONG_POISON,
       )
 
-      registerPotionRecipe(Potions.STRENGTH, Items.FERMENTED_SPIDER_EYE, Potions.WEAKNESS)
-      registerPotionRecipe(Potions.LONG_STRENGTH, Items.FERMENTED_SPIDER_EYE, Potions.LONG_WEAKNESS)
-      registerPotionRecipe(
+      registerBrewingRecipe(Potions.STRENGTH, Items.FERMENTED_SPIDER_EYE, Potions.WEAKNESS)
+      registerBrewingRecipe(
+          Potions.LONG_STRENGTH,
+          Items.FERMENTED_SPIDER_EYE,
+          Potions.LONG_WEAKNESS,
+      )
+      registerBrewingRecipe(
           Potions.STRONG_STRENGTH,
           Items.FERMENTED_SPIDER_EYE,
           strongWeaknessPotion,
       )
 
-      registerPotionRecipe(
+      registerBrewingRecipe(
           Potions.STRONG_SWIFTNESS,
           Items.FERMENTED_SPIDER_EYE,
           Potions.STRONG_SLOWNESS,
       )
 
-      registerPotionRecipe(Potions.WEAKNESS, Items.GLOWSTONE_DUST, strongWeaknessPotion)
+      registerBrewingRecipe(Potions.WEAKNESS, Items.GLOWSTONE_DUST, strongWeaknessPotion)
     }
   }
 }

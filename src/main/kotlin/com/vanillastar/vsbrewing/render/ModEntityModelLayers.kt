@@ -25,7 +25,7 @@ abstract class ModEntityModelLayers : ModRegistry() {
 
   override fun initialize() {
     for ((count, modelLayer) in BOTTLE_CONTENT_MODEL_LAYERS) {
-      registerModelLayer(modelLayer) {
+      this.registerModelLayer(modelLayer) {
         BottleBlockEntityRenderer.getContentTexturedModelData(count)
       }
     }
@@ -41,7 +41,7 @@ abstract class ModEntityModelLayers : ModRegistry() {
       modelDataProvider: EntityModelLayerRegistry.TexturedModelDataProvider,
   ) {
     EntityModelLayerRegistry.registerModelLayer(modelLayer, modelDataProvider)
-    logger.info("Registered model layer {}", modelLayer)
+    this.logger.info("Registered model layer {}", modelLayer)
   }
 }
 

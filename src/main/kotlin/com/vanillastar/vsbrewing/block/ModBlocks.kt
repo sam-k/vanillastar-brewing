@@ -15,41 +15,44 @@ import net.minecraft.state.property.BooleanProperty
 
 abstract class ModBlocks : ModRegistry() {
   @JvmField
-  val potionCauldronBlock = registerBlock(POTION_CAULDRON_BLOCK_METADATA, ::PotionCauldronBlock)
+  val potionCauldronBlock =
+      this.registerBlock(POTION_CAULDRON_BLOCK_METADATA, ::PotionCauldronBlock)
 
   @JvmField
   val potionCauldronPreviewBlock =
-      registerBlock(POTION_CAULDRON_PREVIEW_BLOCK_METADATA, ::PotionCauldronPreviewBlock)
+      this.registerBlock(POTION_CAULDRON_PREVIEW_BLOCK_METADATA, ::PotionCauldronPreviewBlock)
 
-  @JvmField val bottleBlock = registerBlock(BOTTLE_BLOCK_METADATA, ::BottleBlock)
+  @JvmField val bottleBlock = this.registerBlock(BOTTLE_BLOCK_METADATA, ::BottleBlock)
 
-  @JvmField val flaskBlock = registerBlock(FLASK_BLOCK_METADATA, ::FlaskBlock)
+  @JvmField val flaskBlock = this.registerBlock(FLASK_BLOCK_METADATA, ::FlaskBlock)
 
   private fun <TBlock : Block> registerBlock(
       metadata: ModBlockMetadata,
       constructor: (AbstractBlock.Settings) -> TBlock,
   ): TBlock {
+    val blockId = getModIdentifier(metadata.name)
     val block =
         Registry.register(
             Registries.BLOCK,
-            getModIdentifier(metadata.name),
+            blockId,
             constructor(metadata.settingsProvider(AbstractBlock.Settings.create())),
         )
-    logger.info("Registered block {}", metadata.name)
+    this.logger.info("Registered block {}", blockId)
 
     if (metadata.itemMetadata != null) {
+      val blockItemId = getModIdentifier(metadata.itemMetadata.name)
       val blockItem =
           Registry.register(
               Registries.ITEM,
-              getModIdentifier(metadata.name),
+              blockItemId,
               BlockItem(block, metadata.itemMetadata.settingsProvider(Item.Settings())),
           )
       ItemGroupEvents.modifyEntriesEvent(metadata.itemMetadata.itemGroup).register {
         it.add(blockItem)
       }
-      logger.info(
+      this.logger.info(
           "Registered block item {} in group {}|{}",
-          metadata.itemMetadata.name,
+          blockItemId,
           metadata.itemMetadata.itemGroup.registry,
           metadata.itemMetadata.itemGroup.value,
       )
