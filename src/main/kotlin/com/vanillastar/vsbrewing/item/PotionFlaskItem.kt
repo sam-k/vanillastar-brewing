@@ -383,8 +383,8 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
   override fun getPlacementState(context: ItemPlacementContext) =
       super.getPlacementState(context)
           ?.with(
-            FlaskBlock.LEVEL,
-            context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
+              FlaskBlock.LEVEL,
+              context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
           )
           ?.with(
               WATERLOGGED,
