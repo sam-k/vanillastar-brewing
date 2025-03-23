@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "count=1": {
+      "model": "vsbrewing:block/bottle_count1"
+    },
+    "count=2": {
+      "model": "vsbrewing:block/bottle_count2"
+    },
+    "count=3": {
+      "model": "vsbrewing:block/bottle_count3"
+    },
+    "count=4": {
+      "model": "vsbrewing:block/bottle_count4"
+    }
+  }
+}

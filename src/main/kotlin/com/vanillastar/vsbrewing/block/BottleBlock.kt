@@ -1,8 +1,9 @@
 package com.vanillastar.vsbrewing.block
 
 import com.mojang.serialization.MapCodec
-import com.vanillastar.vsbrewing.block.entity.FlaskBlockEntity
+import com.vanillastar.vsbrewing.block.entity.BottleBlockEntity
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
+import com.vanillastar.vsbrewing.tag.MOD_TAGS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import kotlin.jvm.optionals.getOrDefault
 import kotlin.jvm.optionals.getOrNull
@@ -18,6 +19,7 @@ import net.minecraft.entity.LivingEntity
 import net.minecraft.entity.ai.pathing.NavigationType
 import net.minecraft.fluid.FluidState
 import net.minecraft.fluid.Fluids
+import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.loot.context.LootContextParameterSet
 import net.minecraft.loot.context.LootContextParameters
@@ -29,13 +31,12 @@ import net.minecraft.state.property.Properties
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.shape.VoxelShape
-import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.WorldAccess
 
-val FLASK_BLOCK_METADATA =
-    ModBlockMetadata("flask") {
+val BOTTLE_BLOCK_METADATA =
+    ModBlockMetadata("bottle") {
       it.strength(0.1f)
           .pistonBehavior(PistonBehavior.DESTROY)
           .sounds(BlockSoundGroup.COPPER_BULB)
@@ -43,50 +44,69 @@ val FLASK_BLOCK_METADATA =
           .nonOpaque()
     }
 
-/** [Block] for a placed flask of any kind. */
-class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable {
+/** [Block] for placed bottles of any type. */
+class BottleBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable {
   companion object {
-    private val CODEC: MapCodec<FlaskBlock> = createCodec(::FlaskBlock)
-    private val SHAPE: VoxelShape =
-        VoxelShapes.union(
-            createCuboidShape(
-                /* minX= */ 2.0,
-                /* minY= */ 0.0,
-                /* minZ= */ 2.0,
-                /* maxX= */ 14.0,
-                /* maxY= */ 15.0,
-                /* maxZ= */ 14.0,
-            ),
-            createCuboidShape(
-                /* minX= */ 5.0,
-                /* minY= */ 13.0,
-                /* minZ= */ 5.0,
-                /* maxX= */ 11.0,
-                /* maxY= */ 16.0,
-                /* maxZ= */ 11.0,
-            ),
+    private val CODEC: MapCodec<BottleBlock> = createCodec(::BottleBlock)
+    private val SHAPE_BY_COUNT =
+        mapOf(
+            1 to
+                createCuboidShape(
+                    /* minX= */ 5.0,
+                    /* minY= */ 0.0,
+                    /* minZ= */ 5.0,
+                    /* maxX= */ 10.0,
+                    /* maxY= */ 8.0,
+                    /* maxZ= */ 10.0,
+                ),
+            2 to
+                createCuboidShape(
+                    /* minX= */ 2.0,
+                    /* minY= */ 0.0,
+                    /* minZ= */ 2.0,
+                    /* maxX= */ 13.0,
+                    /* maxY= */ 8.0,
+                    /* maxZ= */ 13.0,
+                ),
+            3 to
+                createCuboidShape(
+                    /* minX= */ 2.0,
+                    /* minY= */ 0.0,
+                    /* minZ= */ 2.0,
+                    /* maxX= */ 14.0,
+                    /* maxY= */ 8.0,
+                    /* maxZ= */ 14.0,
+                ),
+            4 to
+                createCuboidShape(
+                    /* minX= */ 2.0,
+                    /* minY= */ 0.0,
+                    /* minZ= */ 2.0,
+                    /* maxX= */ 14.0,
+                    /* maxY= */ 8.0,
+                    /* maxZ= */ 14.0,
+                ),
         )
-    private val DYNAMIC_DROP_ID = getModIdentifier("flask")
+    private val DYNAMIC_DROP_ID = getModIdentifier("bottle")
 
-    const val MIN_LEVEL = 0
-    const val MAX_LEVEL = 4
+    const val MIN_COUNT = 1
+    const val MAX_COUNT = 4
 
-    val LEVEL: IntProperty = IntProperty.of("level", MIN_LEVEL, MAX_LEVEL)
+    val COUNT: IntProperty = IntProperty.of("count", MIN_COUNT, MAX_COUNT)
     val WATERLOGGED: BooleanProperty = Properties.WATERLOGGED
   }
 
   init {
-    this.defaultState =
-        this.stateManager.getDefaultState().with(LEVEL, MIN_LEVEL).with(WATERLOGGED, false)
+    this.defaultState = this.stateManager.getDefaultState().with(COUNT, 2).with(WATERLOGGED, false)
   }
 
   override fun appendProperties(builder: StateManager.Builder<Block, BlockState>) {
-    builder.add(LEVEL, WATERLOGGED)
+    builder.add(COUNT, WATERLOGGED)
   }
 
   override fun getCodec() = CODEC
 
-  override fun createBlockEntity(pos: BlockPos, state: BlockState) = FlaskBlockEntity(pos, state)
+  override fun createBlockEntity(pos: BlockPos, state: BlockState) = BottleBlockEntity(pos, state)
 
   override fun getRenderType(state: BlockState) = BlockRenderType.MODEL
 
@@ -95,7 +115,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
       world: BlockView,
       pos: BlockPos,
       context: ShapeContext,
-  ) = SHAPE
+  ): VoxelShape = SHAPE_BY_COUNT[state.getOrEmpty(COUNT).getOrDefault(MIN_COUNT)]!!
 
   override fun getFluidState(state: BlockState): FluidState =
       if (state.getOrEmpty(WATERLOGGED).getOrDefault(false)) {
@@ -126,18 +146,35 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
       stack: ItemStack,
   ) {
     super.onPlaced(world, pos, state, placer, stack)
-    val blockEntity = world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).getOrNull()
-    blockEntity?.item = stack.copyWithCount(1)
-    blockEntity?.markDirty()
+    val blockEntity =
+        world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.bottleBlockEntityType).getOrNull()
+    if (blockEntity != null && blockEntity.canInsert(stack)) {
+      blockEntity.insert(stack.copyWithCount(1))
+      blockEntity.markDirty()
+    }
   }
+
+  override fun canReplace(state: BlockState, context: ItemPlacementContext) =
+      if (
+          !context.stack.isIn(MOD_TAGS.placeableBottles) ||
+              (context.shouldCancelInteraction() &&
+                  !context.stack.isIn(MOD_TAGS.placeableBottlesWithSneaking)) ||
+              state.getOrEmpty(COUNT).getOrDefault(0) >= MAX_COUNT
+      ) {
+        super.canReplace(state, context)
+      } else true
 
   override fun getDroppedStacks(
       state: BlockState,
       builder: LootContextParameterSet.Builder,
   ): List<ItemStack> {
     val blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY)
-    if (blockEntity is FlaskBlockEntity) {
-      builder.addDynamicDrop(DYNAMIC_DROP_ID) { it.accept(blockEntity.item) }
+    if (blockEntity is BottleBlockEntity) {
+      builder.addDynamicDrop(DYNAMIC_DROP_ID) {
+        for (stack in blockEntity.iterateItems()) {
+          it.accept(stack)
+        }
+      }
     }
     return super.getDroppedStacks(state, builder)
   }
@@ -145,7 +182,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
   override fun hasComparatorOutput(state: BlockState) = true
 
   override fun getComparatorOutput(state: BlockState, world: World, pos: BlockPos): Int =
-      state.getOrEmpty(LEVEL).getOrDefault(0)
+      state.getOrEmpty(COUNT).getOrDefault(0)
 
   override fun canPathfindThrough(state: BlockState, type: NavigationType) = false
 }

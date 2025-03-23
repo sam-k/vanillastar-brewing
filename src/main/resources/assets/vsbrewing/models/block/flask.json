@@ -6,7 +6,6 @@
     "top":      "vsbrewing:block/flask_top",
     "bottom":   "vsbrewing:block/flask_bottom",
     "side":     "vsbrewing:block/flask_side",
-    "neck":     "vsbrewing:block/flask_neck",
     "cork":     "vsbrewing:block/flask_cork"
   },
   "elements": [
@@ -26,12 +25,12 @@
       "from": [5, 13, 5],
       "to":   [11, 16, 11],
       "faces": {
-        "up":    {"uv": [5, 5, 11, 11],  "texture": "#cork", "cullface": "up"},
-        "down":  {"uv": [5, 5, 11, 11],  "texture": "#cork"},
-        "north": {"uv": [5, 11, 11, 14], "texture": "#cork"},
-        "east":  {"uv": [5, 11, 11, 14], "texture": "#cork"},
-        "south": {"uv": [5, 11, 11, 14], "texture": "#cork"},
-        "west":  {"uv": [5, 11, 11, 14], "texture": "#cork"}
+        "up":    {"uv": [0, 0, 6, 6], "texture": "#cork", "cullface": "up"},
+        "down":  {"uv": [0, 0, 6, 6], "texture": "#cork"},
+        "north": {"uv": [0, 6, 6, 9], "texture": "#cork"},
+        "east":  {"uv": [0, 6, 6, 9], "texture": "#cork"},
+        "south": {"uv": [0, 6, 6, 9], "texture": "#cork"},
+        "west":  {"uv": [0, 6, 6, 9], "texture": "#cork"}
       }
     }
   ]

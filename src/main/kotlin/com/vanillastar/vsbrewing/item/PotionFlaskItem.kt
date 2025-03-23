@@ -1,6 +1,7 @@
 package com.vanillastar.vsbrewing.item
 
 import com.vanillastar.vsbrewing.block.FlaskBlock
+import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
@@ -24,7 +25,9 @@ import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.fluid.Fluids
 import net.minecraft.item.AliasedBlockItem
+import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.item.ItemGroups
 import net.minecraft.item.ItemPlacementContext
@@ -100,6 +103,7 @@ val POTION_FLASK_ITEM_METADATA =
           .component(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, PotionFlaskItem.MAX_USES)
     }
 
+/** [Item] for a potion-filled flask. */
 class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
   companion object {
     /** Minimum number of uses for a [PotionFlaskItem]. */
@@ -304,11 +308,15 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
    * flask's remaining uses instead of immediately emptying the flask.
    */
   override fun useOnBlock(context: ItemUsageContext): ActionResult {
+    val player = context.player
+    if (player != null && player.isSneaking) {
+      // Place only if sneaking, so as not to interfere with drinking the potion.
+      return this.place(ItemPlacementContext(context))
+    }
+
     val world = context.world
     val blockPos = context.blockPos
-    val player = context.player
     val stack = context.stack
-
     if (
         context.side == Direction.DOWN ||
             !world.getBlockState(blockPos).isIn(BlockTags.CONVERTABLE_TO_MUD) ||
@@ -316,11 +324,8 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
                 .getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
                 .matches(Potions.WATER)
     ) {
-      return if (player != null && player.isSneaking) {
-        this.place(ItemPlacementContext(context))
-      } else {
-        ActionResult.PASS
-      }
+      // Do nothing, as conversion to mud is inapplicable here.
+      return ActionResult.PASS
     }
 
     world.playSound(
@@ -378,8 +383,12 @@ class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlo
   override fun getPlacementState(context: ItemPlacementContext) =
       super.getPlacementState(context)
           ?.with(
-              FlaskBlock.LEVEL,
-              context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
+            FlaskBlock.LEVEL,
+            context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
+          )
+          ?.with(
+              WATERLOGGED,
+              context.world.getFluidState(context.blockPos).fluid.matchesType(Fluids.WATER),
           )
 
   /** This is copied from [PotionItem.getTranslationKey]. */

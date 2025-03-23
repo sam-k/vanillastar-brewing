@@ -1,10 +1,14 @@
 package com.vanillastar.vsbrewing.item
 
+import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.fluid.Fluids
 import net.minecraft.item.AliasedBlockItem
+import net.minecraft.item.Item
 import net.minecraft.item.ItemGroups
+import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsage
 import net.minecraft.item.Items
@@ -25,6 +29,7 @@ val GLASS_FLASK_ITEM_METADATA =
       it.maxCount(64)
     }
 
+/** [Item] for an empty glass flask. */
 class GlassFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
   override fun use(world: World, player: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
     val stack = player.getStackInHand(hand)
@@ -63,4 +68,11 @@ class GlassFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBloc
         world.isClient(),
     )
   }
+
+  override fun getPlacementState(context: ItemPlacementContext) =
+      super.getPlacementState(context)
+          ?.with(
+              WATERLOGGED,
+              context.world.getFluidState(context.blockPos).fluid.matchesType(Fluids.WATER),
+          )
 }

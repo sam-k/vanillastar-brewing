@@ -56,5 +56,7 @@
   "item.vsbrewing.potion_flask.effect.weakness": "Flask of Weakness",
   "item.vsbrewing.potion_flask.effect.weaving": "Flask of Weaving",
   "item.vsbrewing.potion_flask.effect.wind_charged": "Flask of Wind Charging",
-  "item.vsbrewing.potion_flask.remaining_uses": "Remaining Uses: %1$s"
+  "item.vsbrewing.potion_flask.remaining_uses": "Remaining Uses: %1$s",
+  "tag.item.vsbrewing.placeable_bottles": "Placeable Bottles",
+  "tag.item.vsbrewing.placeable_bottles_with_sneaking": "Bottles Placeable with Sneaking"
 }

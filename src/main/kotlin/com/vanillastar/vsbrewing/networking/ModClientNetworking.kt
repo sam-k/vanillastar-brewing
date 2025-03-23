@@ -1,10 +1,13 @@
 package com.vanillastar.vsbrewing.networking
 
 import com.vanillastar.vsbrewing.utils.ModRegistry
+import net.fabricmc.api.EnvType
+import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 
-abstract class ModNetworking : ModRegistry() {
+@Environment(EnvType.CLIENT)
+abstract class ModClientNetworking : ModRegistry() {
   private val serverPayloads = listOf(BrewingCauldronPayload)
 
   private fun <TPayload : ModNetworkingPayload> registerServerPayload(
@@ -31,4 +34,4 @@ abstract class ModNetworking : ModRegistry() {
   }
 }
 
-@JvmField val MOD_NETWORKING = object : ModNetworking() {}
+@JvmField val MOD_CLIENT_NETWORKING = object : ModClientNetworking() {}

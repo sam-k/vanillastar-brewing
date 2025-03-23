@@ -12,6 +12,7 @@ public class VSBrewingMixinClient implements ClientModInitializer {
     // This counts as a mixin and therefore must be done in Java.
     BlockRenderLayerMap.INSTANCE.putBlocks(
         RenderLayer.getCutout(), MOD_BLOCKS.potionCauldronPreviewBlock);
-    BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutoutMipped(), MOD_BLOCKS.flaskBlock);
+    BlockRenderLayerMap.INSTANCE.putBlocks(
+        RenderLayer.getCutoutMipped(), MOD_BLOCKS.bottleBlock, MOD_BLOCKS.flaskBlock);
   }
 }
