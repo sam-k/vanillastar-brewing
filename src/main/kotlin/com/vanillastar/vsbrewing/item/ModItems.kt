@@ -9,8 +9,8 @@ import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 
 abstract class ModItems : ModRegistry() {
-  @JvmField val glassFlaskItem = registerItem(GLASS_FLASK_ITEM_METADATA, ::GlassFlaskItem)
-  @JvmField val potionFlaskItem = registerItem(POTION_FLASK_ITEM_METADATA, ::PotionFlaskItem)
+  @JvmField val glassFlaskItem = this.registerItem(GLASS_FLASK_ITEM_METADATA, ::GlassFlaskItem)
+  @JvmField val potionFlaskItem = this.registerItem(POTION_FLASK_ITEM_METADATA, ::PotionFlaskItem)
 
   private fun registerItem(metadata: ModItemMetadata, constructor: (Item.Settings) -> Item): Item {
     val item =
@@ -30,7 +30,7 @@ abstract class ModItems : ModRegistry() {
         }
       }
     }
-    logger.info(
+    this.logger.info(
         "Registered item {} in group {}|{}",
         metadata.name,
         metadata.itemGroup.registry,

@@ -13,11 +13,14 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory
 @Environment(EnvType.CLIENT)
 abstract class ModBlockEntityRenderers : ModRegistry() {
   override fun initialize() {
-    registerBlockEntityRenderer(
+    this.registerBlockEntityRenderer(
         MOD_BLOCK_ENTITIES.bottleBlockEntityType,
         ::BottleBlockEntityRenderer,
     )
-    registerBlockEntityRenderer(MOD_BLOCK_ENTITIES.flaskBlockEntityType, ::FlaskBlockEntityRenderer)
+    this.registerBlockEntityRenderer(
+        MOD_BLOCK_ENTITIES.flaskBlockEntityType,
+        ::FlaskBlockEntityRenderer,
+    )
   }
 
   private fun <

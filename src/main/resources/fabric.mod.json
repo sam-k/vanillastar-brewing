@@ -4,9 +4,7 @@
   "version": "${version}",
   "name": "Vanilla* Brewing",
   "description": "",
-  "authors": [
-    "Sam Kim"
-  ],
+  "authors": ["Sam Kim"],
   "contact": {
     "homepage": "https://github.com/sam-k/vanillastar-brewing",
     "sources": "https://github.com/sam-k/vanillastar-brewing",
@@ -26,9 +24,6 @@
   },
   "environment": "*",
   "entrypoints": {
-    "fabric-datagen": [
-      "com.vanillastar.vsbrewing.VSBrewingDataGenerator"
-    ],
     "main": [
       {
         "value": "com.vanillastar.vsbrewing.VSBrewing",
@@ -43,9 +38,7 @@
       "com.vanillastar.vsbrewing.VSBrewingMixinClient"
     ]
   },
-  "mixins": [
-    "vsbrewing.mixins.json"
-  ],
+  "mixins": ["vsbrewing.mixins.json"],
   "accessWidener": "vsbrewing.accesswidener",
   "depends": {
     "minecraft": "${minecraft_target_versions}",

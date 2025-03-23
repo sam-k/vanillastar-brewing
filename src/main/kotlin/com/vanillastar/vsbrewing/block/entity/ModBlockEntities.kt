@@ -12,13 +12,15 @@ import net.minecraft.util.math.BlockPos
 abstract class ModBlockEntities : ModRegistry() {
   @JvmField
   val potionCauldronBlockEntityType =
-      registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
+      this.registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
 
   @JvmField
-  val bottleBlockEntityType = registerBlockEntity(BOTTLE_BLOCK_ENTITY_METADATA, ::BottleBlockEntity)
+  val bottleBlockEntityType =
+      this.registerBlockEntity(BOTTLE_BLOCK_ENTITY_METADATA, ::BottleBlockEntity)
 
   @JvmField
-  val flaskBlockEntityType = registerBlockEntity(FLASK_BLOCK_ENTITY_METADATA, ::FlaskBlockEntity)
+  val flaskBlockEntityType =
+      this.registerBlockEntity(FLASK_BLOCK_ENTITY_METADATA, ::FlaskBlockEntity)
 
   private fun <TBlockEntity : BlockEntity> registerBlockEntity(
       metadata: ModBlockEntityMetadata,
@@ -30,7 +32,7 @@ abstract class ModBlockEntities : ModRegistry() {
             getModIdentifier(metadata.name),
             BlockEntityType.Builder.create(constructor, *metadata.blocks.toTypedArray()).build(),
         )
-    logger.info(
+    this.logger.info(
         "Registered block entity {} for blocks {}",
         metadata.name,
         metadata.blocks.map { it.name }.joinToString(),

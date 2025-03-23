@@ -15,7 +15,7 @@ import net.minecraft.util.Identifier
 @Environment(EnvType.CLIENT)
 abstract class ModModelPredicateProviders : ModRegistry() {
   override fun initialize() {
-    registerModelPredicateProviders(MOD_ITEMS.potionFlaskItem, "remaining_uses") {
+    this.registerModelPredicateProviders(MOD_ITEMS.potionFlaskItem, "remaining_uses") {
         stack: ItemStack,
         world: ClientWorld?,
         entity: LivingEntity?,
@@ -34,7 +34,7 @@ abstract class ModModelPredicateProviders : ModRegistry() {
       provider: ClampedModelPredicateProvider,
   ) {
     ModelPredicateProviderRegistry.register(item, Identifier.ofVanilla(name), provider)
-    logger.info("Registered model predicate provider {} for item {}", name, item)
+    this.logger.info("Registered model predicate provider {} for item {}", name, item)
   }
 }
 

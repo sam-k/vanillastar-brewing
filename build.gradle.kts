@@ -49,9 +49,7 @@ dependencies {
   modImplementation("org.locationtech.jts", "jts-core", jts_version)
 }
 
-fabricApi {
-  configureDataGeneration()
-}
+fabricApi {}
 
 loom {
   accessWidenerPath = file(access_widener_path)

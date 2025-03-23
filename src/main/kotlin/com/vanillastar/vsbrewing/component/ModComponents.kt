@@ -10,7 +10,7 @@ import net.minecraft.registry.Registry
 abstract class ModComponents : ModRegistry() {
   @JvmField
   val potionFlaskRemainingUsesComponent =
-      registerComponent("potion_flask_remaining_uses", Codec.INT)
+      this.registerComponent("potion_flask_remaining_uses", Codec.INT)
 
   @Suppress("SameParameterValue")
   private fun <TCodec> registerComponent(
@@ -23,7 +23,7 @@ abstract class ModComponents : ModRegistry() {
             getModIdentifier(name),
             ComponentType.builder<TCodec>().codec(codec).build(),
         )
-    logger.info("Registered component {}", name)
+    this.logger.info("Registered component {}", name)
     return component
   }
 

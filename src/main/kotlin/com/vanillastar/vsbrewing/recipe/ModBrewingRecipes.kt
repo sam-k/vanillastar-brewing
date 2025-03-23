@@ -22,7 +22,7 @@ abstract class ModBrewingRecipes : ModRegistry() {
 
       fun registerPotionType(item: Item) {
         it.registerPotionType(item)
-        logger.info("Registered potion type {}", item)
+        this.logger.info("Registered potion type {}", item)
       }
 
       fun registerPotionRecipe(
@@ -31,7 +31,7 @@ abstract class ModBrewingRecipes : ModRegistry() {
           output: RegistryEntry<Potion>,
       ) {
         it.registerPotionRecipe(input, ingredient, output)
-        logger.info(
+        this.logger.info(
             "Registered potion recipe: {} + {} = {}",
             input.idAsString,
             ingredient,

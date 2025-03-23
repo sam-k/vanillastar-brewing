@@ -15,15 +15,16 @@ import net.minecraft.state.property.BooleanProperty
 
 abstract class ModBlocks : ModRegistry() {
   @JvmField
-  val potionCauldronBlock = registerBlock(POTION_CAULDRON_BLOCK_METADATA, ::PotionCauldronBlock)
+  val potionCauldronBlock =
+      this.registerBlock(POTION_CAULDRON_BLOCK_METADATA, ::PotionCauldronBlock)
 
   @JvmField
   val potionCauldronPreviewBlock =
-      registerBlock(POTION_CAULDRON_PREVIEW_BLOCK_METADATA, ::PotionCauldronPreviewBlock)
+      this.registerBlock(POTION_CAULDRON_PREVIEW_BLOCK_METADATA, ::PotionCauldronPreviewBlock)
 
-  @JvmField val bottleBlock = registerBlock(BOTTLE_BLOCK_METADATA, ::BottleBlock)
+  @JvmField val bottleBlock = this.registerBlock(BOTTLE_BLOCK_METADATA, ::BottleBlock)
 
-  @JvmField val flaskBlock = registerBlock(FLASK_BLOCK_METADATA, ::FlaskBlock)
+  @JvmField val flaskBlock = this.registerBlock(FLASK_BLOCK_METADATA, ::FlaskBlock)
 
   private fun <TBlock : Block> registerBlock(
       metadata: ModBlockMetadata,
@@ -35,7 +36,7 @@ abstract class ModBlocks : ModRegistry() {
             getModIdentifier(metadata.name),
             constructor(metadata.settingsProvider(AbstractBlock.Settings.create())),
         )
-    logger.info("Registered block {}", metadata.name)
+    this.logger.info("Registered block {}", metadata.name)
 
     if (metadata.itemMetadata != null) {
       val blockItem =
@@ -47,7 +48,7 @@ abstract class ModBlocks : ModRegistry() {
       ItemGroupEvents.modifyEntriesEvent(metadata.itemMetadata.itemGroup).register {
         it.add(blockItem)
       }
-      logger.info(
+      this.logger.info(
           "Registered block item {} in group {}|{}",
           metadata.itemMetadata.name,
           metadata.itemMetadata.itemGroup.registry,
