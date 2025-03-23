@@ -53,7 +53,7 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
             Identifier.ofVanilla("block/water_still"),
         )
 
-    private fun getChildRootName(index: Int) = "root$index"
+    private fun getChildRootName(index: Int) = "root${index}"
 
     private fun addContentModelPartData(
         root: ModelPartData,
@@ -136,7 +136,7 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
   }
 
   val bottlesByCount =
-      BOTTLE_CONTENT_MODEL_LAYERS.mapValues { (count, modelLayer) ->
+      BOTTLE_CONTENT_MODEL_LAYERS.mapValues { (_, modelLayer) ->
         context.getLayerModelPart(modelLayer)
       }
 

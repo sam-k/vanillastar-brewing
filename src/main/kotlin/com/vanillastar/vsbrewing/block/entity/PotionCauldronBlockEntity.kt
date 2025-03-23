@@ -70,7 +70,7 @@ class PotionCauldronBlockEntity(
   }
 
   override fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {
-    this.readNbt(nbt, registryLookup, /* sendUpdate= */ true)
+    this.readNbt(nbt, registryLookup, sendUpdate = true)
   }
 
   override fun writeNbt(nbt: NbtCompound, registryLookup: WrapperLookup) {

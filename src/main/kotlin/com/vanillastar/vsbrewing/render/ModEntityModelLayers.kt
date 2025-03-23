@@ -14,12 +14,12 @@ abstract class ModEntityModelLayers : ModRegistry() {
   companion object {
     val BOTTLE_CONTENT_MODEL_LAYERS =
         (BottleBlock.COUNT.values).associate {
-          it to EntityModelLayer(getModIdentifier("bottle_count$it"), "root")
+          it to EntityModelLayer(getModIdentifier("bottle_count${it}"), "root")
         }
 
     val FLASK_CONTENT_MODEL_LAYERS =
         (FlaskBlock.LEVEL.values).associate {
-          it to EntityModelLayer(getModIdentifier("flask_level$it"), "root")
+          it to EntityModelLayer(getModIdentifier("flask_level${it}"), "root")
         }
   }
 
