@@ -8,7 +8,6 @@ import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.block.MapColor
 import net.minecraft.particle.EntityEffectParticleEffect
 import net.minecraft.particle.ParticleTypes
-import net.minecraft.state.StateManager
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.random.Random
 import net.minecraft.world.World
@@ -35,14 +34,6 @@ open class PotionCauldronBlock(settings: Settings) :
   override fun createBlockEntity(pos: BlockPos, state: BlockState) =
       PotionCauldronBlockEntity(pos, state)
 
-  override fun appendProperties(builder: StateManager.Builder<Block, BlockState>) {
-    builder.add(LEVEL)
-  }
-
-  override fun isFull(state: BlockState) = state.get(LEVEL) == 3
-
-  override fun getFluidHeight(state: BlockState) = (6 + 3 * state.get(LEVEL)) / 16.0
-
   override fun randomDisplayTick(state: BlockState, world: World, pos: BlockPos, random: Random) {
     val potionColor = world.getBlockEntityRenderData(pos)
     val particleEffect =
@@ -63,7 +54,4 @@ open class PotionCauldronBlock(settings: Settings) :
       )
     }
   }
-
-  override fun getComparatorOutput(state: BlockState, world: World, pos: BlockPos): Int =
-      state.get(LEVEL)
 }

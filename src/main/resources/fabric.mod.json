@@ -39,7 +39,8 @@
       {
         "value": "com.vanillastar.vsbrewing.VSBrewingClient",
         "adapter": "kotlin"
-      }
+      },
+      "com.vanillastar.vsbrewing.VSBrewingMixinClient"
     ]
   },
   "mixins": [

@@ -1,5 +1,6 @@
 package com.vanillastar.vsbrewing.mixin.recipe;
 
+import static com.vanillastar.vsbrewing.item.ModItemsKt.MOD_ITEMS;
 import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
 import net.minecraft.item.Item;
@@ -33,6 +34,13 @@ public abstract class BrewingRecipeRegistryBuilderMixin {
     String recipeString = getRecipeString(input, ingredient, output);
     if (recipeString.equals(getRecipeString(Potions.WATER, Items.REDSTONE, Potions.MUNDANE))) {
       LOGGER.info("Deregistered brewing recipe: {}", recipeString);
+      ci.cancel();
+    }
+  }
+
+  @Inject(method = "assertPotion(Lnet/minecraft/item/Item;)V", at = @At("HEAD"), cancellable = true)
+  private static void assertPotionFlask(@NotNull Item potionType, CallbackInfo ci) {
+    if (potionType.equals(MOD_ITEMS.potionFlaskItem)) {
       ci.cancel();
     }
   }

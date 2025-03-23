@@ -21,6 +21,10 @@ abstract class ModBlocks : ModRegistry() {
   val potionCauldronPreviewBlock =
       registerBlock(POTION_CAULDRON_PREVIEW_BLOCK_METADATA, ::PotionCauldronPreviewBlock)
 
+  @JvmField val bottleBlock = registerBlock(BOTTLE_BLOCK_METADATA, ::BottleBlock)
+
+  @JvmField val flaskBlock = registerBlock(FLASK_BLOCK_METADATA, ::FlaskBlock)
+
   private fun <TBlock : Block> registerBlock(
       metadata: ModBlockMetadata,
       constructor: (AbstractBlock.Settings) -> TBlock,

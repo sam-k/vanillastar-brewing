@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "particle": "vsbrewing:block/flask_side",
+    "top":      "vsbrewing:block/flask_top",
+    "bottom":   "vsbrewing:block/flask_bottom",
+    "side":     "vsbrewing:block/flask_side",
+    "cork":     "vsbrewing:block/flask_cork"
+  },
+  "elements": [
+    {
+      "from": [2, 0, 2],
+      "to":   [14, 15, 14],
+      "faces": {
+        "up":    {"texture": "#top"},
+        "down":  {"texture": "#bottom", "cullface": "down"},
+        "north": {"texture": "#side"},
+        "east":  {"texture": "#side"},
+        "south": {"texture": "#side"},
+        "west":  {"texture": "#side"}
+      }
+    },
+    {
+      "from": [5, 13, 5],
+      "to":   [11, 16, 11],
+      "faces": {
+        "up":    {"uv": [0, 0, 6, 6], "texture": "#cork", "cullface": "up"},
+        "down":  {"uv": [0, 0, 6, 6], "texture": "#cork"},
+        "north": {"uv": [0, 6, 6, 9], "texture": "#cork"},
+        "east":  {"uv": [0, 6, 6, 9], "texture": "#cork"},
+        "south": {"uv": [0, 6, 6, 9], "texture": "#cork"},
+        "west":  {"uv": [0, 6, 6, 9], "texture": "#cork"}
+      }
+    }
+  ]
+}

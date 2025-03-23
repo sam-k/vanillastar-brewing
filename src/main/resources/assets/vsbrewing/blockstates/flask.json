@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "vsbrewing:block/flask"
+    }
+  }
+}

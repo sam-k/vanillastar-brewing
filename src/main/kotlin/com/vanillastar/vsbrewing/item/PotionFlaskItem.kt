@@ -1,9 +1,17 @@
 package com.vanillastar.vsbrewing.item
 
+import com.vanillastar.vsbrewing.block.FlaskBlock
+import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
+import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import java.util.Optional
+import kotlin.Float
+import kotlin.Pair
+import kotlin.String
+import kotlin.Unit
 import kotlin.jvm.optionals.getOrNull
+import kotlin.repeat
 import kotlin.streams.asStream
 import net.minecraft.SharedConstants
 import net.minecraft.advancement.criterion.Criteria
@@ -17,14 +25,19 @@ import net.minecraft.entity.attribute.EntityAttributeModifier
 import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.fluid.Fluids
+import net.minecraft.item.AliasedBlockItem
+import net.minecraft.item.Item
 import net.minecraft.item.ItemGroup
 import net.minecraft.item.ItemGroups
+import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsage
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.item.PotionItem
 import net.minecraft.item.tooltip.TooltipType
 import net.minecraft.particle.ParticleTypes
+import net.minecraft.potion.Potion
 import net.minecraft.potion.Potions
 import net.minecraft.registry.Registries
 import net.minecraft.registry.entry.RegistryEntry
@@ -38,6 +51,9 @@ import net.minecraft.stat.Stats
 import net.minecraft.text.Text
 import net.minecraft.util.ActionResult
 import net.minecraft.util.Formatting
+import net.minecraft.util.Hand
+import net.minecraft.util.TypedActionResult
+import net.minecraft.util.UseAction
 import net.minecraft.util.Util
 import net.minecraft.util.math.Direction
 import net.minecraft.world.World
@@ -87,13 +103,17 @@ val POTION_FLASK_ITEM_METADATA =
           .component(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, PotionFlaskItem.MAX_USES)
     }
 
-class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
+/** [Item] for a potion-filled flask. */
+class PotionFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
   companion object {
     /** Minimum number of uses for a [PotionFlaskItem]. */
     const val MIN_USES = 1
 
     /** Maximum number of uses for a [PotionFlaskItem]. */
     const val MAX_USES = 3
+
+    /** Duration for drinking a [PotionFlaskItem], in ticks. */
+    private const val MAX_USE_TIME = 32
 
     fun appendPotionFlaskDataTooltip(
         stack: ItemStack,
@@ -224,9 +244,20 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
 
   override fun getDefaultStack(): ItemStack {
     val stack = super.getDefaultStack()
+    stack.set(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent(Potions.WATER))
     stack.set(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, MAX_USES)
     return stack
   }
+
+  /** This is copied from [PotionItem.getMaxUseTime]. */
+  override fun getMaxUseTime(stack: ItemStack, user: LivingEntity) = MAX_USE_TIME
+
+  /** This is copied from [PotionItem.getUseAction]. */
+  override fun getUseAction(stack: ItemStack) = UseAction.DRINK
+
+  /** This is copied from [PotionItem.use]. */
+  override fun use(world: World, user: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> =
+      ItemUsage.consumeHeldItem(world, user, hand)
 
   /**
    * This is mostly copied from [PotionItem.finishUsing], except we try to decrement the potion
@@ -277,11 +308,15 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
    * flask's remaining uses instead of immediately emptying the flask.
    */
   override fun useOnBlock(context: ItemUsageContext): ActionResult {
+    val player = context.player
+    if (player != null && player.isSneaking) {
+      // Place only if sneaking, so as not to interfere with drinking the potion.
+      return this.place(ItemPlacementContext(context))
+    }
+
     val world = context.world
     val blockPos = context.blockPos
-    val player = context.player
     val stack = context.stack
-
     if (
         context.side == Direction.DOWN ||
             !world.getBlockState(blockPos).isIn(BlockTags.CONVERTABLE_TO_MUD) ||
@@ -289,6 +324,7 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
                 .getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
                 .matches(Potions.WATER)
     ) {
+      // Do nothing, as conversion to mud is inapplicable here.
       return ActionResult.PASS
     }
 
@@ -343,6 +379,26 @@ class PotionFlaskItem(settings: Settings) : PotionItem(settings) {
     world.setBlockState(blockPos, Blocks.MUD.defaultState)
     return ActionResult.success(world.isClient)
   }
+
+  override fun getPlacementState(context: ItemPlacementContext) =
+      super.getPlacementState(context)
+          ?.with(
+              FlaskBlock.LEVEL,
+              context.stack.getOrDefault(MOD_COMPONENTS.potionFlaskRemainingUsesComponent, 0),
+          )
+          ?.with(
+              WATERLOGGED,
+              context.world.getFluidState(context.blockPos).fluid.matchesType(Fluids.WATER),
+          )
+
+  /** This is copied from [PotionItem.getTranslationKey]. */
+  override fun getTranslationKey(stack: ItemStack): String =
+      Potion.finishTranslationKey(
+          stack
+              .getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+              .potion(),
+          this.translationKey + ".effect.",
+      )
 
   override fun appendTooltip(
       stack: ItemStack,

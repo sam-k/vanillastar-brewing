@@ -1,6 +1,7 @@
 package com.vanillastar.vsbrewing.color
 
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
+import com.vanillastar.vsbrewing.block.entity.BottleBlockEntity
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import net.fabricmc.api.EnvType
@@ -19,8 +20,7 @@ abstract class ModColorProviders : ModRegistry() {
   override fun initialize() {
     registerItemColorProvider(
         { stack, tintIndex ->
-          if (tintIndex > 0) -1
-          else {
+          if (tintIndex == 0) {
             Argb.fullAlpha(
                 stack
                     .getOrDefault(
@@ -29,21 +29,45 @@ abstract class ModColorProviders : ModRegistry() {
                     )
                     .color
             )
-          }
+          } else -1
         },
         MOD_ITEMS.potionFlaskItem,
     )
 
     registerBlockColorProvider(
         { stack, world, pos, tintIndex ->
-          if (tintIndex > 0 || world == null || pos == null) -1
-          else {
+          if (tintIndex == 0 && world != null && pos != null) {
             val renderData = world.getBlockEntityRenderData(pos)
             if (renderData is Int) Argb.fullAlpha(renderData) else -1
-          }
+          } else -1
         },
         MOD_BLOCKS.potionCauldronBlock,
         MOD_BLOCKS.potionCauldronPreviewBlock,
+        MOD_BLOCKS.flaskBlock,
+    )
+
+    // Coloring the bottles themselves should also belong to BottleBlockEntityRenderer, which would
+    // require dynamically rendering the bottles as entities. (Doing so would also reduce code
+    // duplication in the BottleBlock JSON models.) But culling obscured faces is far easier with
+    // traditional baked block models.
+    registerBlockColorProvider(
+        { stack, world, pos, tintIndex ->
+          if (world == null || pos == null) {
+            return@registerBlockColorProvider -1
+          }
+          val renderData = world.getBlockEntityRenderData(pos)
+          if (renderData !is BottleBlockEntity.RenderData) {
+            return@registerBlockColorProvider -1
+          }
+          // Bottle block tint indices alternate between body colors and cork colors.
+          val colors = if (tintIndex % 2 == 0) renderData.bodyColors else renderData.corkColors
+          val normalizedTintIndex = tintIndex / 2
+          if (normalizedTintIndex >= colors.length()) {
+            return@registerBlockColorProvider -1
+          }
+          Argb.fullAlpha(colors[normalizedTintIndex])
+        },
+        MOD_BLOCKS.bottleBlock,
     )
   }
 
