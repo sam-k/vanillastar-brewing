@@ -5,19 +5,19 @@
       "predicate": {
         "remaining_uses": 0.333333
       },
-      "model": "vsbrewing:item/potion_flask_level1"
+      "model": "vsbrewing:item/milk_flask_level1"
     },
     {
       "predicate": {
         "remaining_uses": 0.666666
       },
-      "model": "vsbrewing:item/potion_flask_level2"
+      "model": "vsbrewing:item/milk_flask_level2"
     },
     {
       "predicate": {
         "remaining_uses": 1.000000
       },
-      "model": "vsbrewing:item/potion_flask_full"
+      "model": "vsbrewing:item/milk_flask_full"
     }
   ]
 }

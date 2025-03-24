@@ -15,25 +15,34 @@ import net.minecraft.util.Identifier
 @Environment(EnvType.CLIENT)
 abstract class ModModelPredicateProviders : ModRegistry() {
   override fun initialize() {
-    this.registerModelPredicateProviders(MOD_ITEMS.potionFlaskItem, "remaining_uses") {
-        stack: ItemStack,
-        world: ClientWorld?,
-        entity: LivingEntity?,
-        seed: Int ->
-      stack.getOrDefault(MOD_COMPONENTS.flaskRemainingUsesComponent, GlassFlaskItem.MAX_USES) /
-          GlassFlaskItem.MAX_USES.toFloat()
-    }
+    this.registerModelPredicateProviders(
+        "remaining_uses",
+        { stack: ItemStack, world: ClientWorld?, entity: LivingEntity?, seed: Int ->
+          stack.getOrDefault(
+              MOD_COMPONENTS.flaskRemainingUsesComponent,
+              DrinkableFlaskItem.MAX_USES,
+          ) / DrinkableFlaskItem.MAX_USES.toFloat()
+        },
+        MOD_ITEMS.milkFlaskItem,
+        MOD_ITEMS.potionFlaskItem,
+    )
   }
 
   @Suppress("SameParameterValue")
   private fun registerModelPredicateProviders(
-      item: Item,
       name: String,
       provider: ClampedModelPredicateProvider,
+      vararg items: Item,
   ) {
     // This identifier should not be namespaced.
-    ModelPredicateProviderRegistry.register(item, Identifier.ofVanilla(name), provider)
-    this.logger.info("Registered model predicate provider {} for item {}", name, item)
+    for (item in items) {
+      ModelPredicateProviderRegistry.register(item, Identifier.ofVanilla(name), provider)
+    }
+    this.logger.info(
+        "Registered model predicate provider {} for items {}",
+        name,
+        items.joinToString(", "),
+    )
   }
 }
 

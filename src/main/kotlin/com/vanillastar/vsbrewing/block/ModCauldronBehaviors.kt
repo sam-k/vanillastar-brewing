@@ -3,7 +3,7 @@ package com.vanillastar.vsbrewing.block
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.item.GlassFlaskItem
+import com.vanillastar.vsbrewing.item.DrinkableFlaskItem
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import kotlin.jvm.optionals.getOrDefault
@@ -105,7 +105,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                   val remainingUses =
                       stack.getOrDefault(
                           MOD_COMPONENTS.flaskRemainingUsesComponent,
-                          GlassFlaskItem.MAX_USES,
+                          DrinkableFlaskItem.MAX_USES,
                       )
                   val diffLevel = min(remainingUses, LeveledCauldronBlock.MAX_LEVEL - cauldronLevel)
                   if (remainingUses - diffLevel > 0) {

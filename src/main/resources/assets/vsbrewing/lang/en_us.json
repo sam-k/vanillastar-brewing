@@ -29,6 +29,7 @@
   "container.vsbrewing.brewing_cauldron": "Brewing Cauldron",
   "item.vsbrewing.glass_flask": "Glass Flask",
   "item.vsbrewing.glass_flask.remaining_uses": "Remaining Uses: %1$s",
+  "item.vsbrewing.milk_flask": "Milk Flask",
   "item.vsbrewing.potion_flask": "Potion Flask",
   "item.vsbrewing.potion_flask.effect.awkward": "Awkward Flask",
   "item.vsbrewing.potion_flask.effect.empty": "Uncraftable Flask",

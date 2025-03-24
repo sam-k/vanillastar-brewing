@@ -2,8 +2,6 @@ package com.vanillastar.vsbrewing.item
 
 import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
-import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluids
@@ -19,11 +17,8 @@ import net.minecraft.registry.tag.FluidTags
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.stat.Stats
-import net.minecraft.text.Text
-import net.minecraft.util.Formatting
 import net.minecraft.util.Hand
 import net.minecraft.util.TypedActionResult
-import net.minecraft.util.Util
 import net.minecraft.util.hit.HitResult
 import net.minecraft.world.RaycastContext
 import net.minecraft.world.World
@@ -36,30 +31,6 @@ val GLASS_FLASK_ITEM_METADATA =
 
 /** [Item] for an empty glass flask. */
 class GlassFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
-  companion object {
-    /** Minimum number of uses for a flask item. */
-    const val MIN_USES = 1
-
-    /** Maximum number of uses for a flask item. */
-    const val MAX_USES = 3
-
-    /** Duration for drinking a flask item, in ticks. */
-    const val MAX_USE_TIME = 32
-
-    /** Builds and appends the item tooltip displaying the remaining uses of this potion flask. */
-    fun appendRemainingUsesTooltip(stack: ItemStack, tooltip: MutableList<Text>) {
-      val translationKeyPrefix =
-          Util.createTranslationKey("item", getModIdentifier(GLASS_FLASK_ITEM_METADATA.name))
-      tooltip.add(
-          Text.translatable(
-                  "${translationKeyPrefix}.remaining_uses",
-                  stack.get(MOD_COMPONENTS.flaskRemainingUsesComponent),
-              )
-              .formatted(Formatting.GRAY)
-      )
-    }
-  }
-
   override fun use(world: World, player: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
     val stack = player.getStackInHand(hand)
 

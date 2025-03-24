@@ -2,7 +2,9 @@ package com.vanillastar.vsbrewing.render
 
 import com.vanillastar.vsbrewing.block.FlaskBlock
 import com.vanillastar.vsbrewing.block.entity.FlaskBlockEntity
+import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.render.ModEntityModelLayers.Companion.FLASK_CONTENT_MODEL_LAYERS
+import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.model.ModelData
@@ -24,6 +26,8 @@ class FlaskBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
   companion object {
     private const val TEXTURE_DIM = 16
 
+    private val MILK_SPRITE_ID =
+        SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, getModIdentifier("block/milk"))
     private val WATER_SPRITE_ID =
         SpriteIdentifier(
             PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
@@ -108,10 +112,20 @@ class FlaskBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
       return
     }
 
+    val spriteId =
+        when {
+          entity.item.isOf(MOD_ITEMS.milkFlaskItem) -> MILK_SPRITE_ID
+          entity.item.isOf(MOD_ITEMS.potionFlaskItem) -> WATER_SPRITE_ID
+          else -> null
+        }
+    if (spriteId == null) {
+      return
+    }
+
     matrices.push()
     this.contentByLevel[level]?.render(
         matrices,
-        WATER_SPRITE_ID.getVertexConsumer(vertices) { RenderLayer.getEntityTranslucent(it) },
+        spriteId.getVertexConsumer(vertices) { RenderLayer.getEntityTranslucent(it) },
         light,
         overlay,
         entity.renderData,
