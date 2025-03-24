@@ -15,6 +15,9 @@ abstract class ModItems : ModRegistry() {
 
   @JvmField val milkFlaskItem = this.registerItem(MILK_FLASK_ITEM_METADATA, ::MilkFlaskItem)
 
+  // Register after `milkFlaskItem` to ensure it is added to the item group before it.
+  @JvmField val milkBottleItem = this.registerItem(MILK_BOTTLE_ITEM_METADATA, ::MilkBottleItem)
+
   private fun registerItem(metadata: ModItemMetadata, constructor: (Item.Settings) -> Item): Item {
     val id = getModIdentifier(metadata.name)
     val item =
