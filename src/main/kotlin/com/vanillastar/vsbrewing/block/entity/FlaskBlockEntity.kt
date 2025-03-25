@@ -41,6 +41,5 @@ class FlaskBlockEntity(pos: BlockPos, state: BlockState, var item: ItemStack = I
   override fun toUpdatePacket(): BlockEntityUpdateS2CPacket =
       BlockEntityUpdateS2CPacket.create(this)
 
-  override fun getRenderData() =
-      this.item.getOrDefault(DataComponentTypes.POTION_CONTENTS, null)?.color ?: -1
+  override fun getRenderData() = this.item.get(DataComponentTypes.POTION_CONTENTS)?.color ?: -1
 }

@@ -29,7 +29,7 @@ val MILK_BOTTLE_ITEM_METADATA =
         ItemGroups.FOOD_AND_DRINK,
         /* previousItem= */ Items.MILK_BUCKET,
     ) {
-      it.maxCount(1)
+      it.maxCount(1).recipeRemainder(Items.GLASS_BOTTLE)
     }
 
 class MilkBottleItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.bottleBlock, settings) {

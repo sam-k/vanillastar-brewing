@@ -45,52 +45,50 @@ import net.minecraft.util.math.Direction
 import net.minecraft.world.World
 import net.minecraft.world.event.GameEvent
 
-val POTION_FLASK_ITEM_METADATA =
-    ModItemMetadata(
-        "potion_flask",
-        ItemGroups.FOOD_AND_DRINK,
-        /* previousItem= */ null,
-        Registries.POTION.streamEntries()
-            .flatMap { potion ->
-              (DrinkableFlaskItem.MAX_USES downTo DrinkableFlaskItem.MIN_USES)
-                  .asSequence()
-                  .map { remainingUses ->
-                    ModItemGroupVisibilityMetadata(
-                        if (remainingUses < DrinkableFlaskItem.MAX_USES) {
-                          ItemGroup.StackVisibility.SEARCH_TAB_ONLY
+val POTION_FLASK_ITEM_METADATA_IN_CONTEXT: ModItemMetadataInContext = {
+  ModItemMetadata(
+      "potion_flask",
+      ItemGroups.FOOD_AND_DRINK,
+      /* previousItem= */ null,
+      Registries.POTION.streamEntries()
+          .flatMap { potion ->
+            (DrinkableFlaskItem.MAX_USES downTo DrinkableFlaskItem.MIN_USES)
+                .asSequence()
+                .map { remainingUses ->
+                  ModItemGroupVisibilityMetadata(
+                      if (remainingUses < DrinkableFlaskItem.MAX_USES) {
+                        ItemGroup.StackVisibility.SEARCH_TAB_ONLY
+                      } else {
+                        ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS
+                      }
+                  ) { stack ->
+                    val customColorOptional =
+                        if (
+                            potion.matchesKey(Potions.MUNDANE.key.getOrNull()) ||
+                                potion.matchesKey(Potions.THICK.key.getOrNull())
+                        ) {
+                          // Override color to be default.
+                          Optional.of(PotionContentsComponent.getColor(listOf()))
                         } else {
-                          ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS
+                          Optional.empty()
                         }
-                    ) { stack ->
-                      val customColorOptional =
-                          if (
-                              potion.matchesKey(Potions.MUNDANE.key.getOrNull()) ||
-                                  potion.matchesKey(Potions.THICK.key.getOrNull())
-                          ) {
-                            // Override color to be default.
-                            Optional.of(PotionContentsComponent.getColor(listOf()))
-                          } else {
-                            Optional.empty()
-                          }
-                      stack.set(
-                          DataComponentTypes.POTION_CONTENTS,
-                          PotionContentsComponent(
-                              Optional.of(potion),
-                              customColorOptional,
-                              listOf(),
-                          ),
-                      )
-                      stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
-                    }
+                    stack.set(
+                        DataComponentTypes.POTION_CONTENTS,
+                        PotionContentsComponent(Optional.of(potion), customColorOptional, listOf()),
+                    )
+                    stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
                   }
-                  .asStream()
-            }
-            .toList(),
-    ) {
-      it.maxCount(1)
-          .component(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-          .component(MOD_COMPONENTS.flaskRemainingUsesComponent, DrinkableFlaskItem.MAX_USES)
-    }
+                }
+                .asStream()
+          }
+          .toList(),
+  ) {
+    it.maxCount(1)
+        .component(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+        .component(MOD_COMPONENTS.flaskRemainingUsesComponent, DrinkableFlaskItem.MAX_USES)
+        .recipeRemainder(this.glassFlaskItem)
+  }
+}
 
 /** [Item] for a potion-filled flask. */
 class PotionFlaskItem(settings: Settings) : DrinkableFlaskItem(settings) {

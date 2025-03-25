@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec
 import com.vanillastar.vsbrewing.block.entity.FlaskBlockEntity
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.utils.getModIdentifier
-import kotlin.jvm.optionals.getOrDefault
 import kotlin.jvm.optionals.getOrNull
 import net.minecraft.block.Block
 import net.minecraft.block.BlockRenderType
@@ -98,7 +97,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
   ) = SHAPE
 
   override fun getFluidState(state: BlockState): FluidState =
-      if (state.getOrEmpty(WATERLOGGED).getOrDefault(false)) {
+      if (state.getOrEmpty(WATERLOGGED).orElse(false)) {
         Fluids.WATER.getStill(false)
       } else {
         super.getFluidState(state)
@@ -112,7 +111,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
       pos: BlockPos,
       neighborPos: BlockPos,
   ): BlockState {
-    if (state.getOrEmpty(WATERLOGGED).getOrDefault(false)) {
+    if (state.getOrEmpty(WATERLOGGED).orElse(false)) {
       world.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world))
     }
     return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos)
@@ -145,7 +144,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
   override fun hasComparatorOutput(state: BlockState) = true
 
   override fun getComparatorOutput(state: BlockState, world: World, pos: BlockPos): Int =
-      state.getOrEmpty(LEVEL).getOrDefault(0)
+      state.getOrEmpty(LEVEL).orElse(0)
 
   override fun canPathfindThrough(state: BlockState, type: NavigationType) = false
 }

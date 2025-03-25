@@ -3,6 +3,7 @@
     "minecraft:experience_bottle",
     "minecraft:honey_bottle",
     "minecraft:ominous_bottle",
-    "minecraft:potion"
+    "minecraft:potion",
+    "vsbrewing:milk_bottle"
   ]
 }

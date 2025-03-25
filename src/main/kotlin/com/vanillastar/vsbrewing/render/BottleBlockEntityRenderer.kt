@@ -176,7 +176,7 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
               spriteId.getVertexConsumer(vertices) { RenderLayer.getEntityTranslucent(it) },
               light,
               overlay,
-              stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, null)?.color ?: -1,
+              stack.get(DataComponentTypes.POTION_CONTENTS)?.color ?: -1,
           )
     }
     matrices.pop()

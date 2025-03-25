@@ -37,3 +37,5 @@ data class ModItemMetadata(
       settingsProvider,
   )
 }
+
+typealias ModItemMetadataInContext = ModItems.() -> ModItemMetadata
