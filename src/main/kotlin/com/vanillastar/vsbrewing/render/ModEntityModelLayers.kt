@@ -1,9 +1,6 @@
 package com.vanillastar.vsbrewing.render
 
-import com.vanillastar.vsbrewing.block.BottleBlock
-import com.vanillastar.vsbrewing.block.FlaskBlock
 import com.vanillastar.vsbrewing.utils.ModRegistry
-import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
@@ -11,19 +8,17 @@ import net.minecraft.client.render.entity.model.EntityModelLayer
 
 @Environment(EnvType.CLIENT)
 abstract class ModEntityModelLayers : ModRegistry() {
-  companion object {
-    val BOTTLE_CONTENT_MODEL_LAYERS =
-        (BottleBlock.COUNT.values).associate {
-          it to EntityModelLayer(getModIdentifier("bottle_count${it}"), "root")
-        }
-
-    val FLASK_CONTENT_MODEL_LAYERS =
-        (FlaskBlock.LEVEL.values).associate {
-          it to EntityModelLayer(getModIdentifier("flask_level${it}"), "root")
-        }
-  }
-
   override fun initialize() {
+    for ((level, modelLayer) in POTION_CAULDRON_CONTENT_MODEL_LAYERS) {
+      this.registerModelLayer(modelLayer) {
+        PotionCauldronBlockEntityRenderer.getContentTexturedModelData(level)
+      }
+    }
+    for ((level, modelLayer) in POTION_CAULDRON_PREVIEW_CONTENT_MODEL_LAYERS) {
+      this.registerModelLayer(modelLayer) {
+        PotionCauldronPreviewBlockEntityRenderer.getContentTexturedModelData(level)
+      }
+    }
     for ((count, modelLayer) in BOTTLE_CONTENT_MODEL_LAYERS) {
       this.registerModelLayer(modelLayer) {
         BottleBlockEntityRenderer.getContentTexturedModelData(count)

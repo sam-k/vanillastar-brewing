@@ -25,20 +25,25 @@ fun getModelPartBuilder(
     uMap: Map<Direction, Int>,
     vMap: Map<Direction, Int>,
 ): ModelPartBuilder {
-  val directions = setOf(Direction.DOWN, Direction.NORTH, Direction.WEST)
-  if (dir !in directions) {
-    throw IllegalArgumentException("Direction $dir is not in allowed set of directions $directions")
-  }
+  val normalizedDir =
+      when (dir) {
+        Direction.DOWN,
+        Direction.UP -> Direction.DOWN
+        Direction.NORTH,
+        Direction.SOUTH -> Direction.NORTH
+        Direction.WEST,
+        Direction.EAST -> Direction.WEST
+      }
   return ModelPartBuilder.create()
-      .uv(uMap[dir] ?: 0, vMap[dir] ?: 0)
+      .uv(uMap[normalizedDir] ?: 0, vMap[normalizedDir] ?: 0)
       .cuboid(
           -0.5f * sizeX,
           -0.5f * sizeY,
           -0.5f * sizeZ,
-          if (dir != Direction.WEST) sizeX else 0.0f,
-          if (dir != Direction.DOWN) sizeY else 0.0f,
-          if (dir != Direction.NORTH) sizeZ else 0.0f,
-          setOf(dir),
+          if (normalizedDir != Direction.WEST) sizeX else 0.0f,
+          if (normalizedDir != Direction.DOWN) sizeY else 0.0f,
+          if (normalizedDir != Direction.NORTH) sizeZ else 0.0f,
+          setOf(normalizedDir),
       )
 }
 

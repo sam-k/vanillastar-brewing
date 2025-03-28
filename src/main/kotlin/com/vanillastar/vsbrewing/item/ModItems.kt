@@ -9,13 +9,7 @@ import net.minecraft.registry.Registries
 import net.minecraft.registry.Registry
 
 abstract class ModItems : ModRegistry() {
-  @JvmField val milkBottleItem = this.registerItem(MILK_BOTTLE_ITEM_METADATA, ::MilkBottleItem)
-
   @JvmField val glassFlaskItem = this.registerItem(GLASS_FLASK_ITEM_METADATA, ::GlassFlaskItem)
-
-  @JvmField
-  val milkFlaskItem =
-      this.registerItem(this.run(MILK_FLASK_ITEM_METADATA_IN_CONTEXT), ::MilkFlaskItem)
 
   @JvmField
   val potionFlaskItem =

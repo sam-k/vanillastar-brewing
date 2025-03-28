@@ -1,5 +1,6 @@
 package com.vanillastar.vsbrewing.block
 
+import com.vanillastar.vsbrewing.block.entity.AbstractPotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
@@ -35,16 +36,17 @@ open class PotionCauldronBlock(settings: Settings) :
       PotionCauldronBlockEntity(pos, state)
 
   override fun randomDisplayTick(state: BlockState, world: World, pos: BlockPos, random: Random) {
-    val potionColor = world.getBlockEntityRenderData(pos)
-    val particleEffect =
-        if (potionColor is Int) {
-          EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, potionColor)
-        } else {
-          ParticleTypes.EFFECT
-        }
+    val renderData = world.getBlockEntityRenderData(pos)
+    if (
+        renderData !is AbstractPotionCauldronBlockEntity.RenderData ||
+            renderData.contentType != AbstractPotionCauldronBlockEntity.ContentType.POTION
+    ) {
+      return
+    }
+
     repeat(2) {
       world.addParticle(
-          particleEffect,
+          EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, renderData.color),
           pos.x.toDouble() + 0.4 + random.nextFloat() * 0.4,
           pos.y.toDouble() + 0.4 + random.nextFloat() * 0.3,
           pos.z.toDouble() + 0.4 + random.nextFloat() * 0.4,

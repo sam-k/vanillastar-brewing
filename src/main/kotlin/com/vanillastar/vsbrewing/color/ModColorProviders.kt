@@ -1,6 +1,7 @@
 package com.vanillastar.vsbrewing.color
 
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
+import com.vanillastar.vsbrewing.block.entity.AbstractPotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.block.entity.BottleBlockEntity
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.ModRegistry
@@ -39,13 +40,24 @@ abstract class ModColorProviders : ModRegistry() {
         { stack, world, pos, tintIndex ->
           if (tintIndex == 0 && world != null && pos != null) {
             val renderData = world.getBlockEntityRenderData(pos)
-            if (renderData is Int) {
-              Argb.fullAlpha(renderData)
+            if (renderData is AbstractPotionCauldronBlockEntity.RenderData) {
+              Argb.fullAlpha(renderData.color)
             } else -1
           } else -1
         },
         MOD_BLOCKS.potionCauldronBlock,
         MOD_BLOCKS.potionCauldronPreviewBlock,
+    )
+
+    this.registerBlockColorProvider(
+        { stack, world, pos, tintIndex ->
+          if (tintIndex == 0 && world != null && pos != null) {
+            val renderData = world.getBlockEntityRenderData(pos)
+            if (renderData is Int) {
+              Argb.fullAlpha(renderData)
+            } else -1
+          } else -1
+        },
         MOD_BLOCKS.flaskBlock,
     )
 

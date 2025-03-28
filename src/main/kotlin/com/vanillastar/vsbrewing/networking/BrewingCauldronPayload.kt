@@ -12,11 +12,8 @@ import net.minecraft.network.packet.CustomPayload
 /**
  * Networking payload for updating clients on data related to rendering a potion-filled cauldron.
  */
-data class BrewingCauldronPayload(
-    val packedPos: Long,
-    val level: Int,
-    val potionCauldronNbt: NbtCompound,
-) : ModNetworkingPayload.Server<BrewingCauldronPayload> {
+data class BrewingCauldronPayload(val packedPos: Long, val level: Int, val potionNbt: NbtCompound) :
+    ModNetworkingPayload.Server<BrewingCauldronPayload> {
   companion object : ModNetworkingPayload.ServerCompanion<BrewingCauldronPayload> {
     val BREWING_CAULDRON_PACKET_ID = getModIdentifier("brewing_cauldron")
 
@@ -30,7 +27,7 @@ data class BrewingCauldronPayload(
             PacketCodecs.INTEGER,
             BrewingCauldronPayload::level,
             PacketCodecs.NBT_COMPOUND,
-            BrewingCauldronPayload::potionCauldronNbt,
+            BrewingCauldronPayload::potionNbt,
             ::BrewingCauldronPayload,
         )
 

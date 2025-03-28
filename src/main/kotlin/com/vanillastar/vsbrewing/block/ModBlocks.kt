@@ -15,9 +15,6 @@ import net.minecraft.state.property.BooleanProperty
 
 abstract class ModBlocks : ModRegistry() {
   @JvmField
-  val milkCauldronBlock = this.registerBlock(MILK_CAULDRON_BLOCK_METADATA, ::MilkCauldronBlock)
-
-  @JvmField
   val potionCauldronBlock =
       this.registerBlock(POTION_CAULDRON_BLOCK_METADATA, ::PotionCauldronBlock)
 

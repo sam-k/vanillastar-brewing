@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/potion_overlay",
+    "layer1": "minecraft:item/lingering_potion"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "content_type": 1
+      },
+      "model": "vsbrewing:item/lingering_milk_bottle"
+    }
+  ]
+}
