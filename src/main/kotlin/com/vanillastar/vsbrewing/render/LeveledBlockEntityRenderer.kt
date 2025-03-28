@@ -55,16 +55,18 @@ abstract class LeveledBlockEntityRenderer<TBlockEntity : BlockEntity>(
               sizeXZ,
               sizeY,
               sizeXZ,
-              mapOf(
-                  Direction.DOWN to (offsetXZ - sizeXZ).toInt(),
-                  Direction.NORTH to offsetXZ.toInt(),
-                  Direction.WEST to offsetXZ.toInt(),
-              ),
-              mapOf(
-                  Direction.DOWN to offsetXZ.toInt(),
-                  Direction.NORTH to (TEXTURE_DIM - offsetY - sizeY).toInt(),
-                  Direction.WEST to (TEXTURE_DIM - offsetY - sizeXZ - sizeY).toInt(),
-              ),
+              uMap =
+                  mapOf(
+                      Direction.DOWN to (offsetXZ - sizeXZ).toInt(),
+                      Direction.NORTH to offsetXZ.toInt(),
+                      Direction.WEST to offsetXZ.toInt(),
+                  ),
+              vMap =
+                  mapOf(
+                      Direction.DOWN to offsetXZ.toInt(),
+                      Direction.NORTH to (TEXTURE_DIM - offsetY - sizeY).toInt(),
+                      Direction.WEST to (TEXTURE_DIM - offsetY - sizeXZ - sizeY).toInt(),
+                  ),
           )
       fun getContentTransform(dir: Direction) =
           getModelTransform(

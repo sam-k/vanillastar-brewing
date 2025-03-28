@@ -77,16 +77,18 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
           getModelPartBuilder(
               dir,
               size,
-              mapOf(
-                  Direction.DOWN to size.toInt(),
-                  Direction.NORTH to (2 * size).toInt(),
-                  Direction.WEST to (2 * size).toInt(),
-              ),
-              mapOf(
-                  Direction.DOWN to (2 * size).toInt(),
-                  Direction.NORTH to (2 * size).toInt(),
-                  Direction.WEST to size.toInt(),
-              ),
+              uMap =
+                  mapOf(
+                      Direction.DOWN to size.toInt(),
+                      Direction.NORTH to (2 * size).toInt(),
+                      Direction.WEST to (2 * size).toInt(),
+                  ),
+              vMap =
+                  mapOf(
+                      Direction.DOWN to (2 * size).toInt(),
+                      Direction.NORTH to (2 * size).toInt(),
+                      Direction.WEST to size.toInt(),
+                  ),
           )
 
       fun getBodyTransform(dir: Direction) =

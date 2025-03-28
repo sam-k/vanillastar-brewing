@@ -1,6 +1,8 @@
 package com.vanillastar.vsbrewing.item
 
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
+import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
+import com.vanillastar.vsbrewing.potion.potionContentsMatchId
 import java.util.Optional
 import kotlin.Float
 import kotlin.Pair
@@ -98,12 +100,16 @@ class PotionFlaskItem(settings: Settings) : DrinkableFlaskItem(settings) {
         context: TooltipContext,
         tooltip: MutableList<Text>,
     ) {
-      val effects = stack.get(DataComponentTypes.POTION_CONTENTS)?.effects
-      if (effects != null) {
+      val potionContents = stack.get(DataComponentTypes.POTION_CONTENTS)
+      val effects = potionContents?.effects
+      val showEffectsTooltip =
+          effects != null && !potionContentsMatchId(potionContents, MILK_POTION_ID)
+
+      if (showEffectsTooltip) {
         appendEffectsTooltip(effects, context.updateTickRate) { tooltip.add(it) }
       }
       appendRemainingUsesTooltip(stack, tooltip)
-      if (effects != null) {
+      if (showEffectsTooltip) {
         appendUsageTooltip(effects) { tooltip.add(it) }
       }
     }
