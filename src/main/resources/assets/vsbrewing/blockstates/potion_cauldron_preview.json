@@ -1,13 +1,7 @@
 {
   "variants": {
-    "level=1": {
-      "model": "vsbrewing:block/potion_cauldron_preview_level1"
-    },
-    "level=2": {
-      "model": "vsbrewing:block/potion_cauldron_preview_level2"
-    },
-    "level=3": {
-      "model": "vsbrewing:block/potion_cauldron_preview_full"
+    "": {
+      "model": "vsbrewing:block/potion_cauldron_preview"
     }
   }
 }

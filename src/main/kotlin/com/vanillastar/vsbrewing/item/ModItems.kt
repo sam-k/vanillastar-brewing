@@ -11,7 +11,9 @@ import net.minecraft.registry.Registry
 abstract class ModItems : ModRegistry() {
   @JvmField val glassFlaskItem = this.registerItem(GLASS_FLASK_ITEM_METADATA, ::GlassFlaskItem)
 
-  @JvmField val potionFlaskItem = this.registerItem(POTION_FLASK_ITEM_METADATA, ::PotionFlaskItem)
+  @JvmField
+  val potionFlaskItem =
+      this.registerItem(this.run(POTION_FLASK_ITEM_METADATA_IN_CONTEXT), ::PotionFlaskItem)
 
   private fun registerItem(metadata: ModItemMetadata, constructor: (Item.Settings) -> Item): Item {
     val id = getModIdentifier(metadata.name)
@@ -21,7 +23,15 @@ abstract class ModItems : ModRegistry() {
             id,
             constructor(metadata.settingsProvider(Item.Settings())),
         )
-    for ((visibility, stackProvider) in metadata.itemGroupVisibilities) {
+    val normalizedItemGroupVisiblities =
+        if (metadata.previousItem == null) {
+          metadata.itemGroupVisibilities
+        } else {
+          // The nature of `FabricItemGroupEntries.addAfter` means stacks will be inserted in
+          // effectively reverse order. We prereverse the list here to negate this.
+          metadata.itemGroupVisibilities.asReversed()
+        }
+    for ((visibility, stackProvider) in normalizedItemGroupVisiblities) {
       val stack = ItemStack(item)
       stackProvider(stack)
       ItemGroupEvents.modifyEntriesEvent(metadata.itemGroup).register {

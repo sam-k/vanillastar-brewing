@@ -14,8 +14,7 @@ fun getModelPartBuilder(
 /**
  * Automatically builds and gets the [ModelPartBuilder] corresponding to the given specifications.
  *
- * This assumes 16x16 textures for the UV map. This also accepts only down, north and west as valid
- * directions, as this allows signs of Y-offsets to be consistent for all cuboid faces.
+ * This assumes 16x16 textures for the UV map.
  */
 fun getModelPartBuilder(
     dir: Direction,
@@ -25,20 +24,27 @@ fun getModelPartBuilder(
     uMap: Map<Direction, Int>,
     vMap: Map<Direction, Int>,
 ): ModelPartBuilder {
-  val directions = setOf(Direction.DOWN, Direction.NORTH, Direction.WEST)
-  if (dir !in directions) {
-    throw IllegalArgumentException("Direction $dir is not in allowed set of directions $directions")
-  }
+  // Using only down, north and west directions allows signs of Y-offsets to be consistent for all
+  // cuboid faces.
+  val normalizedDir =
+      when (dir) {
+        Direction.DOWN,
+        Direction.UP -> Direction.DOWN
+        Direction.NORTH,
+        Direction.SOUTH -> Direction.NORTH
+        Direction.WEST,
+        Direction.EAST -> Direction.WEST
+      }
   return ModelPartBuilder.create()
-      .uv(uMap[dir] ?: 0, vMap[dir] ?: 0)
+      .uv(uMap[normalizedDir] ?: 0, vMap[normalizedDir] ?: 0)
       .cuboid(
-          -0.5f * sizeX,
-          -0.5f * sizeY,
-          -0.5f * sizeZ,
-          if (dir != Direction.WEST) sizeX else 0.0f,
-          if (dir != Direction.DOWN) sizeY else 0.0f,
-          if (dir != Direction.NORTH) sizeZ else 0.0f,
-          setOf(dir),
+          /* offsetX= */ -0.5f * sizeX,
+          /* offsetY= */ -0.5f * sizeY,
+          /* offsetZ= */ -0.5f * sizeZ,
+          if (normalizedDir != Direction.WEST) sizeX else 0.0f,
+          if (normalizedDir != Direction.DOWN) sizeY else 0.0f,
+          if (normalizedDir != Direction.NORTH) sizeZ else 0.0f,
+          setOf(normalizedDir),
       )
 }
 

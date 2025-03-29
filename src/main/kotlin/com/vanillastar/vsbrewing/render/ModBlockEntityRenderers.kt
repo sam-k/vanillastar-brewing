@@ -14,6 +14,14 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory
 abstract class ModBlockEntityRenderers : ModRegistry() {
   override fun initialize() {
     this.registerBlockEntityRenderer(
+        MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType,
+        ::PotionCauldronBlockEntityRenderer,
+    )
+    this.registerBlockEntityRenderer(
+        MOD_BLOCK_ENTITIES.potionCauldronPreviewBlockEntityType,
+        ::PotionCauldronPreviewBlockEntityRenderer,
+    )
+    this.registerBlockEntityRenderer(
         MOD_BLOCK_ENTITIES.bottleBlockEntityType,
         ::BottleBlockEntityRenderer,
     )

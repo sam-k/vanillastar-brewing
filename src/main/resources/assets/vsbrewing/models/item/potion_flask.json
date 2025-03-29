@@ -1,11 +1,47 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "vsbrewing:item/potion_flask"
-  },
   "overrides": [
-    {"predicate": {"remaining_uses": 0.333333}, "model": "vsbrewing:item/potion_flask_level1"},
-    {"predicate": {"remaining_uses": 0.666666}, "model": "vsbrewing:item/potion_flask_level2"},
-    {"predicate": {"remaining_uses": 1.000000}, "model": "vsbrewing:item/potion_flask_full"}
+    {
+      "predicate": {
+        "content_type": 0,
+        "remaining_uses": 0.333333
+      },
+      "model": "vsbrewing:item/potion_flask_level1"
+    },
+    {
+      "predicate": {
+        "content_type": 0,
+        "remaining_uses": 0.666666
+      },
+      "model": "vsbrewing:item/potion_flask_level2"
+    },
+    {
+      "predicate": {
+        "content_type": 0,
+        "remaining_uses": 1.000000
+      },
+      "model": "vsbrewing:item/potion_flask_full"
+    },
+    {
+      "predicate": {
+        "content_type": 1,
+        "remaining_uses": 0.333333
+      },
+      "model": "vsbrewing:item/milk_flask_level1"
+    },
+    {
+      "predicate": {
+        "content_type": 1,
+        "remaining_uses": 0.666666
+      },
+      "model": "vsbrewing:item/milk_flask_level2"
+    },
+    {
+      "predicate": {
+        "content_type": 1,
+        "remaining_uses": 1.000000
+      },
+      "model": "vsbrewing:item/milk_flask_full"
+    }
   ]
 }

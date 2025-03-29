@@ -2,7 +2,8 @@ package com.vanillastar.vsbrewing.render
 
 import com.vanillastar.vsbrewing.block.BottleBlock
 import com.vanillastar.vsbrewing.block.entity.BottleBlockEntity
-import com.vanillastar.vsbrewing.render.ModEntityModelLayers.Companion.BOTTLE_CONTENT_MODEL_LAYERS
+import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
+import com.vanillastar.vsbrewing.potion.potionContentsMatchId
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -15,6 +16,7 @@ import net.minecraft.client.render.RenderLayer
 import net.minecraft.client.render.VertexConsumerProvider
 import net.minecraft.client.render.block.entity.BlockEntityRenderer
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory
+import net.minecraft.client.render.entity.model.EntityModelLayer
 import net.minecraft.client.util.SpriteIdentifier
 import net.minecraft.client.util.math.MatrixStack
 import net.minecraft.component.DataComponentTypes
@@ -22,6 +24,11 @@ import net.minecraft.item.Items
 import net.minecraft.screen.PlayerScreenHandler
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.Direction
+
+val BOTTLE_CONTENT_MODEL_LAYERS =
+    (BottleBlock.COUNT.values).associate {
+      it to EntityModelLayer(getModIdentifier("bottle_count${it}"), "root")
+    }
 
 /** [BlockEntityRenderer] for the contents within placed bottles. */
 @Environment(EnvType.CLIENT)
@@ -45,6 +52,8 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
             PlayerScreenHandler.BLOCK_ATLAS_TEXTURE,
             Identifier.ofVanilla("block/honey_block_side"),
         )
+    private val MILK_SPRITE_ID =
+        SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, getModIdentifier("block/milk"))
     private val OMINOUS_SPRITE_ID =
         SpriteIdentifier(PlayerScreenHandler.BLOCK_ATLAS_TEXTURE, getModIdentifier("block/ominous"))
     private val WATER_SPRITE_ID =
@@ -68,16 +77,18 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
           getModelPartBuilder(
               dir,
               size,
-              mapOf(
-                  Direction.DOWN to size.toInt(),
-                  Direction.NORTH to (2 * size).toInt(),
-                  Direction.WEST to (2 * size).toInt(),
-              ),
-              mapOf(
-                  Direction.DOWN to (2 * size).toInt(),
-                  Direction.NORTH to (2 * size).toInt(),
-                  Direction.WEST to size.toInt(),
-              ),
+              uMap =
+                  mapOf(
+                      Direction.DOWN to size.toInt(),
+                      Direction.NORTH to (2 * size).toInt(),
+                      Direction.WEST to (2 * size).toInt(),
+                  ),
+              vMap =
+                  mapOf(
+                      Direction.DOWN to (2 * size).toInt(),
+                      Direction.NORTH to (2 * size).toInt(),
+                      Direction.WEST to size.toInt(),
+                  ),
           )
 
       fun getBodyTransform(dir: Direction) =
@@ -162,7 +173,15 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
             stack.isOf(Items.EXPERIENCE_BOTTLE) -> EXPERIENCE_SPRITE_ID
             stack.isOf(Items.HONEY_BOTTLE) -> HONEY_SPRITE_ID
             stack.isOf(Items.OMINOUS_BOTTLE) -> OMINOUS_SPRITE_ID
-            stack.isOf(Items.POTION) -> WATER_SPRITE_ID
+            stack.isOf(Items.POTION) -> {
+              when {
+                potionContentsMatchId(
+                    stack.get(DataComponentTypes.POTION_CONTENTS),
+                    MILK_POTION_ID,
+                ) -> MILK_SPRITE_ID
+                else -> WATER_SPRITE_ID
+              }
+            }
             else -> null
           }
       if (spriteId == null) {
@@ -176,7 +195,13 @@ class BottleBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
               spriteId.getVertexConsumer(vertices) { RenderLayer.getEntityTranslucent(it) },
               light,
               overlay,
-              stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, null)?.color ?: -1,
+              when {
+                potionContentsMatchId(
+                    stack.get(DataComponentTypes.POTION_CONTENTS),
+                    MILK_POTION_ID,
+                ) -> -1
+                else -> stack.get(DataComponentTypes.POTION_CONTENTS)?.color ?: -1
+              },
           )
     }
     matrices.pop()

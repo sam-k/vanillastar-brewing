@@ -64,7 +64,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       ItemStack stack = new ItemStack(MOD_ITEMS.potionFlaskItem);
       stack.set(DataComponentTypes.POTION_CONTENTS, new PotionContentsComponent(Potions.WATER));
       stack.set(
-          MOD_COMPONENTS.potionFlaskRemainingUsesComponent,
+          MOD_COMPONENTS.flaskRemainingUsesComponent,
           cauldronState.get(LeveledCauldronBlock.LEVEL));
       return stack;
     }

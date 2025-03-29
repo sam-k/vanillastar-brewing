@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
 import com.vanillastar.vsbrewing.block.entity.BREWING_CAULDRON_BREW_TIME_TICKS
-import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
+import com.vanillastar.vsbrewing.block.entity.PotionCauldronPreviewBlockEntity
 import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
@@ -267,11 +267,15 @@ class BrewingCauldronScreen(
   private fun getPreviewCauldronBlockEntity() =
       this.getPreviewCauldronBlockEntity(this.getPreviewCauldronBlockState())
 
-  private fun getPreviewCauldronBlockEntity(state: BlockState): PotionCauldronBlockEntity {
+  private fun getPreviewCauldronBlockEntity(state: BlockState): PotionCauldronPreviewBlockEntity {
     val previewBlockEntity =
-        PotionCauldronBlockEntity(BlockPos.fromLong(this.handler.data.packedPos), state)
+        PotionCauldronPreviewBlockEntity(
+            BlockPos.fromLong(this.handler.data.packedPos),
+            state,
+            forcedLevel = this.handler.data.level,
+        )
     previewBlockEntity.readNbt(
-        this.handler.data.potionCauldronNbt,
+        this.handler.data.potionNbt,
         this.client!!.world!!.registryManager,
         sendUpdate = false,
     )

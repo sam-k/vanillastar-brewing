@@ -15,6 +15,13 @@ abstract class ModBlockEntities : ModRegistry() {
       this.registerBlockEntity(POTION_CAULDRON_BLOCK_ENTITY_METADATA, ::PotionCauldronBlockEntity)
 
   @JvmField
+  val potionCauldronPreviewBlockEntityType =
+      this.registerBlockEntity(
+          POTION_CAULDRON_PREVIEW_BLOCK_ENTITY_METADATA,
+          ::PotionCauldronPreviewBlockEntity,
+      )
+
+  @JvmField
   val bottleBlockEntityType =
       this.registerBlockEntity(BOTTLE_BLOCK_ENTITY_METADATA, ::BottleBlockEntity)
 

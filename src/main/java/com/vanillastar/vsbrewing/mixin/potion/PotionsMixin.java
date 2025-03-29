@@ -1,7 +1,9 @@
 package com.vanillastar.vsbrewing.mixin.potion;
 
+import static com.vanillastar.vsbrewing.entity.ModStatusEffectsKt.MOD_STATUS_EFFECTS;
 import static com.vanillastar.vsbrewing.potion.ModPotionsKt.HUNGER_POTION_ID;
 import static com.vanillastar.vsbrewing.potion.ModPotionsKt.LONG_HUNGER_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.MILK_POTION_ID;
 import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_HUNGER_POTION_ID;
 import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_WEAKNESS_POTION_ID;
 import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
@@ -55,6 +57,15 @@ public abstract class PotionsMixin {
                 name,
                 new StatusEffectInstance(
                     StatusEffects.BLINDNESS, 5 * SharedConstants.TICKS_PER_SECOND)));
+        break;
+
+      case "night_vision":
+        // Inject between registrations of `Potions.AWKWARD` and `Potions.NIGHT_VISION`.
+        registerPotion(
+            MILK_POTION_ID,
+            new Potion(
+                /* baseName= */ "milk",
+                new StatusEffectInstance(MOD_STATUS_EFFECTS.milkStatusEffect, /* duration= */ 1)));
         break;
 
       case "luck":
