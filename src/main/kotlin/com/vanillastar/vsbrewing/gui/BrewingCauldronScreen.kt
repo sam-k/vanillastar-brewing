@@ -5,7 +5,7 @@ import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
 import com.vanillastar.vsbrewing.block.entity.BREWING_CAULDRON_BREW_TIME_TICKS
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronPreviewBlockEntity
-import com.vanillastar.vsbrewing.item.PotionFlaskItem
+import com.vanillastar.vsbrewing.item.appendPotionFlaskDataTooltip
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import java.util.Optional
@@ -245,7 +245,7 @@ class BrewingCauldronScreen(
                 )
             )
         )
-    PotionFlaskItem.appendPotionFlaskDataTooltip(
+    appendPotionFlaskDataTooltip(
         previewPotionStack,
         Item.TooltipContext.create(this.client!!.world),
         previewTooltip,

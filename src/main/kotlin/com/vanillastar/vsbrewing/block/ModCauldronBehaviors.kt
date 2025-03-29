@@ -2,8 +2,8 @@ package com.vanillastar.vsbrewing.block
 
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.item.DrinkableFlaskItem
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
+import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
 import com.vanillastar.vsbrewing.potion.potionContentsMatchId
 import com.vanillastar.vsbrewing.utils.ModRegistry
@@ -103,7 +103,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                 ItemType.BOTTLE,
                 ItemType.BUCKET -> stack.recipeRemainder
                 ItemType.FLASK -> {
-                  if (flaskRemainingUses - diffLevel >= DrinkableFlaskItem.MIN_USES) {
+                  if (flaskRemainingUses - diffLevel >= PotionFlaskItem.MIN_USES) {
                     val newStack = stack.copy()
                     newStack.set(
                         MOD_COMPONENTS.flaskRemainingUsesComponent,
