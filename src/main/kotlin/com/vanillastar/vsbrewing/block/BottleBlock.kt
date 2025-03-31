@@ -5,7 +5,6 @@ import com.vanillastar.vsbrewing.block.entity.BottleBlockEntity
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.tag.MOD_TAGS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
-import kotlin.jvm.optionals.getOrNull
 import net.minecraft.block.Block
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
@@ -145,11 +144,11 @@ class BottleBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable
       stack: ItemStack,
   ) {
     super.onPlaced(world, pos, state, placer, stack)
-    val blockEntity =
-        world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.bottleBlockEntityType).getOrNull()
-    if (blockEntity != null && blockEntity.canInsert(stack)) {
-      blockEntity.insert(stack.copyWithCount(1))
-      blockEntity.markDirty()
+    world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.bottleBlockEntityType).ifPresent {
+      if (it.canInsert(stack)) {
+        it.insert(stack.copyWithCount(1))
+        it.markDirty()
+      }
     }
   }
 
