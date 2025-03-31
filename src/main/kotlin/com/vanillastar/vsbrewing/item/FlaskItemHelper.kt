@@ -24,10 +24,16 @@ import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Util
 
+/** Minimum number of uses for a flask item. */
+const val FLASK_MIN_USES = 1
+
+/** Maximum number of uses for a flask item. */
+const val FLASK_MAX_USES = 3
+
 fun getPotionFlaskStackProvider(
     potion: RegistryEntry.Reference<Potion>,
-    onRegisterStack: (stack: ItemStack) -> Unit = {},
-) = { stack: ItemStack ->
+    remainingUses: Int = FLASK_MAX_USES,
+): (ItemStack) -> Unit = {
   val customColorOptional =
       if (
           potion.matchesKey(Potions.MUNDANE.key.getOrNull()) ||
@@ -38,27 +44,31 @@ fun getPotionFlaskStackProvider(
       } else {
         Optional.empty()
       }
-  stack.set(
+  it.set(
       DataComponentTypes.POTION_CONTENTS,
       PotionContentsComponent(Optional.of(potion), customColorOptional, listOf()),
   )
-  onRegisterStack(stack)
+  it.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
 }
 
 fun appendPotionFlaskDataTooltip(
     stack: ItemStack,
     context: Item.TooltipContext,
     tooltip: MutableList<Text>,
+    forceShowRemainingUses: Boolean = false,
 ) {
   val potionContents = stack.get(DataComponentTypes.POTION_CONTENTS)
   val effects = potionContents?.effects
-  val showEffectsTooltip = effects != null && !potionContentsMatchId(potionContents, MILK_POTION_ID)
+  val showEffects = effects != null && !potionContentsMatchId(potionContents, MILK_POTION_ID)
+  val showRemainingUses = forceShowRemainingUses || stack.isOf(MOD_ITEMS.potionFlaskItem)
 
-  if (showEffectsTooltip) {
+  if (showEffects) {
     appendEffectsTooltip(effects, context.updateTickRate) { tooltip.add(it) }
   }
-  appendRemainingUsesTooltip(stack, tooltip)
-  if (showEffectsTooltip) {
+  if (showRemainingUses) {
+    appendRemainingUsesTooltip(stack, tooltip)
+  }
+  if (showEffects) {
     appendUsageTooltip(effects) { tooltip.add(it) }
   }
 }

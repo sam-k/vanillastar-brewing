@@ -5,6 +5,7 @@ import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
 import com.vanillastar.vsbrewing.block.entity.BREWING_CAULDRON_BREW_TIME_TICKS
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronPreviewBlockEntity
+import com.vanillastar.vsbrewing.block.entity.PotionCauldronVariant
 import com.vanillastar.vsbrewing.item.appendPotionFlaskDataTooltip
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
 import com.vanillastar.vsbrewing.utils.getModIdentifier
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.DrawContext
 import net.minecraft.client.gui.screen.Screen
 import net.minecraft.client.gui.screen.ingame.BrewingStandScreen
 import net.minecraft.client.gui.screen.ingame.HandledScreen
+import net.minecraft.client.render.DiffuseLighting
 import net.minecraft.client.render.LightmapTextureManager
 import net.minecraft.client.render.OverlayTexture
 import net.minecraft.client.render.RenderLayers
@@ -173,36 +175,42 @@ class BrewingCauldronScreen(
     this.previewCauldronPositionMatrix = Matrix4f(context.matrices.peek().positionMatrix)
 
     // Render the cauldron block.
+    DiffuseLighting.disableGuiDepthLighting()
     RenderSystem.enableCull()
     val previewBlockState = this.getPreviewCauldronBlockState()
     val previewBlockEntity = this.getPreviewCauldronBlockEntity(previewBlockState)
     val color = previewBlockEntity.potionContents.color
-    this.client!!
-        .blockRenderManager
-        .blockModelRenderer
-        .render(
-            context.matrices.peek(),
-            context.vertexConsumers.getBuffer(RenderLayers.getBlockLayer(previewBlockState)),
-            previewBlockState,
-            this.client!!.blockRenderManager.getModel(previewBlockState),
-            Argb.getRed(color) / 255.0f,
-            Argb.getGreen(color) / 255.0f,
-            Argb.getBlue(color) / 255.0f,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
-            OverlayTexture.DEFAULT_UV,
-        )
-    this.client!!
-        .blockEntityRenderDispatcher
-        .get(previewBlockEntity)
-        ?.render(
-            previewBlockEntity,
-            delta,
-            context.matrices,
-            context.vertexConsumers,
-            LightmapTextureManager.MAX_LIGHT_COORDINATE,
-            OverlayTexture.DEFAULT_UV,
-        )
+    @Suppress("Deprecation")
+    RenderSystem.runAsFancy {
+      this.client!!
+          .blockRenderManager
+          .blockModelRenderer
+          .render(
+              context.matrices.peek(),
+              context.vertexConsumers.getBuffer(RenderLayers.getBlockLayer(previewBlockState)),
+              previewBlockState,
+              this.client!!.blockRenderManager.getModel(previewBlockState),
+              Argb.getRed(color) / 255.0f,
+              Argb.getGreen(color) / 255.0f,
+              Argb.getBlue(color) / 255.0f,
+              LightmapTextureManager.MAX_LIGHT_COORDINATE,
+              OverlayTexture.DEFAULT_UV,
+          )
+      this.client!!
+          .blockEntityRenderDispatcher
+          .get(previewBlockEntity)
+          ?.render(
+              previewBlockEntity,
+              delta,
+              context.matrices,
+              context.vertexConsumers,
+              LightmapTextureManager.MAX_LIGHT_COORDINATE,
+              OverlayTexture.DEFAULT_UV,
+          )
+    }
+    context.draw()
     RenderSystem.disableCull()
+    DiffuseLighting.enableGuiDepthLighting()
 
     context.matrices.pop()
   }
@@ -230,7 +238,7 @@ class BrewingCauldronScreen(
       return
     }
 
-    val previewPotionStack = this.getPreviewCauldronBlockEntity().getPotionStack()
+    val previewPotionStack = this.getPreviewCauldronBlockEntity().getPotionStack(isFlask = true)
     val previewTooltip =
         mutableListOf<Text>(
             Text.translatable(
@@ -241,7 +249,13 @@ class BrewingCauldronScreen(
                             PotionContentsComponent.DEFAULT,
                         )
                         .potion,
-                    MOD_BLOCKS.potionCauldronPreviewBlock.translationKey + ".effect.",
+                    MOD_BLOCKS.potionCauldronPreviewBlock.translationKey +
+                        when (PotionCauldronVariant.stackToVariant(previewPotionStack)) {
+                          PotionCauldronVariant.SPLASH -> ".splash"
+                          PotionCauldronVariant.LINGERING -> ".lingering"
+                          else -> ""
+                        } +
+                        ".effect.",
                 )
             )
         )
@@ -249,6 +263,7 @@ class BrewingCauldronScreen(
         previewPotionStack,
         Item.TooltipContext.create(this.client!!.world),
         previewTooltip,
+        forceShowRemainingUses = true,
     )
     context.drawTooltip(this.textRenderer, previewTooltip, Optional.empty(), mouseX, mouseY)
   }
@@ -275,7 +290,7 @@ class BrewingCauldronScreen(
             forcedLevel = this.handler.data.level,
         )
     previewBlockEntity.readNbt(
-        this.handler.data.potionNbt,
+        this.handler.data.potionCauldronNbt,
         this.client!!.world!!.registryManager,
         sendUpdate = false,
     )
