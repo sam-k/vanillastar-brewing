@@ -4,9 +4,7 @@ import com.vanillastar.vsbrewing.block.FlaskBlock
 import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import java.util.Optional
 import kotlin.String
-import kotlin.jvm.optionals.getOrNull
 import kotlin.repeat
 import kotlin.streams.asStream
 import net.minecraft.advancement.criterion.Criteria
@@ -60,24 +58,11 @@ val POTION_FLASK_ITEM_METADATA_IN_CONTEXT: ModItemMetadataInContext = {
                         ItemGroup.StackVisibility.SEARCH_TAB_ONLY
                       } else {
                         ItemGroup.StackVisibility.PARENT_AND_SEARCH_TABS
-                      }
-                  ) { stack ->
-                    val customColorOptional =
-                        if (
-                            potion.matchesKey(Potions.MUNDANE.key.getOrNull()) ||
-                                potion.matchesKey(Potions.THICK.key.getOrNull())
-                        ) {
-                          // Override color to be default.
-                          Optional.of(PotionContentsComponent.getColor(listOf()))
-                        } else {
-                          Optional.empty()
-                        }
-                    stack.set(
-                        DataComponentTypes.POTION_CONTENTS,
-                        PotionContentsComponent(Optional.of(potion), customColorOptional, listOf()),
-                    )
-                    stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
-                  }
+                      },
+                      getPotionFlaskStackProvider(potion) { stack ->
+                        stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
+                      },
+                  )
                 }
                 .asStream()
           }

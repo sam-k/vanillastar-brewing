@@ -4,6 +4,8 @@ import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
 import com.vanillastar.vsbrewing.potion.potionContentsMatchId
 import com.vanillastar.vsbrewing.utils.getModIdentifier
+import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 import net.minecraft.SharedConstants
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.AttributeModifiersComponent
@@ -14,11 +16,34 @@ import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.potion.Potion
+import net.minecraft.potion.Potions
 import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.screen.ScreenTexts
 import net.minecraft.text.Text
 import net.minecraft.util.Formatting
 import net.minecraft.util.Util
+
+fun getPotionFlaskStackProvider(
+    potion: RegistryEntry.Reference<Potion>,
+    onRegisterStack: (stack: ItemStack) -> Unit = {},
+) = { stack: ItemStack ->
+  val customColorOptional =
+      if (
+          potion.matchesKey(Potions.MUNDANE.key.getOrNull()) ||
+              potion.matchesKey(Potions.THICK.key.getOrNull())
+      ) {
+        // Override color to be default.
+        Optional.of(PotionContentsComponent.getColor(listOf()))
+      } else {
+        Optional.empty()
+      }
+  stack.set(
+      DataComponentTypes.POTION_CONTENTS,
+      PotionContentsComponent(Optional.of(potion), customColorOptional, listOf()),
+  )
+  onRegisterStack(stack)
+}
 
 fun appendPotionFlaskDataTooltip(
     stack: ItemStack,

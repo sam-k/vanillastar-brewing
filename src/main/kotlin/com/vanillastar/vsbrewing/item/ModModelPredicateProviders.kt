@@ -31,7 +31,9 @@ abstract class ModModelPredicateProviders : ModRegistry() {
         Items.LINGERING_POTION,
         Items.POTION,
         Items.SPLASH_POTION,
+        MOD_ITEMS.lingeringPotionFlaskItem,
         MOD_ITEMS.potionFlaskItem,
+        MOD_ITEMS.splashPotionFlaskItem,
     )
     this.registerModelPredicateProviders(
         "remaining_uses",

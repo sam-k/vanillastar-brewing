@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "vsbrewing:item/lingering_milk_bottle"
+    "layer0": "vsbrewing:item/lingering_milk_flask"
   }
 }
