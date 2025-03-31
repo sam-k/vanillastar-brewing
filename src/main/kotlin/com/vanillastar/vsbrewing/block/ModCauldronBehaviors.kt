@@ -42,22 +42,22 @@ abstract class ModCauldronBehaviors : ModRegistry() {
     val emptyCauldronBehaviorMap = CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map()
     emptyCauldronBehaviorMap.putAll(
         listOf(Items.MILK_BUCKET, Items.POTION, MOD_ITEMS.potionFlaskItem).map {
-          it to fillCauldronBehavior
+          it to FILL_CAULDRON_BEHAVIOR
         }
     )
 
     val waterCauldronBehaviorMap = CauldronBehavior.WATER_CAULDRON_BEHAVIOR.map()
-    waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
+    waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, TAKE_FROM_CAULDRON_BEHAVIOR)
 
     val potionCauldronBehaviorMap = this.potionCauldronBehavior.map()
     potionCauldronBehaviorMap.putAll(
         listOf(Items.MILK_BUCKET, Items.POTION, MOD_ITEMS.potionFlaskItem).map {
-          it to fillCauldronBehavior
+          it to FILL_CAULDRON_BEHAVIOR
         }
     )
     potionCauldronBehaviorMap.putAll(
         listOf(Items.BUCKET, Items.GLASS_BOTTLE, MOD_ITEMS.glassFlaskItem).map {
-          it to takeFromCauldronBehavior
+          it to TAKE_FROM_CAULDRON_BEHAVIOR
         }
     )
   }
@@ -76,7 +76,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
   }
 
   private companion object {
-    val fillCauldronBehavior =
+    val FILL_CAULDRON_BEHAVIOR =
         buildCauldronActionBehavior(shouldFill = true) { stack, state, blockEntity ->
           val cauldronLevel = state.getOrEmpty(LeveledCauldronBlock.LEVEL).orElse(0)
           if (cauldronLevel >= LeveledCauldronBlock.MAX_LEVEL) {
@@ -132,7 +132,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           Pair(newStack, newState)
         }
 
-    val takeFromCauldronBehavior =
+    val TAKE_FROM_CAULDRON_BEHAVIOR =
         buildCauldronActionBehavior(shouldFill = false) { stack, state, blockEntity ->
           val cauldronLevel = state.getOrEmpty(LeveledCauldronBlock.LEVEL).orElse(0)
           if (cauldronLevel < LeveledCauldronBlock.MIN_LEVEL) {
@@ -372,6 +372,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           else -> null
         }
 
+    /** Gets the default [PotionContentsComponent] given a cauldron-relevant [ContentType]. */
     fun getPotionContentsForContentType(type: ContentType) =
         when (type) {
           ContentType.MILK ->
