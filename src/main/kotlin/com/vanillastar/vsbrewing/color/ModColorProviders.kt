@@ -3,12 +3,14 @@ package com.vanillastar.vsbrewing.color
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.entity.AbstractPotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.block.entity.BottleBlockEntity
+import com.vanillastar.vsbrewing.block.entity.BrewingStandBlockEntityRenderData
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry
 import net.minecraft.block.Block
+import net.minecraft.block.Blocks
 import net.minecraft.client.color.block.BlockColorProvider
 import net.minecraft.client.color.item.ItemColorProvider
 import net.minecraft.component.DataComponentTypes
@@ -36,6 +38,22 @@ abstract class ModColorProviders : ModRegistry() {
         MOD_ITEMS.lingeringPotionFlaskItem,
         MOD_ITEMS.potionFlaskItem,
         MOD_ITEMS.splashPotionFlaskItem,
+    )
+
+    this.registerBlockColorProvider(
+        { stack, world, pos, tintIndex ->
+          if (world != null && pos != null) {
+            val renderData = world.getBlockEntityRenderData(pos)
+            if (
+                renderData is BrewingStandBlockEntityRenderData &&
+                    tintIndex >= 0 &&
+                    tintIndex < renderData.colors.length()
+            ) {
+              Argb.fullAlpha(renderData.colors[tintIndex])
+            } else -1
+          } else -1
+        },
+        Blocks.BREWING_STAND,
     )
 
     this.registerBlockColorProvider(

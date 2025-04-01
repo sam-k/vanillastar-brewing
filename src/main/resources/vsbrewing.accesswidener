@@ -10,3 +10,5 @@ accessible field net/minecraft/block/entity/BrewingStandBlockEntity FUEL_SLOT_IN
 accessible method net/minecraft/client/particle/SpellParticle <init> (Lnet/minecraft/client/world/ClientWorld;DDDDDDLnet/minecraft/client/particle/SpriteProvider;)V
 accessible field net/minecraft/client/render/block/BlockRenderManager blockModelRenderer Lnet/minecraft/client/render/block/BlockModelRenderer;
 accessible method net/minecraft/client/render/WorldRenderer spawnParticle (Lnet/minecraft/particle/ParticleEffect;ZZDDDDDD)Lnet/minecraft/client/particle/Particle;
+accessible class net/minecraft/screen/BrewingStandScreenHandler$FuelSlot
+accessible class net/minecraft/screen/BrewingStandScreenHandler$PotionSlot

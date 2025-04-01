@@ -8,6 +8,8 @@ import static com.vanillastar.vsbrewing.component.ModComponentsKt.MOD_COMPONENTS
 import static com.vanillastar.vsbrewing.item.ModItemsKt.MOD_ITEMS;
 import static com.vanillastar.vsbrewing.tag.ModTagsKt.MOD_TAGS;
 
+import com.google.common.primitives.ImmutableIntArray;
+import com.vanillastar.vsbrewing.block.entity.BrewingStandBlockEntityRenderData;
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity;
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronVariant;
 import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload;
@@ -29,8 +31,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.potion.Potions;
 import net.minecraft.recipe.BrewingRecipeRegistry;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -42,6 +48,7 @@ import net.minecraft.world.WorldEvents;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -51,6 +58,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BrewingStandBlockEntity.class)
 public abstract class BrewingStandBlockEntityMixin extends LockableContainerBlockEntity
     implements SidedInventory {
+  @Shadow
+  public DefaultedList<ItemStack> inventory;
+
   @Unique
   private static boolean checkIsOnCauldron(@NotNull World world, @NotNull BlockPos pos) {
     return world.getBlockState(pos.down()).isIn(MOD_TAGS.brewableCauldrons);
@@ -248,6 +258,37 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
             .getBlockEntity(cauldronPos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
             .orElse(null),
         player);
+  }
+
+  @Override
+  public Packet<ClientPlayPacketListener> toUpdatePacket() {
+    return BlockEntityUpdateS2CPacket.create(this);
+  }
+
+  @Override
+  public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
+    return createNbt(registryLookup);
+  }
+
+  @Override
+  public BrewingStandBlockEntityRenderData getRenderData() {
+    if (this.checkIsOnCauldron()) {
+      return new BrewingStandBlockEntityRenderData();
+    }
+
+    // The first three slots in `BrewingStandBlockEntity`'s `inventory` are hardcoded as the potion
+    // slots.
+    ImmutableIntArray.Builder colorsBuilder = ImmutableIntArray.builder(/* initialCapacity= */ 3);
+    for (int i = 0; i < 3; i++) {
+      ItemStack stack = this.inventory.get(i);
+      colorsBuilder.add(
+          stack.isEmpty()
+              ? -1
+              : stack
+                  .getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                  .getColor());
+    }
+    return new BrewingStandBlockEntityRenderData(colorsBuilder.build());
   }
 
   @Inject(

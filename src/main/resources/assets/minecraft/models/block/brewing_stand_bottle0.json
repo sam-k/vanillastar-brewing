@@ -1,0 +1,25 @@
+{
+  "textures": {
+    "particle": "minecraft:block/brewing_stand",
+    "stand":    "vsbrewing:block/brewing_stand",
+    "content":  "vsbrewing:block/brewing_stand_overlay"
+  },
+  "elements": [
+    {
+      "from": [8, 0, 8],
+      "to":   [16, 16, 8],
+      "faces": {
+        "north": {"uv": [0, 0, 8, 16], "texture": "#stand"},
+        "south": {"uv": [8, 0, 0, 16], "texture": "#stand"}
+      }
+    },
+    {
+      "from": [8, 0, 8],
+      "to":   [16, 16, 8],
+      "faces": {
+        "north": {"uv": [0, 0, 8, 16], "texture": "#content", "tintindex": 0},
+        "south": {"uv": [8, 0, 0, 16], "texture": "#content", "tintindex": 0}
+      }
+    }
+  ]
+}
