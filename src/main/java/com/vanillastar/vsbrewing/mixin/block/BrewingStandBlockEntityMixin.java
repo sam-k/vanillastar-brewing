@@ -276,6 +276,8 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
       return new BrewingStandBlockEntityRenderData();
     }
 
+    // The first three slots in `BrewingStandBlockEntity`'s `inventory` are hardcoded as the potion
+    // slots.
     ImmutableIntArray.Builder colorsBuilder = ImmutableIntArray.builder(/* initialCapacity= */ 3);
     for (int i = 0; i < 3; i++) {
       ItemStack stack = this.inventory.get(i);

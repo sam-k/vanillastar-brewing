@@ -11,9 +11,9 @@ import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-public class BrewingStandScreenHandlerMixin {
+public abstract class BrewingStandScreenHandlerMixin {
   @Mixin(BrewingStandScreenHandler.FuelSlot.class)
-  public static class FuelSlotMixin extends Slot {
+  public abstract static class FuelSlotMixin extends Slot {
     @Unique
     private static final Identifier EMPTY_BLAZE_POWDER_SLOT_TEXTURE =
         getModIdentifier("item/empty_slot_blaze_powder");
@@ -29,7 +29,7 @@ public class BrewingStandScreenHandlerMixin {
   }
 
   @Mixin(BrewingStandScreenHandler.PotionSlot.class)
-  public static class PotionSlotMixin extends Slot {
+  public abstract static class PotionSlotMixin extends Slot {
     @Unique
     private static final Identifier EMPTY_POTION_SLOT_TEXTURE =
         getModIdentifier("item/empty_slot_potion");
