@@ -9,7 +9,9 @@
     "item.ItemMixin",
     "item.PotionItemMixin",
     "potion.PotionsMixin",
-    "recipe.BrewingRecipeRegistryBuilderMixin"
+    "recipe.BrewingRecipeRegistryBuilderMixin",
+    "screen.BrewingStandScreenHandlerMixin$FuelSlotMixin",
+    "screen.BrewingStandScreenHandlerMixin$PotionSlotMixin"
   ],
   "injectors": {
     "defaultRequire": 1

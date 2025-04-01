@@ -8,3 +8,5 @@ accessible field net/minecraft/block/entity/BrewingStandBlockEntity propertyDele
 accessible field net/minecraft/block/entity/BrewingStandBlockEntity INPUT_SLOT_INDEX I
 accessible field net/minecraft/block/entity/BrewingStandBlockEntity FUEL_SLOT_INDEX I
 accessible field net/minecraft/client/render/block/BlockRenderManager blockModelRenderer Lnet/minecraft/client/render/block/BlockModelRenderer;
+accessible class net/minecraft/screen/BrewingStandScreenHandler$FuelSlot
+accessible class net/minecraft/screen/BrewingStandScreenHandler$PotionSlot
