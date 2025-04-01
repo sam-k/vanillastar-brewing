@@ -5,13 +5,16 @@ import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
 import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.block.MapColor
+import net.minecraft.item.ItemStack
 import net.minecraft.particle.EntityEffectParticleEffect
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.random.Random
 import net.minecraft.world.World
+import net.minecraft.world.WorldView
 import net.minecraft.world.biome.Biome
 
 val POTION_CAULDRON_BLOCK_METADATA =
@@ -34,6 +37,9 @@ open class PotionCauldronBlock(settings: Settings) :
     BlockEntityProvider {
   override fun createBlockEntity(pos: BlockPos, state: BlockState) =
       PotionCauldronBlockEntity(pos, state)
+
+  override fun getPickStack(world: WorldView, pos: BlockPos, state: BlockState): ItemStack =
+      Blocks.CAULDRON.getPickStack(world, pos, state)
 
   override fun randomDisplayTick(state: BlockState, world: World, pos: BlockPos, random: Random) {
     val renderData = world.getBlockEntityRenderData(pos)

@@ -6,6 +6,7 @@
     "block.BrewingStandBlockEntityMixin",
     "block.BrewingStandBlockMixin",
     "component.PotionContentsComponentMixin",
+    "entity.PotionEntityMixin",
     "item.ItemMixin",
     "item.PotionItemMixin",
     "potion.PotionsMixin",

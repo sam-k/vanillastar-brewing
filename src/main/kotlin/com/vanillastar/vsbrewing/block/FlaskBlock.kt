@@ -3,8 +3,8 @@ package com.vanillastar.vsbrewing.block
 import com.mojang.serialization.MapCodec
 import com.vanillastar.vsbrewing.block.entity.FlaskBlockEntity
 import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
+import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.utils.getModIdentifier
-import kotlin.jvm.optionals.getOrNull
 import net.minecraft.block.Block
 import net.minecraft.block.BlockRenderType
 import net.minecraft.block.BlockState
@@ -32,6 +32,7 @@ import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.WorldAccess
+import net.minecraft.world.WorldView
 
 val FLASK_BLOCK_METADATA =
     ModBlockMetadata("flask") {
@@ -125,9 +126,10 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
       stack: ItemStack,
   ) {
     super.onPlaced(world, pos, state, placer, stack)
-    val blockEntity = world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).getOrNull()
-    blockEntity?.item = stack.copyWithCount(1)
-    blockEntity?.markDirty()
+    world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).ifPresent {
+      it.item = stack.copyWithCount(1)
+      it.markDirty()
+    }
   }
 
   override fun getDroppedStacks(
@@ -139,6 +141,18 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
       builder.addDynamicDrop(DYNAMIC_DROP_ID) { it.accept(blockEntity.item) }
     }
     return super.getDroppedStacks(state, builder)
+  }
+
+  override fun getPickStack(world: WorldView, pos: BlockPos, state: BlockState): ItemStack {
+    if (state.getOrEmpty(LEVEL).orElse(0) == 0) {
+      return MOD_ITEMS.glassFlaskItem.defaultStack
+    }
+
+    val stack = MOD_ITEMS.potionFlaskItem.defaultStack
+    world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).ifPresent {
+      it.setStackNbt(stack, world.registryManager)
+    }
+    return stack
   }
 
   override fun hasComparatorOutput(state: BlockState) = true

@@ -31,15 +31,15 @@ abstract class ModModelPredicateProviders : ModRegistry() {
         Items.LINGERING_POTION,
         Items.POTION,
         Items.SPLASH_POTION,
+        MOD_ITEMS.lingeringPotionFlaskItem,
         MOD_ITEMS.potionFlaskItem,
+        MOD_ITEMS.splashPotionFlaskItem,
     )
     this.registerModelPredicateProviders(
         "remaining_uses",
         { stack: ItemStack, world: ClientWorld?, entity: LivingEntity?, seed: Int ->
-          stack.getOrDefault(
-              MOD_COMPONENTS.flaskRemainingUsesComponent,
-              DrinkableFlaskItem.MAX_USES,
-          ) / DrinkableFlaskItem.MAX_USES.toFloat()
+          stack.getOrDefault(MOD_COMPONENTS.flaskRemainingUsesComponent, FLASK_MAX_USES) /
+              FLASK_MAX_USES.toFloat()
         },
         MOD_ITEMS.potionFlaskItem,
     )

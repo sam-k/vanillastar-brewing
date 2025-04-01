@@ -15,6 +15,14 @@ abstract class ModItems : ModRegistry() {
   val potionFlaskItem =
       this.registerItem(this.run(POTION_FLASK_ITEM_METADATA_IN_CONTEXT), ::PotionFlaskItem)
 
+  @JvmField
+  val splashPotionFlaskItem =
+      this.registerItem(SPLASH_POTION_FLASK_ITEM_METADATA, ::SplashPotionFlaskItem)
+
+  @JvmField
+  val lingeringPotionFlaskItem =
+      this.registerItem(LINGERING_POTION_FLASK_ITEM_METADATA, ::LingeringPotionFlaskItem)
+
   private fun registerItem(metadata: ModItemMetadata, constructor: (Item.Settings) -> Item): Item {
     val id = getModIdentifier(metadata.name)
     val item =

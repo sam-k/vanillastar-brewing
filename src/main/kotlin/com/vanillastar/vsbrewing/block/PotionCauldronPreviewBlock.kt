@@ -1,13 +1,16 @@
 package com.vanillastar.vsbrewing.block
 
 import net.minecraft.block.BlockState
+import net.minecraft.block.Blocks
 import net.minecraft.block.MapColor
 import net.minecraft.block.ShapeContext
+import net.minecraft.item.ItemStack
 import net.minecraft.util.function.BooleanBiFunction
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.shape.VoxelShape
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
+import net.minecraft.world.WorldView
 
 val POTION_CAULDRON_PREVIEW_BLOCK_METADATA =
     ModBlockMetadata("potion_cauldron_preview") {
@@ -73,4 +76,7 @@ class PotionCauldronPreviewBlock(settings: Settings) : PotionCauldronBlock(setti
       pos: BlockPos,
       context: ShapeContext,
   ) = OUTLINE_SHAPE
+
+  override fun getPickStack(world: WorldView, pos: BlockPos, state: BlockState): ItemStack =
+      Blocks.CAULDRON.getPickStack(world, pos, state)
 }

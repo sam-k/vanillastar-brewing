@@ -14,6 +14,7 @@ class PotionCauldronPreviewBlockEntity(
     pos: BlockPos,
     state: BlockState,
     potionContents: PotionContentsComponent = PotionContentsComponent.DEFAULT,
+    variant: PotionCauldronVariant = PotionCauldronVariant.NORMAL,
     forcedLevel: Int? = null,
 ) :
     AbstractPotionCauldronBlockEntity(
@@ -21,5 +22,6 @@ class PotionCauldronPreviewBlockEntity(
         pos,
         state,
         potionContents,
+        variant,
         forcedLevel,
     )
