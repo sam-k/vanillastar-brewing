@@ -1,9 +1,9 @@
 package com.vanillastar.vsbrewing.recipe
 
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
-import com.vanillastar.vsbrewing.potion.HUNGER_POTION_ID
-import com.vanillastar.vsbrewing.potion.LONG_HUNGER_POTION_ID
-import com.vanillastar.vsbrewing.potion.STRONG_HUNGER_POTION_ID
+import com.vanillastar.vsbrewing.potion.ARMADILLO_SCOURGE_POTION_ID
+import com.vanillastar.vsbrewing.potion.LONG_ARMADILLO_SCOURGE_POTION_ID
+import com.vanillastar.vsbrewing.potion.STRONG_ARMADILLO_SCOURGE_POTION_ID
 import com.vanillastar.vsbrewing.potion.STRONG_WEAKNESS_POTION_ID
 import com.vanillastar.vsbrewing.utils.ModRegistry
 import net.fabricmc.fabric.api.registry.FabricBrewingRecipeRegistryBuilder
@@ -17,9 +17,11 @@ import net.minecraft.registry.entry.RegistryEntry
 abstract class ModBrewingRecipes : ModRegistry() {
   override fun initialize() {
     FabricBrewingRecipeRegistryBuilder.BUILD.register {
-      val hungerPotion = Registries.POTION.getEntry(HUNGER_POTION_ID).get()
-      val longHungerPotion = Registries.POTION.getEntry(LONG_HUNGER_POTION_ID).get()
-      val strongHungerPotion = Registries.POTION.getEntry(STRONG_HUNGER_POTION_ID).get()
+      val armadilloScourgePotion = Registries.POTION.getEntry(ARMADILLO_SCOURGE_POTION_ID).get()
+      val longArmadilloScourgePotion =
+          Registries.POTION.getEntry(LONG_ARMADILLO_SCOURGE_POTION_ID).get()
+      val strongArmadilloScourgePotion =
+          Registries.POTION.getEntry(STRONG_ARMADILLO_SCOURGE_POTION_ID).get()
       val strongWeaknessPotion = Registries.POTION.getEntry(STRONG_WEAKNESS_POTION_ID).get()
 
       fun registerPotionType(item: Item) {
@@ -70,9 +72,13 @@ abstract class ModBrewingRecipes : ModRegistry() {
           Potions.STRONG_SLOWNESS,
       )
 
-      registerBrewingRecipe(Potions.AWKWARD, Items.ARMADILLO_SCUTE, hungerPotion)
-      registerBrewingRecipe(hungerPotion, Items.REDSTONE, longHungerPotion)
-      registerBrewingRecipe(hungerPotion, Items.GLOWSTONE_DUST, strongHungerPotion)
+      registerBrewingRecipe(Potions.AWKWARD, Items.ARMADILLO_SCUTE, armadilloScourgePotion)
+      registerBrewingRecipe(armadilloScourgePotion, Items.REDSTONE, longArmadilloScourgePotion)
+      registerBrewingRecipe(
+          armadilloScourgePotion,
+          Items.GLOWSTONE_DUST,
+          strongArmadilloScourgePotion,
+      )
 
       registerBrewingRecipe(Potions.AWKWARD, Items.POISONOUS_POTATO, Potions.POISON)
       registerBrewingRecipe(Potions.LONG_POISON, Items.FERMENTED_SPIDER_EYE, Potions.HARMING)

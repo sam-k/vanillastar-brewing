@@ -1,11 +1,7 @@
 package com.vanillastar.vsbrewing.mixin.potion;
 
 import static com.vanillastar.vsbrewing.entity.ModStatusEffectsKt.MOD_STATUS_EFFECTS;
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.HUNGER_POTION_ID;
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.LONG_HUNGER_POTION_ID;
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.MILK_POTION_ID;
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_HUNGER_POTION_ID;
-import static com.vanillastar.vsbrewing.potion.ModPotionsKt.STRONG_WEAKNESS_POTION_ID;
+import static com.vanillastar.vsbrewing.potion.ModPotionsKt.*;
 import static com.vanillastar.vsbrewing.utils.LoggerHelperKt.getMixinLogger;
 
 import net.minecraft.SharedConstants;
@@ -64,7 +60,7 @@ public abstract class PotionsMixin {
         registerPotion(
             MILK_POTION_ID,
             new Potion(
-                /* baseName= */ "milk",
+                MILK_POTION_BASENAME,
                 new StatusEffectInstance(MOD_STATUS_EFFECTS.milkStatusEffect, /* duration= */ 1)));
         break;
 
@@ -79,24 +75,34 @@ public abstract class PotionsMixin {
                     15 * SharedConstants.TICKS_PER_SECOND,
                     /* amplifier= */ 1)));
         registerPotion(
-            HUNGER_POTION_ID,
+            ARMADILLO_SCOURGE_POTION_ID,
             new Potion(
-                /* baseName= */ "hunger",
+                ARMADILLO_SCOURGE_POTION_BASENAME,
                 new StatusEffectInstance(
-                    StatusEffects.HUNGER, 30 * SharedConstants.TICKS_PER_SECOND)));
-        registerPotion(
-            LONG_HUNGER_POTION_ID,
-            new Potion(
-                /* baseName= */ "hunger",
+                    StatusEffects.HUNGER, 30 * SharedConstants.TICKS_PER_SECOND),
                 new StatusEffectInstance(
-                    StatusEffects.HUNGER, 60 * SharedConstants.TICKS_PER_SECOND)));
+                    MOD_STATUS_EFFECTS.healthDownStatusEffect,
+                    15 * SharedConstants.TICKS_PER_SECOND)));
         registerPotion(
-            STRONG_HUNGER_POTION_ID,
+            LONG_ARMADILLO_SCOURGE_POTION_ID,
             new Potion(
-                /* baseName= */ "hunger",
+                ARMADILLO_SCOURGE_POTION_BASENAME,
+                new StatusEffectInstance(
+                    StatusEffects.HUNGER, 60 * SharedConstants.TICKS_PER_SECOND),
+                new StatusEffectInstance(
+                    MOD_STATUS_EFFECTS.healthDownStatusEffect,
+                    30 * SharedConstants.TICKS_PER_SECOND)));
+        registerPotion(
+            STRONG_ARMADILLO_SCOURGE_POTION_ID,
+            new Potion(
+                ARMADILLO_SCOURGE_POTION_BASENAME,
                 new StatusEffectInstance(
                     StatusEffects.HUNGER,
                     30 * SharedConstants.TICKS_PER_SECOND,
+                    /* amplifier= */ 1),
+                new StatusEffectInstance(
+                    MOD_STATUS_EFFECTS.healthDownStatusEffect,
+                    15 * SharedConstants.TICKS_PER_SECOND,
                     /* amplifier= */ 1)));
         break;
     }
