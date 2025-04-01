@@ -31,6 +31,8 @@ class BottleBlockEntity(pos: BlockPos, state: BlockState) :
 
   fun iterateItems() = items.asIterable()
 
+  fun peekLast(): ItemStack = items.last()
+
   fun canInsert(stack: ItemStack) =
       this.items.size < BottleBlock.MAX_COUNT && stack.isIn(MOD_TAGS.placeableBottles)
 

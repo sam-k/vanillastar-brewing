@@ -59,6 +59,7 @@ data class ThrownPotionPayload(
     /**
      * This is mostly copied from [WorldRenderer.processWorldEvent], cases
      * [WorldEvents.SPLASH_POTION_SPLASHED] and [WorldEvents.INSTANT_SPLASH_POTION_SPLASHED], except
+     * we spawn our own particles.
      */
     override val callback: ModNetworkingClientCallback<ThrownPotionPayload> = { payload, context ->
       {

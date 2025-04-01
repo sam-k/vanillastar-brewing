@@ -257,7 +257,11 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           }
 
           val stackPotionVariantType = PotionCauldronVariant.stackToVariant(stack)
-          val cauldronPotionVariantType = cauldronBlockEntity?.variant
+          val cauldronPotionVariantType =
+              cauldronBlockEntity?.variant
+                  ?: if (cauldronContentType != ContentType.EMPTY) {
+                    PotionCauldronVariant.NORMAL
+                  } else null
           if (
               (if (shouldFill) cauldronPotionVariantType else stackPotionVariantType) != null &&
                   stackPotionVariantType != cauldronPotionVariantType

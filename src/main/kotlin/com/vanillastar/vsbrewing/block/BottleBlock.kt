@@ -32,6 +32,7 @@ import net.minecraft.util.shape.VoxelShape
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
 import net.minecraft.world.WorldAccess
+import net.minecraft.world.WorldView
 
 val BOTTLE_BLOCK_METADATA =
     ModBlockMetadata("bottle") {
@@ -176,6 +177,13 @@ class BottleBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable
     }
     return super.getDroppedStacks(state, builder)
   }
+
+  override fun getPickStack(world: WorldView, pos: BlockPos, state: BlockState): ItemStack =
+      world
+          .getBlockEntity(pos, MOD_BLOCK_ENTITIES.bottleBlockEntityType)
+          .orElse(null)
+          ?.peekLast()
+          ?.copy() ?: ItemStack.EMPTY
 
   override fun hasComparatorOutput(state: BlockState) = true
 

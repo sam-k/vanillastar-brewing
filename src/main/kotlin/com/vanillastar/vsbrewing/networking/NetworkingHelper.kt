@@ -8,6 +8,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.network.RegistryByteBuf
 import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.packet.CustomPayload
+import net.minecraft.network.packet.s2c.play.WorldEventS2CPacket
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 
@@ -38,11 +40,15 @@ fun sendWorldEvent(world: World, pos: BlockPos, payload: ModNetworkingPayload) =
         sourcePlayer = null,
     )
 
+/**
+ * This is mostly copied from [ServerWorld.syncWorldEvent], except we send our own custom payloads
+ * instead of the default [WorldEventS2CPacket].
+ */
 fun sendWorldEvent(
     world: World,
     pos: BlockPos,
     payload: ModNetworkingPayload,
-    distance: Double = 4.0 * SharedConstants.CHUNK_WIDTH,
+    distance: Double,
     sourcePlayer: PlayerEntity?,
 ) {
   val targetPlayers = world.server?.playerManager?.playerList
