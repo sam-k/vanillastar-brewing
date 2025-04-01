@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry
 
 @Environment(EnvType.CLIENT)
 abstract class ModClientNetworking : ModRegistry() {
-  private val serverPayloads = listOf(BrewingCauldronPayload)
+  private val serverPayloads = listOf(BrewingCauldronPayload, ThrownPotionPayload)
 
   private fun <TPayload : ModNetworkingPayload> registerServerPayload(
       payloadCompanion: ModNetworkingPayload.ServerCompanion<TPayload>

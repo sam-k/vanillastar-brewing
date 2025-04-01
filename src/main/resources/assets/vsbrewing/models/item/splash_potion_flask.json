@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "vsbrewing:item/splash_potion_flask_overlay",
+    "layer1": "vsbrewing:item/splash_potion_flask"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "content_type": 1
+      },
+      "model": "vsbrewing:item/splash_milk_flask"
+    }
+  ]
+}

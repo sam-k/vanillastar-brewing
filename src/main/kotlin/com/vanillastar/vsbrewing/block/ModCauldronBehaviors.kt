@@ -1,8 +1,10 @@
 package com.vanillastar.vsbrewing.block
 
+import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
+import com.vanillastar.vsbrewing.block.entity.PotionCauldronVariant
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.item.DrinkableFlaskItem
+import com.vanillastar.vsbrewing.item.FLASK_MIN_USES
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
 import com.vanillastar.vsbrewing.potion.potionContentsMatchId
@@ -12,7 +14,6 @@ import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
 import net.minecraft.block.LeveledCauldronBlock
 import net.minecraft.block.cauldron.CauldronBehavior
-import net.minecraft.block.entity.BlockEntity
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerEntity
@@ -20,6 +21,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.item.ItemUsage
 import net.minecraft.item.Items
 import net.minecraft.potion.Potions
+import net.minecraft.registry.Registries
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
 import net.minecraft.stat.Stats
@@ -40,22 +42,22 @@ abstract class ModCauldronBehaviors : ModRegistry() {
     val emptyCauldronBehaviorMap = CauldronBehavior.EMPTY_CAULDRON_BEHAVIOR.map()
     emptyCauldronBehaviorMap.putAll(
         listOf(Items.MILK_BUCKET, Items.POTION, MOD_ITEMS.potionFlaskItem).map {
-          it to fillCauldronBehavior
+          it to FILL_CAULDRON_BEHAVIOR
         }
     )
 
     val waterCauldronBehaviorMap = CauldronBehavior.WATER_CAULDRON_BEHAVIOR.map()
-    waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, takeFromCauldronBehavior)
+    waterCauldronBehaviorMap.put(MOD_ITEMS.glassFlaskItem, TAKE_FROM_CAULDRON_BEHAVIOR)
 
     val potionCauldronBehaviorMap = this.potionCauldronBehavior.map()
     potionCauldronBehaviorMap.putAll(
         listOf(Items.MILK_BUCKET, Items.POTION, MOD_ITEMS.potionFlaskItem).map {
-          it to fillCauldronBehavior
+          it to FILL_CAULDRON_BEHAVIOR
         }
     )
     potionCauldronBehaviorMap.putAll(
         listOf(Items.BUCKET, Items.GLASS_BOTTLE, MOD_ITEMS.glassFlaskItem).map {
-          it to takeFromCauldronBehavior
+          it to TAKE_FROM_CAULDRON_BEHAVIOR
         }
     )
   }
@@ -74,7 +76,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
   }
 
   private companion object {
-    val fillCauldronBehavior =
+    val FILL_CAULDRON_BEHAVIOR =
         buildCauldronActionBehavior(shouldFill = true) { stack, state, blockEntity ->
           val cauldronLevel = state.getOrEmpty(LeveledCauldronBlock.LEVEL).orElse(0)
           if (cauldronLevel >= LeveledCauldronBlock.MAX_LEVEL) {
@@ -103,7 +105,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                 ItemType.BOTTLE,
                 ItemType.BUCKET -> stack.recipeRemainder
                 ItemType.FLASK -> {
-                  if (flaskRemainingUses - diffLevel >= DrinkableFlaskItem.MIN_USES) {
+                  if (flaskRemainingUses - diffLevel >= FLASK_MIN_USES) {
                     val newStack = stack.copy()
                     newStack.set(
                         MOD_COMPONENTS.flaskRemainingUsesComponent,
@@ -130,7 +132,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           Pair(newStack, newState)
         }
 
-    val takeFromCauldronBehavior =
+    val TAKE_FROM_CAULDRON_BEHAVIOR =
         buildCauldronActionBehavior(shouldFill = false) { stack, state, blockEntity ->
           val cauldronLevel = state.getOrEmpty(LeveledCauldronBlock.LEVEL).orElse(0)
           if (cauldronLevel < LeveledCauldronBlock.MIN_LEVEL) {
@@ -139,6 +141,16 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           }
 
           val stackItemType = getItemType(stack)
+          if (
+              cauldronLevel < LeveledCauldronBlock.MAX_LEVEL &&
+                  stackItemType == ItemType.FLASK &&
+                  blockEntity != null &&
+                  blockEntity.variant != PotionCauldronVariant.NORMAL
+          ) {
+            // Cannot create partially filled splash or lingering flasks.
+            return@buildCauldronActionBehavior Pair(/* newState= */ null, /* newStack= */ null)
+          }
+
           val cauldronContentType = getBlockContentType(state, blockEntity)
 
           val diffLevel =
@@ -156,22 +168,11 @@ abstract class ModCauldronBehaviors : ModRegistry() {
           val newStack =
               when (stackItemType) {
                 ItemType.BOTTLE ->
-                    when (cauldronContentType) {
-                      ContentType.MILK,
-                      ContentType.POTION -> {
-                        val newStack = Items.POTION.defaultStack
-                        if (blockEntity is PotionCauldronBlockEntity) {
-                          newStack.set(
-                              DataComponentTypes.POTION_CONTENTS,
-                              blockEntity.potionContents,
-                          )
-                        }
-                        newStack
-                      }
-                      ContentType.WATER ->
-                          PotionContentsComponent.createStack(Items.POTION, Potions.WATER)
-                      else -> null
-                    }
+                    if (blockEntity is PotionCauldronBlockEntity) {
+                      blockEntity.getPotionStack(isFlask = false)
+                    } else if (cauldronContentType == ContentType.WATER) {
+                      PotionContentsComponent.createStack(Items.POTION, Potions.WATER)
+                    } else null
                 ItemType.BUCKET ->
                     when (cauldronContentType) {
                       ContentType.MILK -> Items.MILK_BUCKET.defaultStack
@@ -180,25 +181,14 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                     }
                 ItemType.FLASK -> {
                   val newStack =
-                      when (cauldronContentType) {
-                        ContentType.MILK,
-                        ContentType.POTION -> {
-                          val newStack = MOD_ITEMS.potionFlaskItem.defaultStack
-                          if (blockEntity is PotionCauldronBlockEntity) {
-                            newStack.set(
-                                DataComponentTypes.POTION_CONTENTS,
-                                blockEntity.potionContents,
-                            )
-                          }
-                          newStack
-                        }
-                        ContentType.WATER ->
-                            PotionContentsComponent.createStack(
-                                MOD_ITEMS.potionFlaskItem,
-                                Potions.WATER,
-                            )
-                        else -> null
-                      }
+                      if (blockEntity is PotionCauldronBlockEntity) {
+                        blockEntity.getPotionStack(isFlask = true)
+                      } else if (cauldronContentType == ContentType.WATER) {
+                        PotionContentsComponent.createStack(
+                            MOD_ITEMS.potionFlaskItem,
+                            Potions.WATER,
+                        )
+                      } else null
                   newStack?.set(MOD_COMPONENTS.flaskRemainingUsesComponent, diffLevel)
                   newStack
                 }
@@ -219,7 +209,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
     fun buildCauldronActionBehavior(
         shouldFill: Boolean,
         getCauldronActionResults:
-            (stack: ItemStack, state: BlockState, blockEntity: BlockEntity?) -> Pair<
+            (stack: ItemStack, state: BlockState, blockEntity: PotionCauldronBlockEntity?) -> Pair<
                     ItemStack?,
                     BlockState?,
                 >,
@@ -233,7 +223,10 @@ abstract class ModCauldronBehaviors : ModRegistry() {
             stack: ItemStack ->
           val stackItemType = getItemType(stack)
           val stackContentType = getItemContentType(stack)
-          val cauldronBlockEntity = world.getBlockEntity(pos)
+          val cauldronBlockEntity =
+              world
+                  .getBlockEntity(pos, MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType)
+                  .orElse(null)
           val cauldronContentType = getBlockContentType(state, cauldronBlockEntity)
           if (stackItemType == null || stackContentType == null || cauldronContentType == null) {
             // Either the source or the destination is invalid.
@@ -248,14 +241,32 @@ abstract class ModCauldronBehaviors : ModRegistry() {
             return@CauldronBehavior ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
           }
 
-          val stackPotionContents = stack.get(DataComponentTypes.POTION_CONTENTS)
+          val stackPotionContents =
+              stack.get(DataComponentTypes.POTION_CONTENTS)
+                  ?: getPotionContentsForContentType(stackContentType)
           val cauldronPotionContents =
-              (cauldronBlockEntity as? PotionCauldronBlockEntity)?.potionContents
+              cauldronBlockEntity?.potionContents
+                  ?: getPotionContentsForContentType(cauldronContentType)
           if (
               (if (shouldFill) cauldronPotionContents else stackPotionContents) != null &&
                   stackPotionContents != cauldronPotionContents
           ) {
             // The destination contains a potion, yet the source and destination potion contents are
+            // mismatched.
+            return@CauldronBehavior ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+          }
+
+          val stackPotionVariantType = PotionCauldronVariant.stackToVariant(stack)
+          val cauldronPotionVariantType =
+              cauldronBlockEntity?.variant
+                  ?: if (cauldronContentType != ContentType.EMPTY) {
+                    PotionCauldronVariant.NORMAL
+                  } else null
+          if (
+              (if (shouldFill) cauldronPotionVariantType else stackPotionVariantType) != null &&
+                  stackPotionVariantType != cauldronPotionVariantType
+          ) {
+            // The destination contains a potion, yet the source and destination potion variants are
             // mismatched.
             return@CauldronBehavior ItemActionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
           }
@@ -285,6 +296,7 @@ abstract class ModCauldronBehaviors : ModRegistry() {
                     pos,
                     newState,
                     stackPotionContents ?: PotionContentsComponent.DEFAULT,
+                    PotionCauldronVariant.stackToVariant(stack) ?: PotionCauldronVariant.NORMAL,
                 )
             )
           }
@@ -347,11 +359,11 @@ abstract class ModCauldronBehaviors : ModRegistry() {
         }
 
     /** Gets the cauldron-relevant [ContentType] of a block. */
-    fun getBlockContentType(state: BlockState, blockEntity: BlockEntity?) =
+    fun getBlockContentType(state: BlockState, blockEntity: PotionCauldronBlockEntity?) =
         when (state.block) {
           Blocks.CAULDRON -> ContentType.EMPTY
           MOD_BLOCKS.potionCauldronBlock -> {
-            if (blockEntity is PotionCauldronBlockEntity) {
+            if (blockEntity != null) {
               val potionContents = blockEntity.potionContents
               when {
                 potionContentsMatchId(potionContents, MILK_POTION_ID) -> ContentType.MILK
@@ -361,6 +373,16 @@ abstract class ModCauldronBehaviors : ModRegistry() {
             } else null
           }
           Blocks.WATER_CAULDRON -> ContentType.WATER
+          else -> null
+        }
+
+    /** Gets the default [PotionContentsComponent] given a cauldron-relevant [ContentType]. */
+    fun getPotionContentsForContentType(type: ContentType) =
+        when (type) {
+          ContentType.MILK ->
+              PotionContentsComponent(Registries.POTION.getEntry(MILK_POTION_ID).get())
+          ContentType.POTION -> PotionContentsComponent.DEFAULT
+          ContentType.WATER -> PotionContentsComponent(Potions.WATER)
           else -> null
         }
   }

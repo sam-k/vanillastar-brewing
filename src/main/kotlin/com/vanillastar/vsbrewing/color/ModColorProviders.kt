@@ -35,7 +35,9 @@ abstract class ModColorProviders : ModRegistry() {
             )
           } else -1
         },
+        MOD_ITEMS.lingeringPotionFlaskItem,
         MOD_ITEMS.potionFlaskItem,
+        MOD_ITEMS.splashPotionFlaskItem,
     )
 
     this.registerBlockColorProvider(

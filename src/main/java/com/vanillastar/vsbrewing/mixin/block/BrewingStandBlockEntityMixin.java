@@ -11,6 +11,7 @@ import static com.vanillastar.vsbrewing.tag.ModTagsKt.MOD_TAGS;
 import com.google.common.primitives.ImmutableIntArray;
 import com.vanillastar.vsbrewing.block.entity.BrewingStandBlockEntityRenderData;
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity;
+import com.vanillastar.vsbrewing.block.entity.PotionCauldronVariant;
 import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload;
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -85,7 +86,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
     if (blockEntity == null) {
       return ItemStack.EMPTY;
     }
-    return blockEntity.getPotionStack();
+    return blockEntity.getPotionStack(/* isFlask= */ true);
   }
 
   @Unique
@@ -168,15 +169,18 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
     BlockPos cauldronPos = pos.down();
     if (blockEntity == null && state != null && state.isOf(Blocks.WATER_CAULDRON)) {
       blockEntity = new PotionCauldronBlockEntity(
-          cauldronPos, state, new PotionContentsComponent(Potions.WATER));
+          cauldronPos,
+          state,
+          new PotionContentsComponent(Potions.WATER),
+          PotionCauldronVariant.NORMAL);
     }
-    NbtCompound potionNbt = player == null || blockEntity == null
+    NbtCompound potionCauldronNbt = player == null || blockEntity == null
         ? new NbtCompound()
         : blockEntity.createNbt(player.getWorld().getRegistryManager());
     return new BrewingCauldronPayload(
         pos.asLong(),
-        state == null ? 0 : state.getOrEmpty(LeveledCauldronBlock.LEVEL).orElse(0),
-        potionNbt);
+        state != null ? state.getOrEmpty(LeveledCauldronBlock.LEVEL).orElse(0) : 0,
+        potionCauldronNbt);
   }
 
   @Inject(

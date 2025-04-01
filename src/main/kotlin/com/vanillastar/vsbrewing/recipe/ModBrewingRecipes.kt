@@ -27,6 +27,11 @@ abstract class ModBrewingRecipes : ModRegistry() {
         this.logger.info("Registered potion type {}", item)
       }
 
+      fun registerItemRecipe(input: Item, ingredient: Item, output: Item) {
+        it.registerItemRecipe(input, ingredient, output)
+        this.logger.info("Registered item brewing recipe: {} + {} = {}", input, ingredient, output)
+      }
+
       fun registerBrewingRecipe(
           input: RegistryEntry<Potion>,
           ingredient: Item,
@@ -34,7 +39,7 @@ abstract class ModBrewingRecipes : ModRegistry() {
       ) {
         it.registerPotionRecipe(input, ingredient, output)
         this.logger.info(
-            "Registered brewing recipe: {} + {} = {}",
+            "Registered potion brewing recipe: {} + {} = {}",
             input.idAsString,
             ingredient,
             output.idAsString,
@@ -42,6 +47,19 @@ abstract class ModBrewingRecipes : ModRegistry() {
       }
 
       registerPotionType(MOD_ITEMS.potionFlaskItem)
+      registerPotionType(MOD_ITEMS.splashPotionFlaskItem)
+      registerPotionType(MOD_ITEMS.lingeringPotionFlaskItem)
+
+      registerItemRecipe(
+          MOD_ITEMS.potionFlaskItem,
+          Items.GUNPOWDER,
+          MOD_ITEMS.splashPotionFlaskItem,
+      )
+      registerItemRecipe(
+          MOD_ITEMS.splashPotionFlaskItem,
+          Items.DRAGON_BREATH,
+          MOD_ITEMS.lingeringPotionFlaskItem,
+      )
 
       registerBrewingRecipe(Potions.WATER, Items.ARMADILLO_SCUTE, Potions.MUNDANE)
       registerBrewingRecipe(Potions.WATER, Items.REDSTONE, Potions.THICK)
