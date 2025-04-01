@@ -1,12 +1,12 @@
 {
-  "item.minecraft.lingering_potion.effect.hunger": "Lingering Potion of Hunger",
+  "item.minecraft.lingering_potion.effect.armadillo_scourge": "Lingering Potion of the Armadillo Scourge",
   "item.minecraft.lingering_potion.effect.milk": "Lingering Milk Bottle",
-  "item.minecraft.potion.effect.hunger": "Potion of Hunger",
+  "item.minecraft.potion.effect.armadillo_scourge": "Potion of the Armadillo Scourge",
   "item.minecraft.potion.effect.milk": "Milk Bottle",
-  "item.minecraft.splash_potion.effect.hunger": "Splash Potion of Hunger",
+  "item.minecraft.splash_potion.effect.armadillo_scourge": "Splash Potion of the Armadillo Scourge",
   "item.minecraft.splash_potion.effect.milk": "Splash Milk Bottle",
   "item.minecraft.tipped_arrow.effect.awkward": "Awkward Tipped Arrow",
-  "item.minecraft.tipped_arrow.effect.hunger": "Arrow of Hunger",
+  "item.minecraft.tipped_arrow.effect.armadillo_scourge": "Arrow of the Armadillo Scourge",
   "item.minecraft.tipped_arrow.effect.milk": "Milk-Tipped Arrow",
   "item.minecraft.tipped_arrow.effect.mundane": "Mundane Tipped Arrow",
   "item.minecraft.tipped_arrow.effect.thick": "Thick Tipped Arrow"

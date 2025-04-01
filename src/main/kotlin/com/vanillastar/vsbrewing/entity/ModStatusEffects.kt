@@ -9,12 +9,19 @@ import net.minecraft.registry.entry.RegistryEntry
 
 abstract class ModStatusEffects : ModRegistry() {
   @JvmField
-  val milkStatusEffect: RegistryEntry<StatusEffect> =
-      Registry.registerReference(
-          Registries.STATUS_EFFECT,
-          getModIdentifier("milk"),
-          MilkStatusEffect(),
-      )
+  val healthDownStatusEffect = registerStatusEffect("health_down", HealthDownStatusEffect())
+
+  @JvmField val milkStatusEffect = registerStatusEffect("milk", MilkStatusEffect())
+
+  private fun registerStatusEffect(
+      name: String,
+      statusEffect: StatusEffect,
+  ): RegistryEntry<StatusEffect> {
+    val id = getModIdentifier(name)
+    val statusEffectEntry = Registry.registerReference(Registries.STATUS_EFFECT, id, statusEffect)
+    this.logger.info("Registered status effect {}", id)
+    return statusEffectEntry
+  }
 
   override fun initialize() {}
 }
