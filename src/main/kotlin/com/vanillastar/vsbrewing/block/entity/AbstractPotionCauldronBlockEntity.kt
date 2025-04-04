@@ -1,9 +1,10 @@
 package com.vanillastar.vsbrewing.block.entity
 
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
 import com.vanillastar.vsbrewing.potion.potionContentsMatchId
+import com.vanillastar.vsbrewing.utils.PotionContentType
+import com.vanillastar.vsbrewing.utils.PotionVariant
 import com.vanillastar.vsbrewing.utils.getLogger
 import net.minecraft.block.BlockState
 import net.minecraft.block.LeveledCauldronBlock
@@ -11,9 +12,7 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
-import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
-import net.minecraft.item.Items
 import net.minecraft.nbt.NbtCompound
 import net.minecraft.nbt.NbtElement
 import net.minecraft.nbt.NbtOps
@@ -21,49 +20,16 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket
 import net.minecraft.registry.RegistryWrapper.WrapperLookup
 import net.minecraft.util.math.BlockPos
 
-enum class PotionCauldronVariant {
-  NORMAL,
-  SPLASH,
-  LINGERING;
-
-  companion object {
-    fun stackToVariant(stack: ItemStack) =
-        when {
-          stack.isOf(Items.MILK_BUCKET) ||
-              stack.isOf(Items.POTION) ||
-              stack.isOf(Items.WATER_BUCKET) ||
-              stack.isOf(MOD_ITEMS.potionFlaskItem) -> NORMAL
-          stack.isOf(Items.SPLASH_POTION) || stack.isOf(MOD_ITEMS.splashPotionFlaskItem) -> SPLASH
-          stack.isOf(Items.LINGERING_POTION) || stack.isOf(MOD_ITEMS.lingeringPotionFlaskItem) ->
-              LINGERING
-          else -> null
-        }
-
-    fun variantToItem(type: PotionCauldronVariant, isFlask: Boolean): Item =
-        when (type) {
-          NORMAL -> if (isFlask) MOD_ITEMS.potionFlaskItem else Items.POTION
-          SPLASH -> if (isFlask) MOD_ITEMS.splashPotionFlaskItem else Items.SPLASH_POTION
-          LINGERING -> if (isFlask) MOD_ITEMS.lingeringPotionFlaskItem else Items.LINGERING_POTION
-        }
-  }
-}
-
 /** [BlockEntity] for a potion-filled cauldron. */
 abstract class AbstractPotionCauldronBlockEntity(
     blockEntityType: BlockEntityType<out AbstractPotionCauldronBlockEntity>,
     pos: BlockPos,
     val state: BlockState,
     var potionContents: PotionContentsComponent,
-    var variant: PotionCauldronVariant,
+    var variant: PotionVariant,
     val forcedLevel: Int? = null,
 ) : BlockEntity(blockEntityType, pos, state) {
-
-  enum class ContentType {
-    MILK,
-    POTION,
-  }
-
-  data class RenderData(val contentType: ContentType, val color: Int)
+  data class RenderData(val contentType: PotionContentType, val color: Int)
 
   protected companion object {
     val LOGGER = getLogger()
@@ -73,7 +39,7 @@ abstract class AbstractPotionCauldronBlockEntity(
   }
 
   fun getPotionStack(isFlask: Boolean): ItemStack {
-    val stack = (PotionCauldronVariant.variantToItem(this.variant, isFlask)).defaultStack
+    val stack = (PotionVariant.getItem(this.variant, isFlask)).defaultStack
     stack.set(DataComponentTypes.POTION_CONTENTS, this.potionContents)
     if (isFlask) {
       stack.set(
@@ -85,7 +51,7 @@ abstract class AbstractPotionCauldronBlockEntity(
   }
 
   fun setPotion(stack: ItemStack) {
-    this.variant = PotionCauldronVariant.stackToVariant(stack) ?: PotionCauldronVariant.NORMAL
+    this.variant = PotionVariant.get(stack) ?: PotionVariant.NORMAL
     this.potionContents =
         stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
   }
@@ -93,7 +59,7 @@ abstract class AbstractPotionCauldronBlockEntity(
   fun readNbt(nbt: NbtCompound, registryLookup: WrapperLookup, sendUpdate: Boolean) {
     super.readNbt(nbt, registryLookup)
     if (nbt.contains(VARIANT_TYPE_NBT_KEY, NbtElement.STRING_TYPE.toInt())) {
-      this.variant = PotionCauldronVariant.valueOf(nbt.getString(VARIANT_TYPE_NBT_KEY))
+      this.variant = PotionVariant.valueOf(nbt.getString(VARIANT_TYPE_NBT_KEY))
     }
     if (nbt.contains(POTION_CONTENTS_NBT_KEY, NbtElement.COMPOUND_TYPE.toInt())) {
       PotionContentsComponent.CODEC.parse(
@@ -137,7 +103,7 @@ abstract class AbstractPotionCauldronBlockEntity(
   override fun getRenderData() =
       when {
         potionContentsMatchId(this.potionContents, MILK_POTION_ID) ->
-            RenderData(ContentType.MILK, color = -1)
-        else -> RenderData(ContentType.POTION, this.potionContents.color)
+            RenderData(PotionContentType.MILK, color = -1)
+        else -> RenderData(PotionContentType.POTION, this.potionContents.color)
       }
 }

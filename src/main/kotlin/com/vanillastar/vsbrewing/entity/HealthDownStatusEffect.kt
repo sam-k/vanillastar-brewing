@@ -16,7 +16,7 @@ class HealthDownStatusEffect :
     this.addAttributeModifier(
         EntityAttributes.GENERIC_MAX_HEALTH,
         getModIdentifier("effect.health_down"),
-        -4.0,
+        /* amount= */ -4.0,
         EntityAttributeModifier.Operation.ADD_VALUE,
     )
   }

@@ -8,6 +8,7 @@ import com.vanillastar.vsbrewing.entity.MOD_STATUS_EFFECTS
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.particle.MOD_PARTICLE_TYPES
 import com.vanillastar.vsbrewing.recipe.MOD_BREWING_RECIPES
+import com.vanillastar.vsbrewing.recipe.MOD_RECIPE_SERIALIZERS
 import com.vanillastar.vsbrewing.screen.MOD_SCREEN_HANDLERS
 import com.vanillastar.vsbrewing.tag.MOD_TAGS
 import net.fabricmc.api.ModInitializer
@@ -23,6 +24,7 @@ object VSBrewing : ModInitializer {
     MOD_ITEMS.initialize()
     MOD_STATUS_EFFECTS.initialize()
     MOD_PARTICLE_TYPES.initialize()
+    MOD_RECIPE_SERIALIZERS.initialize()
     MOD_BREWING_RECIPES.initialize()
     MOD_CAULDRON_BEHAVIORS.initialize()
     MOD_SCREEN_HANDLERS.initialize()
