@@ -13,9 +13,11 @@ abstract class ModTags : ModRegistry() {
       TagKey.of(RegistryKeys.BLOCK, getModIdentifier("brewable_cauldrons"))
 
   @JvmField
+  val potionBottles: TagKey<Item> = TagKey.of(RegistryKeys.ITEM, getModIdentifier("potion_bottles"))
+
+  @JvmField
   val placeableBottles: TagKey<Item> =
       TagKey.of(RegistryKeys.ITEM, getModIdentifier("placeable_bottles"))
-
   @JvmField
   val placeableBottlesWithSneaking: TagKey<Item> =
       TagKey.of(RegistryKeys.ITEM, getModIdentifier("placeable_bottles_with_sneaking"))

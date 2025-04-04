@@ -3,6 +3,8 @@ package com.vanillastar.vsbrewing.networking
 import com.vanillastar.vsbrewing.block.entity.FLASK_SPLASH_MULTIPLIER
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
 import com.vanillastar.vsbrewing.particle.MOD_PARTICLE_TYPES
+import com.vanillastar.vsbrewing.utils.PotionItemType
+import com.vanillastar.vsbrewing.utils.PotionVariant
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import kotlin.math.cos
 import kotlin.math.sin
@@ -13,8 +15,6 @@ import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.codec.PacketCodecs
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.particle.ItemStackParticleEffect
-import net.minecraft.particle.ParticleEffect
-import net.minecraft.particle.ParticleType
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
@@ -26,17 +26,11 @@ import net.minecraft.world.WorldEvents
 /** Networking payload for updating clients on data related to rendering a thrown potion. */
 data class ThrownPotionPayload(
     val packedPos: Long,
-    val type: String,
+    val potionVariantStr: String,
+    val potionItemTypeStr: String,
     val isInstant: Boolean,
     val color: Int,
 ) : ModNetworkingPayload.Server<ThrownPotionPayload> {
-  enum class Type {
-    SPLASH_POTION,
-    LINGERING_POTION,
-    SPLASH_FLASK,
-    LINGERING_FLASK,
-  }
-
   companion object : ModNetworkingPayload.ServerCompanion<ThrownPotionPayload> {
     val THROWN_POTION_PACKET_ID = getModIdentifier("thrown_potion")
 
@@ -48,7 +42,9 @@ data class ThrownPotionPayload(
             PacketCodecs.VAR_LONG,
             ThrownPotionPayload::packedPos,
             PacketCodecs.STRING,
-            ThrownPotionPayload::type,
+            ThrownPotionPayload::potionVariantStr,
+            PacketCodecs.STRING,
+            ThrownPotionPayload::potionItemTypeStr,
             PacketCodecs.BOOL,
             ThrownPotionPayload::isInstant,
             PacketCodecs.INTEGER,
@@ -63,7 +59,8 @@ data class ThrownPotionPayload(
      */
     override val callback: ModNetworkingClientCallback<ThrownPotionPayload> = { payload, context ->
       {
-        val type = Type.valueOf(payload.type)
+        val potionVariant = PotionVariant.valueOf(payload.potionVariantStr)
+        val potionItemType = PotionItemType.valueOf(payload.potionItemTypeStr)
         val pos = BlockPos.fromLong(payload.packedPos)
         val vec = Vec3d.ofBottomCenter(pos)
 
@@ -72,12 +69,22 @@ data class ThrownPotionPayload(
 
         // Spawn item break particles.
         val stack =
-            when (type) {
-              Type.SPLASH_POTION -> Items.SPLASH_POTION
-              Type.LINGERING_POTION -> Items.LINGERING_POTION
-              Type.SPLASH_FLASK -> MOD_ITEMS.splashPotionFlaskItem
-              Type.LINGERING_FLASK -> MOD_ITEMS.lingeringPotionFlaskItem
-            }.defaultStack
+            (when (potionItemType) {
+                  PotionItemType.BOTTLE ->
+                      when (potionVariant) {
+                        PotionVariant.SPLASH -> Items.SPLASH_POTION
+                        PotionVariant.LINGERING -> Items.LINGERING_POTION
+                        else -> null
+                      }
+                  PotionItemType.FLASK ->
+                      when (potionVariant) {
+                        PotionVariant.SPLASH -> MOD_ITEMS.splashPotionFlaskItem
+                        PotionVariant.LINGERING -> MOD_ITEMS.lingeringPotionFlaskItem
+                        else -> null
+                      }
+                  else -> null
+                } ?: Items.POTION)
+                .defaultStack
         repeat(8) {
           world?.addParticle(
               ItemStackParticleEffect(ParticleTypes.ITEM, stack),
@@ -91,11 +98,10 @@ data class ThrownPotionPayload(
         }
 
         // Spawn potion effect particles.
-        var numParticles: Int
-        var particleType: ParticleType<out ParticleEffect>
-        when (type) {
-          Type.SPLASH_POTION,
-          Type.LINGERING_POTION -> {
+        var numParticles = 0
+        var particleType = ParticleTypes.EFFECT
+        when (potionItemType) {
+          PotionItemType.BOTTLE -> {
             numParticles = 100
             particleType =
                 if (payload.isInstant) {
@@ -104,8 +110,7 @@ data class ThrownPotionPayload(
                   ParticleTypes.EFFECT
                 }
           }
-          Type.SPLASH_FLASK,
-          Type.LINGERING_FLASK -> {
+          PotionItemType.FLASK -> {
             numParticles = 100 * FLASK_SPLASH_MULTIPLIER * FLASK_SPLASH_MULTIPLIER
             particleType =
                 if (payload.isInstant) {
@@ -114,6 +119,7 @@ data class ThrownPotionPayload(
                   MOD_PARTICLE_TYPES.flaskEffectParticleType
                 }
           }
+          else -> Unit
         }
         repeat(numParticles) {
           val velocity = (world?.random?.nextDouble() ?: 0.0) * 4.0

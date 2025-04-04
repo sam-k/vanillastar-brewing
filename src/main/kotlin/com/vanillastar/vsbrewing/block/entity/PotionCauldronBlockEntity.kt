@@ -1,6 +1,7 @@
 package com.vanillastar.vsbrewing.block.entity
 
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
+import com.vanillastar.vsbrewing.utils.PotionVariant
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.component.type.PotionContentsComponent
@@ -14,7 +15,7 @@ class PotionCauldronBlockEntity(
     pos: BlockPos,
     state: BlockState,
     potionContents: PotionContentsComponent,
-    variant: PotionCauldronVariant,
+    variant: PotionVariant,
 ) :
     AbstractPotionCauldronBlockEntity(
         MOD_BLOCK_ENTITIES.potionCauldronBlockEntityType,
@@ -26,5 +27,5 @@ class PotionCauldronBlockEntity(
   constructor(
       pos: BlockPos,
       state: BlockState,
-  ) : this(pos, state, PotionContentsComponent.DEFAULT, PotionCauldronVariant.NORMAL)
+  ) : this(pos, state, PotionContentsComponent.DEFAULT, PotionVariant.NORMAL)
 }

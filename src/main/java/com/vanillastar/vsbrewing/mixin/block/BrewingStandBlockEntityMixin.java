@@ -11,9 +11,9 @@ import static com.vanillastar.vsbrewing.tag.ModTagsKt.MOD_TAGS;
 import com.google.common.primitives.ImmutableIntArray;
 import com.vanillastar.vsbrewing.block.entity.BrewingStandBlockEntityRenderData;
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity;
-import com.vanillastar.vsbrewing.block.entity.PotionCauldronVariant;
 import com.vanillastar.vsbrewing.networking.BrewingCauldronPayload;
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler;
+import com.vanillastar.vsbrewing.utils.PotionVariant;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Block;
@@ -169,10 +169,7 @@ public abstract class BrewingStandBlockEntityMixin extends LockableContainerBloc
     BlockPos cauldronPos = pos.down();
     if (blockEntity == null && state != null && state.isOf(Blocks.WATER_CAULDRON)) {
       blockEntity = new PotionCauldronBlockEntity(
-          cauldronPos,
-          state,
-          new PotionContentsComponent(Potions.WATER),
-          PotionCauldronVariant.NORMAL);
+          cauldronPos, state, new PotionContentsComponent(Potions.WATER), PotionVariant.NORMAL);
     }
     NbtCompound potionCauldronNbt = player == null || blockEntity == null
         ? new NbtCompound()

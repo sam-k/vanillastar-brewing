@@ -4,7 +4,6 @@ import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.item.FLASK_MAX_USES
 import com.vanillastar.vsbrewing.item.FLASK_MIN_USES
 import com.vanillastar.vsbrewing.item.MOD_ITEMS
-import com.vanillastar.vsbrewing.item.PotionFlaskItem
 import kotlin.math.max
 import kotlin.math.min
 import net.minecraft.component.DataComponentTypes
@@ -19,8 +18,8 @@ import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.world.World
 
-/** [SpecialCraftingRecipe] for combining the levels of two matching [PotionFlaskItem]'s. */
-class FlaskCombineRecipe(category: CraftingRecipeCategory) : AbstractFlaskRecipe(category) {
+/** [SpecialCraftingRecipe] for combining the levels of two matching flasks. */
+class FlaskCombineRecipe(category: CraftingRecipeCategory) : SpecialCraftingRecipe(category) {
   private companion object {
     const val COUNT = 2
 
@@ -33,10 +32,12 @@ class FlaskCombineRecipe(category: CraftingRecipeCategory) : AbstractFlaskRecipe
         if (stack.isOf(MOD_ITEMS.potionFlaskItem)) {
           flaskStacks.add(stack)
         } else if (!stack.isEmpty) {
+          // Recipe contains foreign items.
           return null
         }
       }
       if (flaskStacks.size != COUNT) {
+        // Recipe is incomplete.
         return null
       }
 
@@ -47,6 +48,7 @@ class FlaskCombineRecipe(category: CraftingRecipeCategory) : AbstractFlaskRecipe
               totalLevel > COUNT * (FLASK_MAX_USES - 1) ||
               flaskStacks.any { !it.contains(DataComponentTypes.POTION_CONTENTS) }
       ) {
+        // Recipe is invalid.
         return null
       }
 
@@ -58,6 +60,7 @@ class FlaskCombineRecipe(category: CraftingRecipeCategory) : AbstractFlaskRecipe
                 it.get(DataComponentTypes.POTION_CONTENTS)?.matches(referencePotionEntry) != true
               }
       ) {
+        // Recipe contains no or mismatched potions.
         return null
       }
 
@@ -111,6 +114,10 @@ class FlaskCombineRecipe(category: CraftingRecipeCategory) : AbstractFlaskRecipe
     }
     return remainders
   }
+
+  override fun fits(width: Int, height: Int) = width * height >= 2
+
+  override fun getResult(registriesLookup: WrapperLookup) = ItemStack(MOD_ITEMS.potionFlaskItem)
 
   override fun getSerializer() = MOD_RECIPE_SERIALIZERS.flaskCombineRecipeSerializer
 }

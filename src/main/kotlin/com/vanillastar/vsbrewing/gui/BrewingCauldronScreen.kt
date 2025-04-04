@@ -5,9 +5,9 @@ import com.vanillastar.vsbrewing.block.MOD_BLOCKS
 import com.vanillastar.vsbrewing.block.PotionCauldronPreviewBlock
 import com.vanillastar.vsbrewing.block.entity.BREWING_CAULDRON_BREW_TIME_TICKS
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronPreviewBlockEntity
-import com.vanillastar.vsbrewing.block.entity.PotionCauldronVariant
 import com.vanillastar.vsbrewing.item.appendPotionFlaskDataTooltip
 import com.vanillastar.vsbrewing.screen.BrewingCauldronScreenHandler
+import com.vanillastar.vsbrewing.utils.PotionVariant
 import com.vanillastar.vsbrewing.utils.getModIdentifier
 import java.util.Optional
 import net.fabricmc.api.EnvType
@@ -250,9 +250,9 @@ class BrewingCauldronScreen(
                         )
                         .potion,
                     MOD_BLOCKS.potionCauldronPreviewBlock.translationKey +
-                        when (PotionCauldronVariant.stackToVariant(previewPotionStack)) {
-                          PotionCauldronVariant.SPLASH -> ".splash"
-                          PotionCauldronVariant.LINGERING -> ".lingering"
+                        when (PotionVariant.get(previewPotionStack)) {
+                          PotionVariant.SPLASH -> ".splash"
+                          PotionVariant.LINGERING -> ".lingering"
                           else -> ""
                         } +
                         ".effect.",
