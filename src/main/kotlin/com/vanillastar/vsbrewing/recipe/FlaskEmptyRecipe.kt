@@ -17,7 +17,7 @@ import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.world.World
 
-/** [SpecialCraftingRecipe] for emptying one level of a flask into a glass bottle. */
+/** [SpecialCraftingRecipe] for emptying one level of a normal flask into a glass bottle. */
 class FlaskEmptyRecipe(category: CraftingRecipeCategory) : SpecialCraftingRecipe(category) {
   private companion object {
     /**

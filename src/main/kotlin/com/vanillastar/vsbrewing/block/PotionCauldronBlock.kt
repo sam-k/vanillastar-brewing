@@ -2,6 +2,7 @@ package com.vanillastar.vsbrewing.block
 
 import com.vanillastar.vsbrewing.block.entity.AbstractPotionCauldronBlockEntity
 import com.vanillastar.vsbrewing.block.entity.PotionCauldronBlockEntity
+import com.vanillastar.vsbrewing.utils.PotionContentType
 import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
@@ -45,7 +46,7 @@ open class PotionCauldronBlock(settings: Settings) :
     val renderData = world.getBlockEntityRenderData(pos)
     if (
         renderData !is AbstractPotionCauldronBlockEntity.RenderData ||
-            renderData.contentType != AbstractPotionCauldronBlockEntity.ContentType.POTION
+            renderData.contentType != PotionContentType.POTION
     ) {
       return
     }

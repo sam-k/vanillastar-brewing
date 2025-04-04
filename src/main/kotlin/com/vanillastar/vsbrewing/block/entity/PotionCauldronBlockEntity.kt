@@ -24,8 +24,11 @@ class PotionCauldronBlockEntity(
         potionContents,
         variant,
     ) {
+  constructor(pos: BlockPos, state: BlockState) : this(pos, state, PotionContentsComponent.DEFAULT)
+
   constructor(
       pos: BlockPos,
       state: BlockState,
-  ) : this(pos, state, PotionContentsComponent.DEFAULT, PotionVariant.NORMAL)
+      potionContents: PotionContentsComponent,
+  ) : this(pos, state, potionContents, PotionVariant.NORMAL)
 }

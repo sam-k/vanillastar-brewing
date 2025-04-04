@@ -15,6 +15,8 @@ import net.minecraft.network.codec.PacketCodec
 import net.minecraft.network.codec.PacketCodecs
 import net.minecraft.network.packet.CustomPayload
 import net.minecraft.particle.ItemStackParticleEffect
+import net.minecraft.particle.ParticleEffect
+import net.minecraft.particle.ParticleType
 import net.minecraft.particle.ParticleTypes
 import net.minecraft.sound.SoundCategory
 import net.minecraft.sound.SoundEvents
@@ -98,8 +100,8 @@ data class ThrownPotionPayload(
         }
 
         // Spawn potion effect particles.
-        var numParticles = 0
-        var particleType = ParticleTypes.EFFECT
+        var numParticles: Int
+        var particleType: ParticleType<out ParticleEffect>
         when (potionItemType) {
           PotionItemType.BOTTLE -> {
             numParticles = 100
@@ -119,7 +121,10 @@ data class ThrownPotionPayload(
                   MOD_PARTICLE_TYPES.flaskEffectParticleType
                 }
           }
-          else -> Unit
+          else -> {
+            numParticles = 0
+            particleType = ParticleTypes.EFFECT
+          }
         }
         repeat(numParticles) {
           val velocity = (world?.random?.nextDouble() ?: 0.0) * 4.0

@@ -15,6 +15,7 @@ import net.minecraft.item.Items
 import net.minecraft.potion.Potions
 import net.minecraft.registry.Registries
 
+/** Potion variant, whether normal, splash or lingering. */
 enum class PotionVariant {
   NORMAL,
   SPLASH,
@@ -42,13 +43,13 @@ enum class PotionVariant {
   }
 }
 
+/** The type of item containing the potion. */
 enum class PotionItemType {
   BOTTLE,
   BUCKET,
   FLASK;
 
   companion object {
-    /** Gets the cauldron-relevant potion item type of an item. */
     fun get(stack: ItemStack) =
         when {
           stack.isOf(Items.GLASS_BOTTLE) || stack.isOf(Items.POTION) -> BOTTLE
@@ -61,6 +62,7 @@ enum class PotionItemType {
   }
 }
 
+/** The type of contents held by a potion item. */
 enum class PotionContentType {
   EMPTY,
   MILK,
@@ -68,7 +70,6 @@ enum class PotionContentType {
   WATER;
 
   companion object {
-    /** Gets the cauldron-relevant potion content type of an item. */
     fun get(stack: ItemStack) =
         when {
           stack.isOf(Items.BUCKET) ||
@@ -87,7 +88,6 @@ enum class PotionContentType {
           else -> null
         }
 
-    /** Gets the cauldron-relevant potion content type of a block. */
     fun get(state: BlockState, blockEntity: PotionCauldronBlockEntity?) =
         when (state.block) {
           Blocks.CAULDRON -> EMPTY
@@ -105,7 +105,6 @@ enum class PotionContentType {
           else -> null
         }
 
-    /** Gets the default [PotionContentsComponent] given a cauldron-relevant potion content type. */
     fun getPotionContents(type: PotionContentType) =
         when (type) {
           MILK -> PotionContentsComponent(Registries.POTION.getEntry(MILK_POTION_ID).get())

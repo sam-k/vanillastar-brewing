@@ -3,6 +3,7 @@ package com.vanillastar.vsbrewing.block.entity
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
 import com.vanillastar.vsbrewing.potion.potionContentsMatchId
+import com.vanillastar.vsbrewing.utils.PotionContentType
 import com.vanillastar.vsbrewing.utils.PotionVariant
 import com.vanillastar.vsbrewing.utils.getLogger
 import net.minecraft.block.BlockState
@@ -28,13 +29,7 @@ abstract class AbstractPotionCauldronBlockEntity(
     var variant: PotionVariant,
     val forcedLevel: Int? = null,
 ) : BlockEntity(blockEntityType, pos, state) {
-
-  enum class ContentType {
-    MILK,
-    POTION,
-  }
-
-  data class RenderData(val contentType: ContentType, val color: Int)
+  data class RenderData(val contentType: PotionContentType, val color: Int)
 
   protected companion object {
     val LOGGER = getLogger()
@@ -108,7 +103,7 @@ abstract class AbstractPotionCauldronBlockEntity(
   override fun getRenderData() =
       when {
         potionContentsMatchId(this.potionContents, MILK_POTION_ID) ->
-            RenderData(ContentType.MILK, color = -1)
-        else -> RenderData(ContentType.POTION, this.potionContents.color)
+            RenderData(PotionContentType.MILK, color = -1)
+        else -> RenderData(PotionContentType.POTION, this.potionContents.color)
       }
 }

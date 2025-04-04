@@ -168,14 +168,12 @@ public abstract class PotionEntityMixin extends ThrownItemEntity {
       this.applyWaterFlask();
     } else if (potionContents.hasEffects()) {
       switch (potionVariant) {
-        case PotionVariant.SPLASH:
-          this.applySplashFlask(
-              potionContents,
-              hitResult.getType() == HitResult.Type.ENTITY
-                  ? ((EntityHitResult) hitResult).getEntity()
-                  : null);
-        case PotionVariant.LINGERING:
-          this.applyLingeringFlask(potionContents);
+        case PotionVariant.SPLASH -> this.applySplashFlask(
+            potionContents,
+            hitResult.getType() == HitResult.Type.ENTITY
+                ? ((EntityHitResult) hitResult).getEntity()
+                : null);
+        case PotionVariant.LINGERING -> this.applyLingeringFlask(potionContents);
       }
     }
 

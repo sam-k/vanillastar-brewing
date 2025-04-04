@@ -18,7 +18,7 @@ import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.util.collection.DefaultedList
 import net.minecraft.world.World
 
-/** [SpecialCraftingRecipe] for combining the levels of two matching flasks. */
+/** [SpecialCraftingRecipe] for combining the levels of two matching normal flasks. */
 class FlaskCombineRecipe(category: CraftingRecipeCategory) : SpecialCraftingRecipe(category) {
   private companion object {
     const val COUNT = 2
