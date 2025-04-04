@@ -56,8 +56,8 @@ class FlaskBlockEntityRenderer(context: BlockEntityRendererFactory.Context) :
 
   override fun getSpriteId(entity: FlaskBlockEntity) =
       when {
-        entity.item.isOf(MOD_ITEMS.potionFlaskItem) -> {
-          val potionContents = entity.item.get(DataComponentTypes.POTION_CONTENTS)
+        entity.stack.isOf(MOD_ITEMS.potionFlaskItem) -> {
+          val potionContents = entity.stack.get(DataComponentTypes.POTION_CONTENTS)
           when {
             potionContentsMatchId(potionContents, MILK_POTION_ID) -> MILK_SPRITE_ID
             else -> WATER_SPRITE_ID

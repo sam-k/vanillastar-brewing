@@ -127,7 +127,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
   ) {
     super.onPlaced(world, pos, state, placer, stack)
     world.getBlockEntity(pos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).ifPresent {
-      it.item = stack.copyWithCount(1)
+      it.stack = stack.copyWithCount(1)
       it.markDirty()
     }
   }
@@ -138,7 +138,7 @@ class FlaskBlock(settings: Settings) : BlockWithEntity(settings), Waterloggable 
   ): List<ItemStack> {
     val blockEntity = builder.getOptional(LootContextParameters.BLOCK_ENTITY)
     if (blockEntity is FlaskBlockEntity) {
-      builder.addDynamicDrop(DYNAMIC_DROP_ID) { it.accept(blockEntity.item) }
+      builder.addDynamicDrop(DYNAMIC_DROP_ID) { it.accept(blockEntity.stack) }
     }
     return super.getDroppedStacks(state, builder)
   }
