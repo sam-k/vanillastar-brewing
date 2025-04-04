@@ -100,8 +100,8 @@ data class ThrownPotionPayload(
         }
 
         // Spawn potion effect particles.
-        var numParticles: Int
-        var particleType: ParticleType<out ParticleEffect>
+        val numParticles: Int
+        val particleType: ParticleType<out ParticleEffect>
         when (potionItemType) {
           PotionItemType.BOTTLE -> {
             numParticles = 100

@@ -1,13 +1,7 @@
 package com.vanillastar.vsbrewing.item
 
-import com.vanillastar.vsbrewing.block.FlaskBlock
 import com.vanillastar.vsbrewing.block.FlaskBlock.Companion.WATERLOGGED
 import com.vanillastar.vsbrewing.block.MOD_BLOCKS
-import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
-import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
-import com.vanillastar.vsbrewing.utils.getLogger
-import net.minecraft.block.LeveledCauldronBlock
-import net.minecraft.component.DataComponentTypes
 import net.minecraft.component.type.PotionContentsComponent
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.fluid.Fluids
@@ -39,10 +33,6 @@ val GLASS_FLASK_ITEM_METADATA =
 
 /** [Item] for an empty glass flask. */
 class GlassFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBlock, settings) {
-  companion object {
-    val LOGGER = getLogger()
-  }
-
   override fun use(world: World, player: PlayerEntity, hand: Hand): TypedActionResult<ItemStack> {
     val stack = player.getStackInHand(hand)
 
@@ -81,72 +71,8 @@ class GlassFlaskItem(settings: Settings) : AliasedBlockItem(MOD_BLOCKS.flaskBloc
     )
   }
 
-  override fun useOnBlock(context: ItemUsageContext): ActionResult {
-    if (context.shouldCancelInteraction()) {
-      return super.useOnBlock(context)
-    }
-
-    val world = context.world
-    val blockPos = context.blockPos
-    val state = world.getBlockState(blockPos)
-    if (!state.isOf(MOD_BLOCKS.flaskBlock)) {
-      return super.useOnBlock(context)
-    }
-
-    val level = state.getOrEmpty(FlaskBlock.LEVEL).orElse(0)
-    if (level < LeveledCauldronBlock.MIN_LEVEL) {
-      // Should never reach here.
-      return ActionResult.PASS
-    }
-
-    val blockEntity =
-        world.getBlockEntity(blockPos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).orElse(null)
-    if (blockEntity == null) {
-      // Should never reach here.
-      return ActionResult.PASS
-    }
-
-    val blockEntityStack = blockEntity.stack
-    if (!blockEntityStack.isOf(MOD_ITEMS.potionFlaskItem)) {
-      // Potion flask block does not contain an item.
-      return ActionResult.PASS
-    }
-
-    val potionContents = blockEntityStack.get(DataComponentTypes.POTION_CONTENTS)
-    if (potionContents == null) {
-      // Potion flask block does not contain a potion.
-      return ActionResult.PASS
-    }
-
-    if (world.isClient) {
-      return ActionResult.success(/* swingHand= */ true)
-    }
-
-    val player = context.player
-    val newStack = MOD_ITEMS.potionFlaskItem.defaultStack
-    newStack.set(DataComponentTypes.POTION_CONTENTS, potionContents)
-    newStack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, level)
-    player?.setStackInHand(context.hand, ItemUsage.exchangeStack(context.stack, player, newStack))
-
-    val newState = state.with(FlaskBlock.LEVEL, FlaskBlock.MIN_LEVEL)
-    world.setBlockState(blockPos, newState)
-    blockEntity.setDefaultStack()
-    blockEntity.markDirty()
-    world.updateListeners(blockPos, state, newState, /* flags= */ 0)
-    world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(newState))
-    world.playSound(
-        /* source= */ null,
-        blockPos,
-        SoundEvents.ITEM_BOTTLE_FILL,
-        SoundCategory.BLOCKS,
-        /* volume= */ 1.0f,
-        /* pitch= */ 1.0f,
-    )
-    world.emitGameEvent(/* entity= */ null, GameEvent.FLUID_PICKUP, blockPos)
-
-    LOGGER.info("success")
-    return ActionResult.success(/* swingHand= */ false)
-  }
+  override fun useOnBlock(context: ItemUsageContext): ActionResult =
+      fillFromFlaskBlock(context, isFlaskItem = true) { super.useOnBlock(context) }
 
   override fun getPlacementState(context: ItemPlacementContext) =
       super.getPlacementState(context)

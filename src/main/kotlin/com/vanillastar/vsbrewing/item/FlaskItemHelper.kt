@@ -1,5 +1,8 @@
 package com.vanillastar.vsbrewing.item
 
+import com.vanillastar.vsbrewing.block.FlaskBlock
+import com.vanillastar.vsbrewing.block.MOD_BLOCKS
+import com.vanillastar.vsbrewing.block.entity.MOD_BLOCK_ENTITIES
 import com.vanillastar.vsbrewing.component.MOD_COMPONENTS
 import com.vanillastar.vsbrewing.potion.MILK_POTION_ID
 import com.vanillastar.vsbrewing.potion.potionContentsMatchId
@@ -16,13 +19,20 @@ import net.minecraft.entity.effect.StatusEffectInstance
 import net.minecraft.entity.effect.StatusEffectUtil
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.item.ItemUsage
+import net.minecraft.item.ItemUsageContext
+import net.minecraft.item.Items
 import net.minecraft.potion.Potion
 import net.minecraft.potion.Potions
 import net.minecraft.registry.entry.RegistryEntry
 import net.minecraft.screen.ScreenTexts
+import net.minecraft.sound.SoundCategory
+import net.minecraft.sound.SoundEvents
 import net.minecraft.text.Text
+import net.minecraft.util.ActionResult
 import net.minecraft.util.Formatting
 import net.minecraft.util.Util
+import net.minecraft.world.event.GameEvent
 
 /** Minimum number of uses for a flask item. */
 const val FLASK_MIN_USES = 1
@@ -49,6 +59,88 @@ fun getPotionFlaskStackProvider(
       PotionContentsComponent(Optional.of(potion), customColorOptional, listOf()),
   )
   it.set(MOD_COMPONENTS.flaskRemainingUsesComponent, remainingUses)
+}
+
+fun fillFromFlaskBlock(
+    context: ItemUsageContext,
+    isFlaskItem: Boolean,
+    defaultAction: () -> ActionResult,
+): ActionResult {
+  if (context.shouldCancelInteraction()) {
+    return defaultAction()
+  }
+
+  val world = context.world
+  val blockPos = context.blockPos
+  val state = world.getBlockState(blockPos)
+  if (!state.isOf(MOD_BLOCKS.flaskBlock)) {
+    return defaultAction()
+  }
+
+  val level = state.getOrEmpty(FlaskBlock.LEVEL).orElse(0)
+  if (level < 1) {
+    // Flask block is already empty.
+    return ActionResult.PASS
+  }
+
+  val blockEntity =
+      world.getBlockEntity(blockPos, MOD_BLOCK_ENTITIES.flaskBlockEntityType).orElse(null)
+  if (blockEntity == null) {
+    // Should never reach here.
+    return ActionResult.PASS
+  }
+
+  val blockEntityStack = blockEntity.stack
+  if (!blockEntityStack.isOf(MOD_ITEMS.potionFlaskItem)) {
+    // Flask block does not contain an item.
+    return ActionResult.PASS
+  }
+
+  val potionContents = blockEntityStack.get(DataComponentTypes.POTION_CONTENTS)
+  if (potionContents == null) {
+    // Flask block does not contain a potion.
+    return ActionResult.PASS
+  }
+
+  if (world.isClient) {
+    return ActionResult.success(/* swingHand= */ true)
+  }
+
+  val player = context.player
+  val newStack: ItemStack
+  var newLevel = level
+  if (isFlaskItem) {
+    newStack = MOD_ITEMS.potionFlaskItem.defaultStack
+    newStack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, level)
+    newLevel = FlaskBlock.MIN_LEVEL
+  } else {
+    newStack = Items.POTION.defaultStack
+    newLevel--
+  }
+  newStack.set(DataComponentTypes.POTION_CONTENTS, potionContents)
+  player?.setStackInHand(context.hand, ItemUsage.exchangeStack(context.stack, player, newStack))
+
+  val newState = state.with(FlaskBlock.LEVEL, newLevel)
+  world.setBlockState(blockPos, newState)
+  if (newLevel > FlaskBlock.MIN_LEVEL) {
+    blockEntity.stack.set(MOD_COMPONENTS.flaskRemainingUsesComponent, newLevel)
+  } else {
+    blockEntity.setDefaultStack()
+  }
+  blockEntity.markDirty()
+  world.updateListeners(blockPos, state, newState, /* flags= */ 0)
+  world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(newState))
+  world.playSound(
+      /* source= */ null,
+      blockPos,
+      SoundEvents.ITEM_BOTTLE_FILL,
+      SoundCategory.BLOCKS,
+      /* volume= */ 1.0f,
+      /* pitch= */ 1.0f,
+  )
+  world.emitGameEvent(/* entity= */ null, GameEvent.FLUID_PICKUP, blockPos)
+
+  return ActionResult.success(/* swingHand= */ false)
 }
 
 fun appendPotionFlaskDataTooltip(
@@ -162,8 +254,8 @@ private fun appendUsageTooltip(
               else -> 1
             }
 
-    var modifierTranslationKeyPrefix: String
-    var formatting: Formatting
+    val modifierTranslationKeyPrefix: String
+    val formatting: Formatting
     if (modifier.value >= 0.0) {
       modifierTranslationKeyPrefix = "attribute.modifier.plus"
       formatting = Formatting.BLUE
